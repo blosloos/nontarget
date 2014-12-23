@@ -1,0 +1,5 @@
+export(adduct.search,combine,make.isos,deter.iso,homol.search,ms.filter,pattern.search,pattern.search2,plotadduct,plotall,plotcomp,plotdefect,plotdiff,plotgroup,plothomol,plotisotopes,rm.sat)
+useDynLib(nontarget,mass,homol_1,metagroup,adduct_search,peak_search,boxtree,kdtree4,search_boxtree,search_kdtree)
+import("enviPat")
+import("nontargetData")
+import("mgcv")
