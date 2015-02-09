@@ -1,5 +1,9 @@
 nontarget News
 
+CHANGES in version 1.7:
+	
+	(1) debug src of pattern.search
+
 CHANGES in version 1.6:
 	
 	(1) man - examples revised

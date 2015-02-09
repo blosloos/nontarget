@@ -1,12 +1,12 @@
 Package: nontarget
 Type: Package
 Title: Detecting, Combining and Filtering Isotope, Adduct and Homologue Series Relations in High-Resolution Mass Spectrometry (HRMS) Data 
-Version: 1.6
-Date: 2014-09-12
+Version: 1.7
+Date: 2015-01-17
 Author: Martin Loos
 Maintainer: Martin Loos <Martin.Loos@eawag.ch>
 Description: Screening a HRMS data set for peaks related by (1) isotope patterns, (2) different adducts of the same molecule and/or (3) homologue series. The resulting isotopic pattern and adduct groups can then be combined to so-called components, with homologue series information attached. Also allows plotting and filtering HRMS data for mass defects, frequent m/z distances and components vs. non-components.
-License: GPL-2
+License: GPL-3
 Depends:
     enviPat(>= 1.7),
     nontargetData(>= 1.1),

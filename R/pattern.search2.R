@@ -55,9 +55,9 @@ pattern.search2<-function(
 			as.matrix(peaklist[,c(1,2,3)]),
 			pBar,
 			PACKAGE="nontarget"
-	)
-	peakTree<-peakTree[,1:4]
+	);
 	close(pBar);
+	peakTree<-peakTree[,1:4]
 	cat("\n screen ... ");
 	mass_slots<-quantiz[[7]]
 	int_slots<-quantiz[[8]]
