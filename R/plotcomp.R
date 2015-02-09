@@ -165,8 +165,8 @@ function(
             if(length(comp[[2]])>1){
               dat3<-comp[[2]][get1,];
               that<-dat3[dat3[,2]==max(dat3[,2]),][,4];
-              points(coordx[get3==that],coordy[get3==that],pch=21,cex=3);
-            }
+              points(coordx[match(that,get3)],coordy[match(that,get3)],pch=21,cex=3);         
+			}
             # mark direction ###################################################
             lines(c(-0.25,-0.21),c(1.15,1.0),col="darkgrey");
             arrows(-0.25,1.15,0.1,1.15,length=0.1,col="darkgrey");

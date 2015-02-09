@@ -1,5 +1,13 @@
 nontarget News
 
+
+CHANGES in version 1.8:
+	
+	(1) change src comparison
+	(2) shorthened title
+	(3) debug charges
+
+
 CHANGES in version 1.7:
 	
 	(1) debug src of pattern.search

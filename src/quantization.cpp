@@ -388,20 +388,20 @@ extern "C"{
                 mindist_3= R_PosInf;
                 index_dist_to=-1;
                 if(n>0){
-                    for(m=(n-1);m>=0;m--){
-                        if(fabs(*(mass2+n)-*(mass2+m))<*size_mass2){
-                            if(fabs(*(intrat2+n)-*(intrat2+m))<*size_int2){
-                                if(fabs(*(delmass2+n)-*(delmass2+m))<*size_deltamass2){
-                                    if(fabs(*(markermass2+n)-*(markermass2+m))<*size_deltamass2){
+                    for(m=n;m>0;m--){
+                        if(fabs(*(mass2+n)-*(mass2+m-1))<*size_mass2){
+                            if(fabs(*(intrat2+n)-*(intrat2+m-1))<*size_int2){
+                                if(fabs(*(delmass2+n)-*(delmass2+m-1))<*size_deltamass2){
+                                    if(fabs(*(markermass2+n)-*(markermass2+m-1))<*size_deltamass2){
                                         mindist_3=((
-                                            pow((fabs(*(delmass2+n)-*(delmass2+m))/ *scale_deltamass2),2)+
-                                            pow((fabs(*(intrat2+n)-*(intrat2+m))/ *scale_int2),2)+
-                                            pow((fabs(*(mass2+n)-*(mass2+m))/ *scale_mass2),2)+
-                                            pow((fabs(*(markermass2+n)-*(markermass2+m))/ *scale_deltamass2),2)
+                                            pow((fabs(*(delmass2+n)-*(delmass2+m-1))/ *scale_deltamass2),2)+
+                                            pow((fabs(*(intrat2+n)-*(intrat2+m-1))/ *scale_int2),2)+
+                                            pow((fabs(*(mass2+n)-*(mass2+m-1))/ *scale_mass2),2)+
+                                            pow((fabs(*(markermass2+n)-*(markermass2+m-1))/ *scale_deltamass2),2)
                                         )/4);
                                         if(mindist_3<=mindist_2){
                                             mindist_2=mindist_3;
-                                            index_dist_to=(signed)m;
+                                            index_dist_to=(signed)(m-1);
                                         };
                                     };
                                 };

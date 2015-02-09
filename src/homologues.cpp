@@ -235,27 +235,27 @@ extern "C"{
                                 }
                                 /* search backward **********************************************************************/
                                 if(do_index[c]>n){
-                                    for(d=(do_index[c]-1);d>=0;d--){
-                                        if(fabs(*(atdmass+*(atordit+d)) - do_dmz[c]) > do_tolmz[c] ){
+                                    for(d=(do_index[c]);d>0;d--){
+                                        if(fabs(*(atdmass+*(atordit+d-1)) - do_dmz[c]) > do_tolmz[c] ){
                                             break;
                                         }
-                                        if( *(fer+d)==0 ){
-                                            if( (do_to[c]==*(atfrom+*(atordit+d)) ) || (do_from[c]==*(atto+*(atordit+d))) ){
-                                                if( fabs(*(atdRT+*(atordit+d)) - do_dRT[c]) <= *rttol2 ){               /* shift in RT ok?*/
-                                                    if( fabs(*(atdmass+*(atordit+d)) - do_dmz[c]) <= do_tolmz[c] ){     /* within mz-tolerance? */
-                                                        do_from.push_back(*(atfrom+*(atordit+d)));
-                                                        do_to.push_back(*(atto+*(atordit+d)));
-                                                        do_dmz.push_back(*(atdmass+*(atordit+d)));
+                                        if( *(fer+d-1)==0 ){
+                                            if( (do_to[c]==*(atfrom+*(atordit+d-1)) ) || (do_from[c]==*(atto+*(atordit+d-1))) ){
+                                                if( fabs(*(atdRT+*(atordit+d-1)) - do_dRT[c]) <= *rttol2 ){               /* shift in RT ok?*/
+                                                    if( fabs(*(atdmass+*(atordit+d-1)) - do_dmz[c]) <= do_tolmz[c] ){     /* within mz-tolerance? */
+                                                        do_from.push_back(*(atfrom+*(atordit+d-1)));
+                                                        do_to.push_back(*(atto+*(atordit+d-1)));
+                                                        do_dmz.push_back(*(atdmass+*(atordit+d-1)));
                                                         if(*ppm2==1){
-                                                            delmz3=(2*(*delmz2 * *(atusemass+*(atordit+d)) /1E6));
+                                                            delmz3=(2*(*delmz2 * *(atusemass+*(atordit+d-1)) /1E6));
                                                             do_tolmz.push_back(delmz3);
                                                         }else{
                                                             delmz3=(2*(*delmz2));
                                                             do_tolmz.push_back(delmz3);
                                                         }
-                                                        do_dRT.push_back(*(atdRT+*(atordit+d)));
-                                                        do_index.push_back(d);
-                                                        *(fer+d)=1;
+                                                        do_dRT.push_back(*(atdRT+*(atordit+d-1)));
+                                                        do_index.push_back(d-1);
+                                                        *(fer+d-1)=1;
                                                         countit++;
                                                         anew=1;
                                                         g++;

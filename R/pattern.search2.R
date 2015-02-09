@@ -42,7 +42,8 @@ pattern.search2<-function(
 		}
 	}
 	if(use_charges[1]!="FALSE"){
-		if(any(is.na(match(use_charges,charge_key)))){
+		use_charges2<-abs(use_charges)
+		if(any(is.na(match(use_charges2,charge_key)))){
 			paste("invalid use_charges, available only: ",sep="");print(charge_key);stop();
 		}
 	}
@@ -118,8 +119,8 @@ pattern.search2<-function(
 					do<-FALSE;
 				}
 			}
-			if(use_charges[1]!=FALSE){
-				if(!any(use_charges==as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))){
+			if(use_charges2[1]!=FALSE){
+				if(!any(use_charges2==as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))){
 					do<-FALSE;
 				}
 			}

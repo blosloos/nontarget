@@ -24,7 +24,7 @@ use_charges=c(1,1,1,1,1,1,2,2,2,2,2,2))
 	Character string of non-monoisotopic isotopes for isotopologue search. 
 }
   \item{use_charges}{
-	Numeric vector with length equal to that of \code{use_isotopes},. Specifies the charge z for the isotopologue search of each isotope.
+	Vector of signed integers with length equal to that of \code{use_isotopes}. Specifies the charge z for the isotopologue search of each isotope.
 }
 }
 

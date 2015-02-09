@@ -49,8 +49,10 @@ function(
 		if(any(dont<1)){stop("Invalid dont argument")};
     }
     if(length(pattern)>1 & length(adduct)>1){
-		if((adduct[[2]][4]=="negative" & any(as.numeric(pattern[[11]])>0)) || (adduct[[2]][4]=="positive" & any(as.numeric(pattern[[11]])<0))){
-			stop("Charges of adduct vs. pattern groups not consistent!")
+		if(pattern[[11]][1]!="FALSE"){
+			if((adduct[[2]][4]=="negative" & any(as.numeric(pattern[[11]])>0)) || (adduct[[2]][4]=="positive" & any(as.numeric(pattern[[11]])<0))){
+				warning("Are charges of adduct vs. pattern groups consistent?")
+			}
 		}
 	}
     ###########################################################################

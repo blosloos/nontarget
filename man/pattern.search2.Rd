@@ -16,31 +16,31 @@ use_marker=TRUE,quick=FALSE,isotopes)
 
 \arguments{
   \item{peaklist}{
-	Dataframe of HRMS peaks with three numeric columns for (a) m/z, (b) intensity and (c) retention time, such as \code{\link[nontarget]{peaklist}}
+	Dataframe of HRMS peaks with three numeric columns for (a) m/z, (b) intensity and (c) retention time, such as \code{\link[nontarget]{peaklist}}.
 }
   \item{quantiz}{
-	Quantized simulation data of feasible centroid-centroid relations as provided by package \code{nontargetData}
+	Quantized simulation data of feasible centroid-centroid relations as provided by package \code{nontargetData}.
 }
   \item{mztol}{
-	m/z tolerance setting: value by which the m/z of a peak may vary from its expected value. If parameter \code{ppm=TRUE} (see below) given in ppm, otherwise, if \code{ppm=FALSE}, in absolute m/z [u]
+	m/z tolerance setting: value by which the m/z of a peak may vary from its expected value. If parameter \code{ppm=TRUE} (see below) given in ppm, otherwise, if \code{ppm=FALSE}, in absolute m/z [u].
 }
   \item{ppm}{
-	Should \code{mztol} be set in ppm (\code{TRUE}) or in absolute m/z (\code{FALSE})
+	Should \code{mztol} be set in ppm (\code{TRUE}) or in absolute m/z (\code{FALSE}).
 }
   \item{inttol}{
 	Intensity tolerance setting = fraction by which peak intensities may vary; e.g., if set to 0.2, a peak with expected intensity 10000 may range in between 8000 and 12000.	
 }
   \item{rttol}{
-	+/- retention time tolerance. Units as given in column 3 of \code{peaklist} argument, e.g. [min]
+	+/- retention time tolerance. Units as given in column 3 of \code{peaklist} argument, e.g. [min].
 }
   \item{use_isotopes}{
-	Restrict query to certain isotopes dominating centroid relations; set to \code{FALSE} to use all available isotopes
+	Restrict query to certain isotopes dominating centroid relations; set to \code{FALSE} to use all available isotopes.
 }
   \item{use_charges}{
-	Restrict query to certain charges z; set to \code{FALSE} to use all charges states 
+	Vector of signed integers. Restrict query to certain charges z; set to \code{FALSE} to use all charges states. 
 }  
   \item{use_marker}{  
-	Query for marker peaks, \code{FALSE} or \code{TRUE} ?
+	Query for marker peaks, \code{FALSE} or \code{TRUE}?
 }  
   \item{quick}{  
 	Continue if query finds first hit? Speeds up, but leaves resulting information on underlying isotopes incomplete.  

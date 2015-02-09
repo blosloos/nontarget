@@ -24,7 +24,7 @@ function(
     isos<-isos[isos[,4]!=0,]
 	############################################################################
 	# on (2) list of isotope masses ############################################
-	use_charges<-abs(use_charges)
+	use_charges2<-abs(use_charges)
     isomat<-data.frame(matrix(ncol=7,nrow=length(use_isotopes),0));
     isomat[,5]<-1;
     colnames(isomat)<-c("name","dmass","dabund","how_often","#atoms","/C","z");
@@ -34,13 +34,13 @@ function(
 		}
 		isosub<-isotopes[isotopes[,1]==elements[i],];
         isomat[i,1]<-use_isotopes[i];
-        isomat[i,2]<-c(abs(isosub[isosub[,2]==use_isotopes[i],3]-min(isosub[,3])) / use_charges[i]);
+        isomat[i,2]<-c(abs(isosub[isosub[,2]==use_isotopes[i],3]-min(isosub[,3])) / use_charges2[i]);
 		if(isomat[i,2]==0){
 			stop(paste(use_isotopes[i]," is the lightest (monoisotopic) isotope of ",elements[i]," ... abort",sep=""))
 		}
         isomat[i,3]<-c((1/isosub[isosub[,3]==min(isosub[,3]),4])*isosub[isosub[,2]==use_isotopes[i],4]);
         isomat[i,6]<-c(isosub[isosub[,2]==use_isotopes[i],5]);	
-		isomat[i,7]<-use_charges[i];
+		isomat[i,7]<-use_charges2[i];
 	}
     isomat<-isomat[order(isomat[,2]),];
 	############################################################################

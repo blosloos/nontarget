@@ -3,7 +3,7 @@
 \alias{nontarget}
 \docType{package}
 \title{
-Detecting, Combining and Filtering Isotope, Adduct and Homologue Series Relations in High-Resolution Mass Spectrometry (HRMS) Data
+Detecting Isotope, Adduct and Homologue Relations in LC-MS Data.
 }
 \description{
 Grouping of peaks in a HRMS data set for (1) isotopic pattern relations and (2) different adducts of the same molecule; detection of (3) homologue series. 
@@ -14,8 +14,8 @@ Includes various plotting and filtering functions for e.g. mass defects, frequen
 \tabular{ll}{
 Package: \tab nontarget\cr
 Type: \tab Package\cr
-Version: \tab 1.3\cr
-Date: \tab 2014-07-22\cr
+Version: \tab 1.8\cr
+Date: \tab 2015-02-09\cr
 License: \tab GPL-3\cr
 }
 Screens a HRMS data set for peaks related by (1) isotopic patterns and/or (2) different adducts of the same molecule and/or (3) being part of 
