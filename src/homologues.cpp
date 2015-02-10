@@ -26,6 +26,7 @@ extern "C"{
         SEXP ppm,
         SEXP rttol,
         SEXP minleng,
+        SEXP inter, // run in interactive mode?
         SEXP pBar
     ){
 
@@ -66,6 +67,8 @@ extern "C"{
             size_t minleng2;
             minleng2 = INTEGER_VALUE(minleng);
 
+            PROTECT(inter = AS_NUMERIC(inter));
+            int intera = INTEGER_VALUE(inter);
             SEXP utilsPackage; /* definitions for the progres bar */
             PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
             SEXP percentComplete;
@@ -139,8 +142,10 @@ extern "C"{
             /* (1) over all mass windows ... */
             for( z=0; z<lengbound; z++ ){
                 // Rprintf("*");
-                *rPercentComplete = z;
-                eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                if(intera==1){
+                    *rPercentComplete = z;
+                    eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                }
                 m=0;
                 void R_CheckUserInterrupt(void);
                 /* (2) ... find relevant masss differences ... */
@@ -297,7 +302,7 @@ extern "C"{
                 hom[(4*x)+m]=out_HS[m];
             }
 
-            UNPROTECT(23);
+            UNPROTECT(24);
             return(homologues);
 
     }

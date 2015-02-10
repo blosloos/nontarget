@@ -52,8 +52,10 @@ pattern.search2<-function(
 	# prescreen for relevant peak-to-peak mass differences: mass + int slots ############### 
 	cat("\n(2) Build peaklist kd-tree, screen slots, query quantized data: \n");
 	pBar <- txtProgressBar( min = 0, max = length(peaklist[,1]), style = 3 )
+	inter<-as.numeric(interactive())
 	peakTree<-.Call("kdtree4", 
 			as.matrix(peaklist[,c(1,2,3)]),
+			as.integer(inter),
 			pBar,
 			PACKAGE="nontarget"
 	);
@@ -72,6 +74,7 @@ pattern.search2<-function(
 			as.numeric(ppm2),			# precision measurement - mass in ppm?
 			as.numeric(inttol),			# precision measurement, %percent, NOT fraction
 			as.numeric(rttol),			# precision measurement RT
+			as.integer(inter),
 			pBar,
 			PACKAGE="nontarget"
 	)	
@@ -119,7 +122,7 @@ pattern.search2<-function(
 					do<-FALSE;
 				}
 			}
-			if(use_charges2[1]!=FALSE){
+			if(use_charges[1]!=FALSE){
 				if(!any(use_charges2==as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))){
 					do<-FALSE;
 				}
@@ -204,7 +207,9 @@ pattern.search2<-function(
 			}
 			if(got & quick) break;
 			#######################################################################		
-			setTxtProgressBar(pBar,j,title = NULL, label = NULL)			
+			if(inter==1){
+				setTxtProgressBar(pBar,j,title = NULL, label = NULL)			
+			}
 		}				
 	}
 	close(pBar)

@@ -50,9 +50,11 @@ function(
     cat("done.");
     ############################################################################
 	cat("\n(2) Build peaklist kd-tree, screen, ... \n");
+	inter<-as.numeric(interactive())
 	pBar <- txtProgressBar( min = 0, max = length(peaklist[,1]), style = 3 )
 	peakTree<-.Call("kdtree4", 
 		as.matrix(peaklist[,c(1,3)]),
+		as.integer(inter),
 		pBar,
 		PACKAGE="nontarget"
 	);
@@ -67,6 +69,7 @@ function(
 		as.numeric(mztol), 				# precision measurement mass
 		as.integer(ppm2),				# precision measurement - mass in ppm?
 		as.numeric(rttol),				# precision measurement RT
+		as.integer(inter),
 		pBar,	
 		PACKAGE="nontarget"
 	);

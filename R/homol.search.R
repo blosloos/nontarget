@@ -114,6 +114,7 @@ function(
 	}
 	cat("Detecting:\n")
 	pBar <- txtProgressBar( min = 0, max = length(highbound), style = 3 );
+	inter<-as.numeric(interactive())
 	relat <- .Call("homol_1",
 		as.integer(vec_size),          	# storage size
 		as.numeric(peaklist2[,1]), 		# mass
@@ -127,6 +128,7 @@ function(
 		as.integer(ppm2),	   	  		# ppm==1 -> TRUE
 		as.numeric(rttol),		  		# RT tolerance		
 		as.integer(minlength),    		# minimum length of HS
+		as.integer(inter),
 		pBar,
 		PACKAGE="nontarget"
 	)

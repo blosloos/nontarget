@@ -202,6 +202,7 @@ extern "C"{
         SEXP prec_mass,
         SEXP prec_ppm,
         SEXP RT_tol,
+        SEXP inter, // run in interactive mode?
         SEXP pBar
     ){
 
@@ -214,6 +215,8 @@ extern "C"{
         int prec_ppm2 = INTEGER_VALUE(prec_ppm);
         PROTECT(RT_tol = AS_NUMERIC(RT_tol));
         double RT_tol2 = NUMERIC_VALUE(RT_tol);
+        PROTECT(inter = AS_NUMERIC(inter));
+        int intera = INTEGER_VALUE(inter);
 
         std::deque<int> from_peak (0);
         std::deque<int> to_peak (0);
@@ -233,8 +236,10 @@ extern "C"{
         PROTECT(bounds_peaks = allocMatrix(REALSXP, 2, 2));
 
         for(n=0;n<leng_peaks;n++){
-            *rPercentComplete = n;
-            eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+            if(intera==1){
+                *rPercentComplete = n;
+                eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+            }
             if(prec_ppm2==1){
                 prec_dm=(2*(RMATRIX(peaklist,n,0)*prec_mass2/1E6));
             }else{
@@ -272,7 +277,7 @@ extern "C"{
                 results2[(2*k)+n]=(adduct_pair.front()+1);
                 adduct_pair.pop_front();
         }
-        UNPROTECT(10);
+        UNPROTECT(11);
         return(results);
 
     }
@@ -291,6 +296,7 @@ extern "C"{
         SEXP prec_ppm,
         SEXP prec_intens,
         SEXP RT_tol,
+        SEXP inter, // run in interactive mode?
         SEXP pBar
     ){
 
@@ -307,6 +313,8 @@ extern "C"{
             PROTECT(RT_tol = AS_NUMERIC(RT_tol));
             double RT_tol2 = NUMERIC_VALUE(RT_tol);
 
+            PROTECT(inter = AS_NUMERIC(inter));
+            int intera = INTEGER_VALUE(inter);
             SEXP utilsPackage; /* definitions for the progres bar */
             PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
             SEXP percentComplete;
@@ -324,8 +332,10 @@ extern "C"{
             PROTECT(bounds_peaks = allocMatrix(REALSXP, 3, 2));
 
             for(n=0;n<leng_peaks;n++){
-                *rPercentComplete = n;
-                eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                if(intera==1){
+                    *rPercentComplete = n;
+                    eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                }
                 if(prec_ppm2==1){
                     prec_dm=(2*(RMATRIX(peaklist,n,0)*prec_mass2/1E6));
                 }else{
@@ -358,7 +368,7 @@ extern "C"{
                 results2[s1+n]=(to_peak.front()+1);
                 to_peak.pop_front();
             }
-            UNPROTECT(12);
+            UNPROTECT(13);
             return(results);
     }
 
@@ -463,10 +473,13 @@ extern "C"{
 
     SEXP kdtree4(
         SEXP data,
+        SEXP inter, // run in interactive mode?
         SEXP pBar
     ){
 
             PROTECT(data = AS_NUMERIC(data));
+            PROTECT(inter = AS_NUMERIC(inter));
+            int intera = INTEGER_VALUE(inter);
             int n,m,ncol,nrow,doit,parent,level,disc;
             double mindist;
             ncol=RCol(data);
@@ -483,6 +496,7 @@ extern "C"{
                     results2[(4*nrow)+n]=0;
                     results2[(5*nrow)+n]=0;
             }
+
             SEXP utilsPackage; /* definitions for the progres bar */
             PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
             SEXP percentComplete;
@@ -554,11 +568,13 @@ extern "C"{
                     }
 
                 }
-                *rPercentComplete = n+1;
-                eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                if(intera==1){
+                    *rPercentComplete = n+1;
+                    eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
+                }
             }
 
-            UNPROTECT(4);
+            UNPROTECT(5);
             return(results);
 
     }
