@@ -111,8 +111,8 @@ pattern.search2<-function(
 		search_bounds[3]<-(peaklist[relat[j,1],1]+adductmass_LB)
 		search_bounds[4]<-(peaklist[relat[j,1],1]+adductmass_UB)
 		# intensity bounds: extend by intensity tolerance
-		search_bounds[5]<-((peaklist[relat[j,1],2]-(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]+(peaklist[relat[j,2],2]*inttol)))
-		search_bounds[6]<-((peaklist[relat[j,1],2]+(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]-(peaklist[relat[j,2],2]*inttol)))
+		search_bounds[5]<-((peaklist[relat[j,1],2]-(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]+(peaklist[relat[j,2],2]*inttol))) # Lower bound
+		search_bounds[6]<-((peaklist[relat[j,1],2]+(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]-(peaklist[relat[j,2],2]*inttol))) # Upper bound
 		# iterate over all quantizations	
 		for(i in 1:length(quant)){
 			# use this isotope & charge ? #########################################

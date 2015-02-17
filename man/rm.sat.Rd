@@ -23,8 +23,7 @@ corcut = 0.8, plotit = TRUE)
 	Retention time window around a parent peak within which satellite peaks are searched for.
 	}
   \item{intrat}{
-	Intensity ratio between satellite peak/associated parent peak below which the former are removed. E.g. \code{intrat=0.05} removes only satellite peaks
-	below an intensity of 5% of that of the parent peak.
+	Intensity ratio between satellite peak/associated parent peak below which the former are removed. 
 	}
   \item{spar}{
 	\code{spar} argument used in R-function smooth spline. See details and \code{?smooth.spline}.
@@ -45,8 +44,8 @@ If present, the latter are marked as satellite peaks and are subsequently exclud
 In addition, arguments \code{spar} and \code{corcut} evaluate the symmetry of satellite peaks around the parent peak (i.e. below and above the parent peak m/z), if
 enough peaks around a parent peak within ranges set by arguments \code{dmz}, \code{drt} and \code{intrat} are found (here: at least 8 peaks, 4 above and 4 below the parent peak m/z). 
 Two splines are fitted by R function \code{smooth.spline}, one to those peaks above and one to those peaks below the parent peak m/z.
-If the splines are symmetric (i.e. correlated with each other, see argument corcut), the associated peaks are termed satellites. Since this approach has not yet faced 
-validation and is highly dependent on the peak-picking algorithm, it is best ignored by setting argument \code{corcut} to \code{-1000}.
+If the splines are symmetric (i.e. correlated with each other, see argument corcut), the associated peaks are termed satellites. This approach has not yet faced 
+validation and is highly dependent on the peak-picking algorithm.
 }
 \value{
 A dataframe with four columns. The first three columns are identical to those of argument \code{peaklist}.

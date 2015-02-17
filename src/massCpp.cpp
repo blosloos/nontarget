@@ -110,7 +110,6 @@ void mass(  double *mass,
         }; // if1
 
 
-
         howmany = index.size(); // within RT-window?
         if(howmany>0){ // sth in vector and not at its mass end
             if(*ppm2==1){
