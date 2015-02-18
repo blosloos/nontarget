@@ -54,7 +54,7 @@ pattern.search2<-function(
 	pBar <- txtProgressBar( min = 0, max = length(peaklist[,1]), style = 3 )
 	inter<-as.numeric(interactive())
 	peakTree<-.Call("kdtree4", 
-			as.matrix(peaklist[,c(1,2,3)]),
+			as.matrix(peaklist[,1:3]),
 			as.integer(inter),
 			pBar,
 			PACKAGE="nontarget"
