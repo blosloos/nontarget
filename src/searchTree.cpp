@@ -345,8 +345,8 @@ extern "C"{
                 RMATRIX(bounds_peaks,2,1)=(RMATRIX(peaklist,n,2)+RT_tol2);
                 s1=to_peak.size();
                 for(m=0;m<leng_slots;m++){
-                    RMATRIX(bounds_peaks,1,0)=((RMATRIX(peaklist,n,1)-(prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,1));
-                    RMATRIX(bounds_peaks,1,1)=((RMATRIX(peaklist,n,1)+(prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,0));
+                    RMATRIX(bounds_peaks,1,0)=((RMATRIX(peaklist,n,1)-(2*prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,1));
+                    RMATRIX(bounds_peaks,1,1)=((RMATRIX(peaklist,n,1)+(2*prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,0));
                     RMATRIX(bounds_peaks,0,0)=(RMATRIX(peaklist,n,0)+RMATRIX(mass_slots,m,0)-prec_dm);
                     RMATRIX(bounds_peaks,0,1)=(RMATRIX(peaklist,n,0)+RMATRIX(mass_slots,m,1)+prec_dm);
                     search_tree_sub(peaklist,peakTree,bounds_peaks,to_peak);
