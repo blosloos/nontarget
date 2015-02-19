@@ -150,14 +150,15 @@ void mass(  double *mass,
                             getit6[i**entry+*(getit6b+i)]=(isomat4[k]);
                             *(getit6b+i) = (*(getit6b+i)+1);
                         }
-                        // large or small mass tolerance?
-                        if( (dat1.mass[index[l]]<=(thismassup2 + isomat1[k])) && (dat1.mass[index[l]]>=(thismasslow2 + isomat1[k]))){
-                            getit5[i**entry+*(getit5b+i)]=1; // 1 = small
-                            *(getit5b+i) = (*(getit5b+i)+1);
-                        }else{
-                            getit5[i**entry+*(getit5b+i)]=1; // 2 = large
-                            *(getit5b+i) = (*(getit5b+i)+1);
-                        };
+                        if(*(getit5b+i)<(*entry+1)){ // large or small mass tolerance?
+                            if( (dat1.mass[index[l]]<=(thismassup2 + isomat1[k])) && (dat1.mass[index[l]]>=(thismasslow2 + isomat1[k]))){
+                                getit5[i**entry+*(getit5b+i)]=1; // 1 = small
+                                *(getit5b+i) = (*(getit5b+i)+1);
+                            }else{
+                                getit5[i**entry+*(getit5b+i)]=1; // 2 = large
+                                *(getit5b+i) = (*(getit5b+i)+1);
+                            };
+                        }
                         isomat3[k]=isomat3[k]+1;
                     } // if within mass-window
                 } // for l

@@ -117,20 +117,42 @@ function(
     # generate outputs: ########################################################
     isomat[,4]<-result[10];
     # (1) which isotope? #######################################################
-    for(i in 1:(alls)){for(j in 1:entry){if(result[15][[1]][(i-1)*entry+j]!=0){getit1[i]<-paste(getit1[i],result[15][[1]][(i-1)*entry+j],sep="/")}}};
+    for(i in 1:(alls)){
+		if(any(result[15][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0)){
+			getit1[i]<-paste(getit1[i],"/",paste0(result[15][[1]][((i-1)*entry+1):((i-1)*entry+entry)][result[15][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0],collapse="/"),sep="")
+		}
+	}
     # (2) from which peak? #####################################################
-    for(i in 1:(alls)){for(j in 1:entry){if(result[16][[1]][(i-1)*entry+j]!=0){getit2[i]<-paste(getit2[i],result[16][[1]][(i-1)*entry+j],sep="/")}}};
+    for(i in 1:(alls)){
+		if(any(result[16][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0)){
+			getit2[i]<-paste(getit2[i],"/",paste0(result[16][[1]][((i-1)*entry+1):((i-1)*entry+entry)][result[16][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0],collapse="/"),sep="")
+		}
+	}
     # (3) to which peak? #######################################################
-    for(i in 1:(alls)){for(j in 1:entry){if(result[17][[1]][(i-1)*entry+j]!=0){getit4[i]<-paste(getit4[i],result[17][[1]][(i-1)*entry+j],sep="/")}}};
+    for(i in 1:(alls)){
+		if(any(result[17][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0)){
+			getit4[i]<-paste(getit4[i],"/",paste0(result[17][[1]][((i-1)*entry+1):((i-1)*entry+entry)][result[17][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0],collapse="/"),sep="")
+		}
+	}
     # (4) tolerance: small or large? ###########################################
-    for(i in 1:(alls)){for(j in 1:entry){
-		if(result[18][[1]][(i-1)*entry+j]==1){getit5[i]<-paste(getit5[i],"small",sep="/")};
-		if(result[18][[1]][(i-1)*entry+j]==2){getit5[i]<-paste(getit5[i],"large",sep="/")};
-    }};
+    for(i in 1:(alls)){
+		for(j in 1:entry){
+			if(result[18][[1]][(i-1)*entry+j]==1){
+				getit5[i]<-paste(getit5[i],"small",sep="/")
+			};
+			if(result[18][[1]][(i-1)*entry+j]==2){
+				getit5[i]<-paste(getit5[i],"large",sep="/")
+			};
+		}
+	};
     # (5) charge level: ########################################################
-    for(i in 1:(alls)){for(j in 1:entry){if(result[19][[1]][(i-1)*entry+j]!=0){getit6[i]<-paste(getit6[i],result[19][[1]][(i-1)*entry+j],sep="/")}}};
+    for(i in 1:(alls)){
+		if(any(result[19][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0)){
+			getit6[i]<-paste(getit6[i],"/",paste0(result[19][[1]][((i-1)*entry+1):((i-1)*entry+entry)][result[19][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0],collapse="/"),sep="")
+		}
+	}	
     if(result[13][[1]]!=entry){cat("WARNING: entry overflow -> links missing! Decrease mztol? Increasy entry argument?")};
-    rm(result);
+	rm(result);
     #dyn.unload(paste(.libPaths(),"/nontarget/temp/massCpp.dll",sep=""));
     #data.frame(samples[,1],samples[,3],getit4,getit2,getit1,getit5,getit6);
     cat("done.");
