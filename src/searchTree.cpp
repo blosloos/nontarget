@@ -325,11 +325,16 @@ extern "C"{
             int n,m,s1,s2;
             int leng_peaks = RRow(peaklist);
             int leng_slots = RRow(mass_slots);
-            double prec_dm;
+            double prec_dm,max_int=0;
             std::deque<int> from_peak (0);
             std::deque<int> to_peak (0);
             SEXP bounds_peaks;
             PROTECT(bounds_peaks = allocMatrix(REALSXP, 3, 2));
+            for(n=0;n<leng_peaks;n++){
+                if(RMATRIX(peaklist,n,1)>max_int){
+                    max_int=RMATRIX(peaklist,n,1);
+                }
+            }
 
             for(n=0;n<leng_peaks;n++){
                 if(intera==1){
@@ -346,7 +351,11 @@ extern "C"{
                 s1=to_peak.size();
                 for(m=0;m<leng_slots;m++){
                     RMATRIX(bounds_peaks,1,0)=((RMATRIX(peaklist,n,1)-(2*prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,1));
-                    RMATRIX(bounds_peaks,1,1)=((RMATRIX(peaklist,n,1)+(2*prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,0));
+                    if(RMATRIX(int_slots,m,0)>0){ // avoid division by zero
+                        RMATRIX(bounds_peaks,1,1)=((RMATRIX(peaklist,n,1)+(2*prec_intens2*RMATRIX(peaklist,n,1)))/RMATRIX(int_slots,m,0));
+                    }else{
+                        RMATRIX(bounds_peaks,1,1)=max_int;
+                    }
                     RMATRIX(bounds_peaks,0,0)=(RMATRIX(peaklist,n,0)+RMATRIX(mass_slots,m,0)-prec_dm);
                     RMATRIX(bounds_peaks,0,1)=(RMATRIX(peaklist,n,0)+RMATRIX(mass_slots,m,1)+prec_dm);
                     search_tree_sub(peaklist,peakTree,bounds_peaks,to_peak);
