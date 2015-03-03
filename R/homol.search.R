@@ -133,6 +133,9 @@ function(
 		PACKAGE="nontarget"
 	)
 	close(pBar)
+    if(length(relat) == 0){
+		stop("no series detected");
+    }
 	cat("\n done.\n")
 	relat<-relat[order(relat[,5],peaklist[relat[,1],1]),] # sort by increasing mass
 	names(relat)<-c("from_ID","to_ID","dmz","dRT","HS_ID")
@@ -234,7 +237,7 @@ function(
 		return(homol); ###########################################################
 		##########################################################################
   	}else{
-		return("no series detected");
+		stop("no series detected");
 	}
 }
 
