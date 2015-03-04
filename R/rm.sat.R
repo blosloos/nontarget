@@ -125,7 +125,7 @@ function(
     that<-data.frame(peaklist,done)
     names(that)<-c("mass","intensity","rt","not satellite?")
 	############################################################################
-    return(peaklist)
+    return(that)
 }
 
 
