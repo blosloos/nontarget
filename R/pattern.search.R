@@ -23,6 +23,7 @@ function(
     if(length(rules)<11){stop("wrong parameter setting: number of rules < 8!")}
 	if(!is.data.frame(peaklist)){stop("peaklist must be a data.frame")}
 	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
+	if(!length(peaklist[,1])>1){stop("peaklist with one entry - doesn`t make sense ...")}
 	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
     if(rules[4]==TRUE & any(iso$elements=="C")==FALSE & deter!=TRUE){stop("How is rule #7 supposed to work if carbon is not part of the iso argument? Include carbon or set rules[7] to FALSE.")}
 	############################################################################
@@ -151,7 +152,7 @@ function(
 			getit6[i]<-paste(getit6[i],"/",paste0(result[19][[1]][((i-1)*entry+1):((i-1)*entry+entry)][result[19][[1]][((i-1)*entry+1):((i-1)*entry+entry)]!=0],collapse="/"),sep="")
 		}
 	}	
-    if(result[13][[1]]!=entry){cat("WARNING: entry overflow -> links missing! Decrease mztol? Increasy entry argument?")};
+    if(result[13][[1]]!=entry){cat("WARNING: entry overflow -> links missing! Decrease mztol? Increase entry argument?")};
 	rm(result);
     #dyn.unload(paste(.libPaths(),"/nontarget/temp/massCpp.dll",sep=""));
     #data.frame(samples[,1],samples[,3],getit4,getit2,getit1,getit5,getit6);

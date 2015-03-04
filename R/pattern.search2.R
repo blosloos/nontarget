@@ -27,13 +27,13 @@ pattern.search2<-function(
 	size_deltamass<-(size_deltamass+max_d_delmz)
 	size_mass<-(size_mass+max_d_mass)
 	size_intens<-(size_intens+max_d_ratio)
-	quant<-quantiz[[6]]
 	mass_slots<-quantiz[[7]]		
 	cat("\n(1) Check inputs ...");
 	if(mztol<=0){warning("mztol should be >0!")};
     if(inttol>1 || inttol<0){ stop("inttol must be >0 and <=1") };
 	if(!is.data.frame(peaklist)){stop("peaklist must be a data.frame")}
 	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
+	if(!length(peaklist[,1])>1){stop("peaklist with one entry - doesn`t make sense ...")}
 	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
 	if(ppm=="TRUE"){ppm2<-1}else{ppm2<-0}
 	if(use_isotopes[1]!="FALSE"){
@@ -60,7 +60,7 @@ pattern.search2<-function(
 			PACKAGE="nontarget"
 	);
 	close(pBar);
-	peakTree<-peakTree[,1:4]
+	peakTree<-peakTree[,1:4,drop=FALSE];
 	cat("\n screen ... ");
 	mass_slots<-quantiz[[7]]
 	int_slots<-quantiz[[8]]
@@ -111,72 +111,72 @@ pattern.search2<-function(
 		search_bounds[3]<-(peaklist[relat[j,1],1]+adductmass_LB)
 		search_bounds[4]<-(peaklist[relat[j,1],1]+adductmass_UB)
 		# intensity bounds: extend by intensity tolerance
-		search_bounds[5]<-((peaklist[relat[j,1],2]-(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]+(peaklist[relat[j,2],2]*inttol))) # Lower bound
-		search_bounds[6]<-((peaklist[relat[j,1],2]+(peaklist[relat[j,1],2]*inttol))/(peaklist[relat[j,2],2]-(peaklist[relat[j,2],2]*inttol))) # Upper bound
+		search_bounds[5]<-((peaklist[relat[j,1],2]*(1-inttol))/(peaklist[relat[j,2],2]*(1+inttol))) # Lower bound
+		search_bounds[6]<-((peaklist[relat[j,1],2]*(1+inttol))/(peaklist[relat[j,2],2]*(1-inttol))) # Upper bound
 		# iterate over all quantizations	
-		for(i in 1:length(quant)){
+		for(i in 1:length(quantiz[[6]])){
 			# use this isotope & charge ? #########################################
 			do<-TRUE;
 			if(use_isotopes[1]!=FALSE){
-				if(!any(use_isotopes==isotope_key[as.numeric(strsplit(names(quant)[i],"_")[[1]][1])])){
+				if(!any(use_isotopes==isotope_key[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1])])){
 					do<-FALSE;
 				}
 			}
 			if(use_charges[1]!=FALSE){
-				if(!any(use_charges2==as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))){
+				if(!any(use_charges2==as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))){
 					do<-FALSE;
 				}
 			}
 			if(do==FALSE){next}
 			# without marker peak #################################################
-			if(strsplit(names(quant)[i],"_")[[1]][3]=="wo"){
+			if(strsplit(names(quantiz[[6]])[i],"_")[[1]][3]=="wo"){
 				found <- .Call("search_boxtree", 
-						as.matrix(quant[[i]][,1:6]),
-						as.matrix(quant[[i]][,16:20]),
+						as.matrix(quantiz[[6]][[i]][,1:6]),
+						as.matrix(quantiz[[6]][[i]][,16:20]),
 						as.numeric(search_bounds),
 						as.integer(0),
 						PACKAGE="nontarget"
 				)	
 				if(found==-2){
-					done[as.numeric(strsplit(names(quant)[i],"_")[[1]][1]),as.numeric(strsplit(names(quant)[i],"_")[[1]][2])]<-TRUE;
+					done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-TRUE;
 					from_peak<-c(from_peak,relat[j,1])
 					to_peak<-c(to_peak,relat[j,2])
-					isotope<-c(isotope,as.numeric(strsplit(names(quant)[i],"_")[[1]][1]))
-					charge<-c(charge,as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))
+					isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
+					charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 					got<-TRUE;
 				}		
 			}
 			if(got & quick) break;
 			# with marker peak ####################################################
-			if(strsplit(names(quant)[i],"_")[[1]][3]=="w"){
-				if(done[as.numeric(strsplit(names(quant)[i],"_")[[1]][1]),as.numeric(strsplit(names(quant)[i],"_")[[1]][2])]==FALSE){  # if not hit w/o marker
+			if(strsplit(names(quantiz[[6]])[i],"_")[[1]][3]=="w"){
+				if(done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]==FALSE){  # if not hit w/o marker
 					if(use_marker!="TRUE"){ # just check
 						found <- .Call("search_boxtree", 
-								as.matrix(quant[[i]][,1:6]),
-								as.matrix(quant[[i]][,16:20]),
+								as.matrix(quantiz[[6]][[i]][,1:6]),
+								as.matrix(quantiz[[6]][[i]][,16:20]),
 								as.numeric(search_bounds),
 								as.integer(0),
 								PACKAGE="nontarget"
 						)	
 						if(found==-2){
-							done[as.numeric(strsplit(names(quant)[i],"_")[[1]][1]),as.numeric(strsplit(names(quant)[i],"_")[[1]][2])]<-FALSE;
+							done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-FALSE;
 							from_peak<-c(from_peak,relat[j,1])
 							to_peak<-c(to_peak,relat[j,2])
-							isotope<-c(isotope,as.numeric(strsplit(names(quant)[i],"_")[[1]][1]))
-							charge<-c(charge,as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))
+							isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
+							charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 							got<-TRUE;
 						}							
-					}else{ # check explicitly for marker peak
+					}else{ # check explicitly for marker peak 
 						found <- .Call("search_boxtree", 
-								as.matrix(quant[[i]][,1:6]),
-								as.matrix(quant[[i]][,16:20]),
+								as.matrix(quantiz[[6]][[i]][,1:6]),
+								as.matrix(quantiz[[6]][[i]][,16:20]),
 								as.numeric(search_bounds),
 								as.integer(1),
 								PACKAGE="nontarget"
 						)	
 						if(length(found)>0){
 							for(k in 1:length(found)){
-								marker_delmass<-c((peaklist[relat[j,1],1]-quant[[i]][found[k],8]),(peaklist[relat[j,1],1]-quant[[i]][found[k],7]))
+								marker_delmass<-c((peaklist[relat[j,1],1]-quantiz[[6]][[i]][found[k],8]),(peaklist[relat[j,1],1]-quantiz[[6]][[i]][found[k],7]))
 								if(ppm==TRUE){
 									marker_bounds[1]<-(min(marker_delmass)-(2*mztol*peaklist[relat[j,1],1]/1E6))
 									marker_bounds[2]<-(max(marker_delmass)+(2*mztol*peaklist[relat[j,1],1]/1E6))
@@ -196,8 +196,8 @@ pattern.search2<-function(
 								if(length(found_m)>1){
 									from_peak<-c(from_peak,relat[j,1])
 									to_peak<-c(to_peak,relat[j,2])
-									isotope<-c(isotope,as.numeric(strsplit(names(quant)[i],"_")[[1]][1]))
-									charge<-c(charge,as.numeric(strsplit(names(quant)[i],"_")[[1]][2]))
+									isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
+									charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 									got<-TRUE;
 								}
 							}

@@ -48,7 +48,7 @@ void search_tree_sub(SEXP data, SEXP tree, SEXP bounds, std::deque<int> &found){
 
     /* find root node & initialize */
     for(n=0;n<nrow;n++){
-        if(RMATRIX(tree,n,2)==1){
+        if(RMATRIX(tree,n,3)==1){
             break;
         }
     }
@@ -267,15 +267,17 @@ extern "C"{
         k=to_peak.size();
         SEXP results;
         PROTECT(results = allocMatrix(REALSXP, k, 3));
-        double *results2;
-        results2 = REAL(results);
-        for(n=0;n<k;n++){
+        if(k>0){
+            double *results2;
+            results2 = REAL(results);
+            for(n=0;n<k;n++){
                 results2[n]=(from_peak.front()+1);
                 from_peak.pop_front();
                 results2[k+n]=(to_peak.front()+1);
                 to_peak.pop_front();
                 results2[(2*k)+n]=(adduct_pair.front()+1);
                 adduct_pair.pop_front();
+            }
         }
         UNPROTECT(11);
         return(results);

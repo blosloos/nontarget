@@ -19,6 +19,7 @@ function(
     for(i in 1:length(use_adducts)){if((adducts[adducts[,1]==use_adducts[i],6]!=ion_mode)){stop(paste(use_adducts[i]," not in ion mode ",ion_mode,sep=""))}};
 	if(!is.data.frame(peaklist)){stop("peaklist must be a data.frame")}
 	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
+	if(!length(peaklist[,1])>1){stop("peaklist with one entry - doesn`t make sense ...")}
 	if(!is.numeric(peaklist[,1])||!is.numeric(peaklist[,2])||!is.numeric(peaklist[,3])){stop("peaklist columns not numeric")}
     ############################################################################
     cat("\n(1) Combine adducts...");
@@ -59,7 +60,7 @@ function(
 		PACKAGE="nontarget"
 	);
 	close(pBar)
-	peakTree<-peakTree[,1:4];
+	peakTree<-peakTree[,1:4,drop=FALSE];
 	if(ppm=="TRUE"){ppm2<-1}else{ppm2<-0}
 	pBar <- txtProgressBar(min = 0, max = length(peaklist[,1]), style = 3 )
  	relat<-.Call("adduct_search",
