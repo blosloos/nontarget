@@ -29,7 +29,7 @@ pattern.search2<-function(
 	size_intens<-(size_intens+max_d_ratio)
 	mass_slots<-quantiz[[7]]		
 	cat("\n(1) Check inputs ...");
-	if(mztol<=0){warning("mztol should be >0!")};
+	if(mztol<0){warning("mztol should be >=0!")};
     if(inttol>1 || inttol<0){ stop("inttol must be >0 and <=1") };
 	if(!is.data.frame(peaklist)){stop("peaklist must be a data.frame")}
 	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
@@ -63,7 +63,7 @@ pattern.search2<-function(
 	peakTree<-peakTree[,1:4,drop=FALSE];
 	cat("\n screen ... ");
 	mass_slots<-quantiz[[7]]
-	int_slots<-quantiz[[8]]
+	int_slots<-(10^quantiz[[8]])
 	pBar <- txtProgressBar( min = 0, max = length(peaklist[,1]), style = 3 )
 	relat<-.Call("peak_search", 
 			as.matrix(peaklist[,1:3]),
@@ -111,8 +111,8 @@ pattern.search2<-function(
 		search_bounds[3]<-(peaklist[relat[j,1],1]+adductmass_LB)
 		search_bounds[4]<-(peaklist[relat[j,1],1]+adductmass_UB)
 		# intensity bounds: extend by intensity tolerance
-		search_bounds[5]<-((peaklist[relat[j,1],2]*(1-inttol))/(peaklist[relat[j,2],2]*(1+inttol))) # Lower bound
-		search_bounds[6]<-((peaklist[relat[j,1],2]*(1+inttol))/(peaklist[relat[j,2],2]*(1-inttol))) # Upper bound
+		search_bounds[5]<-log10((peaklist[relat[j,1],2]*(1-inttol))/(peaklist[relat[j,2],2]*(1+inttol))) # Lower bound
+		search_bounds[6]<-log10((peaklist[relat[j,1],2]*(1+inttol))/(peaklist[relat[j,2],2]*(1-inttol))) # Upper bound
 		# iterate over all quantizations	
 		for(i in 1:length(quantiz[[6]])){
 			# use this isotope & charge ? #########################################
