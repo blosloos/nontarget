@@ -147,10 +147,11 @@ pattern.search2<-function(
 				}		
 			}
 			if(got & quick) break;
+			if(got) next;
 			# with marker peak ####################################################
 			if(strsplit(names(quantiz[[6]])[i],"_")[[1]][3]=="w"){
-				if(done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]==FALSE){  # if not hit w/o marker
-					if(use_marker!="TRUE"){ # just check
+				if(done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]==FALSE){  # if not hit w/o marker - just check
+					if(use_marker!="TRUE"){ # just check for intersection
 						found <- .Call("search_boxtree", 
 								as.matrix(quantiz[[6]][[i]][,1:6]),
 								as.matrix(quantiz[[6]][[i]][,16:20]),
@@ -159,19 +160,19 @@ pattern.search2<-function(
 								PACKAGE="nontarget"
 						)	
 						if(found==-2){
-							done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-FALSE;
+							done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-TRUE;
 							from_peak<-c(from_peak,relat[j,1])
 							to_peak<-c(to_peak,relat[j,2])
 							isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 							charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 							got<-TRUE;
-						}							
+						}	
 					}else{ # check explicitly for marker peak 
 						found <- .Call("search_boxtree", 
 								as.matrix(quantiz[[6]][[i]][,1:6]),
 								as.matrix(quantiz[[6]][[i]][,16:20]),
 								as.numeric(search_bounds),
-								as.integer(1),
+								as.integer(1), # return full findings
 								PACKAGE="nontarget"
 						)	
 						if(length(found)>0){
@@ -198,22 +199,23 @@ pattern.search2<-function(
 										PACKAGE="nontarget"
 								)	
 								if(length(found_m)>1){
+									done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-TRUE;
 									from_peak<-c(from_peak,relat[j,1])
 									to_peak<-c(to_peak,relat[j,2])
 									isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 									charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
-									got<-TRUE;
+									break;
 								}
 							}
 						}
 					}
 				}
 			}
-			if(got & quick) break;
 			#######################################################################		
 			if(inter==1){
 				setTxtProgressBar(pBar,j,title = NULL, label = NULL)			
 			}
+			if(got & quick) break;
 		}				
 	}
 	close(pBar)
