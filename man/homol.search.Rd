@@ -78,7 +78,7 @@ mzfilter=FALSE,vec_size=1E6)
 }
 
 \note{
-Input \code{isotopess} is needed to limit intermediate numbers of m/z differences to screen over, based on changes in mass defect. 
+Argument \code{isotopes} is needed to limit intermediate numbers of m/z differences to screen over, based on changes in mass defect. 
 Similarly, intermediate numbers are limited by the retention time and m/z windows defined by the \code{minrt / maxrt} and  \code{minmz / maxmz} arguments. The latter are always set relative to
 the individual RT and m/z values of the peaks to be searched from. 
 

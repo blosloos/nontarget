@@ -113,8 +113,8 @@ function(
 		ppm2<-2
 	}
 	cat("Detecting:\n")
+	inter<-as.numeric(interactive());
 	pBar <- txtProgressBar( min = 0, max = length(highbound), style = 3 );
-	inter<-as.numeric(interactive())
 	relat <- .Call("homol_1",
 		as.integer(vec_size),          	# storage size
 		as.numeric(peaklist2[,1]), 		# mass
@@ -138,7 +138,7 @@ function(
     }
 	cat("\n done.\n")
 	relat<-relat[order(relat[,5],peaklist[relat[,1],1]),] # sort by increasing mass
-	names(relat)<-c("from_ID","to_ID","dmz","dRT","HS_ID")
+	colnames(relat)<-c("from_ID","to_ID","dmz","dRT","HS_ID")
     ##########################################################################
 	
 	##########################################################################

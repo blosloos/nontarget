@@ -69,7 +69,7 @@ extern "C"{
 
             PROTECT(inter = AS_NUMERIC(inter));
             int intera = INTEGER_VALUE(inter);
-            SEXP utilsPackage; /* definitions for the progres bar */
+            SEXP utilsPackage; /* definitions for progress bar */
             PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
             SEXP percentComplete;
             PROTECT(percentComplete = NEW_NUMERIC(1));
@@ -148,15 +148,15 @@ extern "C"{
                 }
                 m=0;
                 void R_CheckUserInterrupt(void);
-                /* (2) ... find relevant masss differences ... */
+                /* (2) ... find relevant mass differences ... */
                 for(n=0;n<(leng-1);n++){
-                    if( m >= ((stor)-1) ){ Rprintf("increase vector!"); break; }
+                    if( m >= ((stor)-1) ){ Rprintf("increase vec_size!"); break; }
                     for(k=*(atk2+n);k<leng;k++){
                         if( *(mass2+k) > ( *(mass2+n) + *(highbound2+z) )){
                             *(atk2+n)=k;
                             break;
                         }
-                        if( m >= ((stor)-1) ){ Rprintf("increase vector!"); break; }
+                        if( m >= ((stor)-1) ){ Rprintf("increase vec_size!"); break; }
                         if( (*(RT2+k)>=(*(RT2+n)+*minrt2)) && (*(RT2+k)<=(*(RT2+n)+*maxrt2)) ){
                             if(
                                ((*(mass2+k)-*(mass2+n))<=*(highbound2+z))&&
