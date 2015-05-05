@@ -94,6 +94,7 @@ pattern.search2<-function(
 	to_peak<-c()
 	isotope<-c()
 	charge<-c()
+	retr_1<-0;
 	pBar <- txtProgressBar( min = 0, max = length(relat[,1]), style = 3 )
 	for(j in 1:length(relat[,1])){
 		done[,]<-FALSE;
@@ -144,7 +145,8 @@ pattern.search2<-function(
 					isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 					charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 					got<-TRUE;
-				}		
+				}	
+				retr_1<-c(retr_1+1)				
 			}
 			if(got & quick) break;
 			if(got) next;
@@ -166,7 +168,8 @@ pattern.search2<-function(
 							isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 							charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 							got<-TRUE;
-						}	
+						}
+						retr_1<-c(retr_1+1)							
 					}else{ # check explicitly for marker peak 
 						found <- .Call("search_boxtree", 
 								as.matrix(quantiz[[6]][[i]][,1:6]),
@@ -175,6 +178,7 @@ pattern.search2<-function(
 								as.integer(1), # return full findings
 								PACKAGE="nontarget"
 						)	
+						retr_1<-c(retr_1+1)	
 						if(length(found)>0){
 							for(k in 1:length(found)){
 								marker_delmass<-c((peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],8]),(peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],7]))
@@ -204,7 +208,8 @@ pattern.search2<-function(
 									to_peak<-c(to_peak,relat[j,2])
 									isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 									charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
-									break;
+									got<-TRUE
+									break; # on this isotope & charge
 								}
 							}
 						}
@@ -399,7 +404,7 @@ pattern.search2<-function(
 	"Removals by rules","Number of peaks with pattern group overlapping",
 	"Number of peaks per within-group interaction levels",
 	"Counts of isotopes","Elements","Charges","Rule settings");
-	cat(" done.\n");
+	cat(paste(" queries: ",retr_1," - done.\n",sep=""));
 	return(pattern);
 	########################################################################################
 

@@ -401,9 +401,9 @@ extern "C"{
             double *results2;
             results2 = REAL(results);
             for(n=0;n<nrow;n++){
-                results2[n]=0;          /* LOSON */
-                results2[(1*nrow)+n]=0; /* MIDSON */
-                results2[(2*nrow)+n]=0; /* HISON */
+                results2[n]=0;          /* LOSON = UB<=UB */
+                results2[(1*nrow)+n]=0; /* MIDSON = nesting, UB>=UB & LB<=LB */
+                results2[(2*nrow)+n]=0; /* HISON = LB>=LB */
                 results2[(3*nrow)+n]=0; /* level */
                 results2[(4*nrow)+n]=0; /* disc */
             }
@@ -461,6 +461,124 @@ extern "C"{
                         results2[(1*nrow)+parent]=n+1;
                         results2[(3*nrow)+n]=level;
                         results2[(4*nrow)+parent]=(disc+1);
+                        doit=1;
+                    }else{
+                        parent=(results2[(1*nrow)+parent]-1);
+                        disc++;
+                        if(disc>=n_disc){
+                            disc=0;
+                        }
+                        level++;
+                    }
+                }
+            }
+
+            UNPROTECT(2);
+            return(results);
+
+    }
+
+/******************************************************************************/
+/* Build box tree in order of data input - w/ range LB & UB *******************/
+/******************************************************************************/
+
+    SEXP boxtree2(
+        SEXP data
+    ){
+
+            PROTECT(data = AS_NUMERIC(data));
+            int n,nrow,ncol,n_disc,level,disc,doit,parent;
+            ncol=RCol(data);
+            n_disc=(ncol/2);
+            nrow=RRow(data);
+            SEXP results;
+            PROTECT(results = allocMatrix(REALSXP, nrow, 7));
+            double *results2;
+            results2 = REAL(results);
+            for(n=0;n<nrow;n++){
+                results2[n]=0;          /* LOSON = UB<=UB */
+                results2[(1*nrow)+n]=0; /* MIDSON = nesting, UB>=UB & LB<=LB */
+                results2[(2*nrow)+n]=0; /* HISON = LB>=LB */
+                results2[(3*nrow)+n]=0; /* level */
+                results2[(4*nrow)+n]=0; /* disc */
+                results2[(5*nrow)+n]=0; /* LB range */
+                results2[(6*nrow)+n]=0; /* UB range */
+            }
+
+            /* first entry = root node */
+            n=0;
+            level=1;
+            disc=0;
+            results2[(3*nrow)+n]=level;
+            results2[(4*nrow)+n]=(disc+1);
+
+            for(n=1;n<nrow;n++){
+                doit=2;
+                parent=0;
+                level=2;
+                disc=0;
+                while(doit==2){
+
+                    /* LOSON *****************************************************************/
+                    if( RMATRIX(data,n,((disc*2)+1))<=RMATRIX(data,parent,((disc*2)+1)) ){
+                        if(results2[parent]==0){
+                            results2[parent]=n+1;
+                            results2[(3*nrow)+n]=level;
+                            results2[(4*nrow)+parent]=(disc+1);
+                            if( RMATRIX(data,n,((disc*2)+0))<RMATRIX(data,parent,((disc*2)+0)) ){
+                                results2[(5*nrow)+parent]=RMATRIX(data,n,((disc*2)+0));
+                            }else{
+                                results2[(5*nrow)+parent]=RMATRIX(data,parent,((disc*2)+0));
+                            }
+                            doit=1;
+                        }else{
+                            parent=(results2[parent]-1);
+                            disc++;
+                            if(disc>=n_disc){
+                                disc=0;
+                            }
+                            level++;
+                        }
+                        continue;
+                    }
+                    /* HISON *****************************************************************/
+                    if( RMATRIX(data,n,((disc*2)+0))>=RMATRIX(data,parent,((disc*2)+0)) ){
+                        if(results2[(2*nrow)+parent]==0){
+                            results2[(2*nrow)+parent]=n+1;
+                            results2[(3*nrow)+n]=level;
+                            results2[(4*nrow)+parent]=(disc+1);
+                            if( RMATRIX(data,n,((disc*2)+1))>RMATRIX(data,parent,((disc*2)+1)) ){
+                                results2[(6*nrow)+parent]=RMATRIX(data,n,((disc*2)+1));
+                            }else{
+                                results2[(6*nrow)+parent]=RMATRIX(data,parent,((disc*2)+1));
+                            }
+                            doit=1;
+                        }else{
+                            parent=(results2[(2*nrow)+parent]-1);
+                            disc++;
+                            if(disc>=n_disc){
+                                disc=0;
+                            }
+                            level++;
+                        }
+                        continue;
+                    }
+                    /* MIDSON *****************************************************************/
+                    /* swap */
+                    if(results2[(1*nrow)+parent]==0){
+                        results2[(1*nrow)+parent]=n+1;
+                        results2[(3*nrow)+n]=level;
+                        results2[(4*nrow)+parent]=(disc+1);
+                        if( RMATRIX(data,n,((disc*2)+0))<RMATRIX(data,parent,((disc*2)+0)) ){
+                            results2[(5*nrow)+parent]=RMATRIX(data,n,((disc*2)+0));
+                        }else{
+                            results2[(5*nrow)+parent]=RMATRIX(data,parent,((disc*2)+0));
+                        }
+                        if( RMATRIX(data,n,((disc*2)+1))>RMATRIX(data,parent,((disc*2)+1)) ){
+                            results2[(6*nrow)+parent]=RMATRIX(data,n,((disc*2)+1));
+                        }else{
+                            results2[(6*nrow)+parent]=RMATRIX(data,parent,((disc*2)+1));
+                        }
                         doit=1;
                     }else{
                         parent=(results2[(1*nrow)+parent]-1);
@@ -1145,7 +1263,6 @@ extern "C"{
                     doing.pop_front();
                     continue;
                 }
-
                 /* <UB ********************************************************************/
                 if(bounds2[(disc*2)+1]<RMATRIX(data,doing.front(),((disc*2)+0))){
                     if(RMATRIX(tree,doing.front(),0)!=0){
@@ -1178,6 +1295,132 @@ extern "C"{
                 }
                 if(RMATRIX(tree,doing.front(),2)!=0){
                     doing.push_back(int(RMATRIX(tree,doing.front(),2)-1));
+                }
+                doing.pop_front();
+            }
+
+            if(ret==1){ /* return all matches */
+                SEXP results;
+                s=found.size();
+                PROTECT(results = allocMatrix(REALSXP, s, 1));
+                double *results2;
+                results2 = REAL(results);
+                for(n=0;n<s;n++){
+                        results2[n]=(found.front()+1);
+                        found.pop_front();
+                }
+                UNPROTECT(5);
+                return(results);
+            }else{ /* any matches? -1 = none, -2 = at least one match */
+                SEXP results;
+                PROTECT(results = allocMatrix(REALSXP, 1, 1));
+                double *results2;
+                results2 = REAL(results);
+                results2[0]=-1;
+                UNPROTECT(5);
+                return(results);
+            }
+    }
+
+/******************************************************************************/
+/* Search box tree  - w/ range LB & UB  ***************************************/
+/******************************************************************************/
+
+    SEXP search_boxtree2(
+        SEXP data,
+        SEXP tree,
+        SEXP bounds,
+        SEXP return_all
+    ){
+
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
+            double *bounds2;
+            bounds2 = NUMERIC_POINTER(bounds);
+
+            PROTECT(return_all = AS_INTEGER(return_all));
+            int n,ret,disc,ncol,a,s,m;
+            ncol=(RCol(data)/2);
+            ret=INTEGER_VALUE(return_all);
+
+            std::deque<int> doing;
+            std::deque<int> found;
+
+            doing.push_back(0);
+            while(!doing.empty()){
+
+                m=doing.front();
+                /* check old **************************************************************/
+                a=1;
+                for(n=0;n<ncol;n++){
+                    if(
+                       (bounds2[(n*2)+0]>RMATRIX(data,m,((n*2)+1))) ||
+                       (bounds2[(n*2)+1]<RMATRIX(data,m,((n*2)+0)))
+                    ){
+                        a=0;
+                        break;
+                    }
+                }
+                if(a==1){
+                    if(ret==1){
+                        found.push_back(m);
+                    }else{
+                        SEXP results;
+                        PROTECT(results = allocMatrix(REALSXP, 1, 1));
+                        double *results2;
+                        results2 = REAL(results);
+                        results2[0]=-2;
+                        UNPROTECT(5);
+                        return(results);
+                    }
+                }
+                disc=int(RMATRIX(tree,m,4)-1);
+                if(disc==-1){
+                    doing.pop_front();
+                    continue;
+                }
+
+                /* <UB ********************************************************************/
+                if(bounds2[(disc*2)+1]<RMATRIX(data,m,((disc*2)+0))){
+                    if(RMATRIX(tree,m,0)!=0){
+                        if(bounds2[(disc*2)+1]>=RMATRIX(tree,m,5)){
+                            doing.push_back(int(RMATRIX(tree,m,0)-1));
+                        }
+                    }
+                    if(RMATRIX(tree,m,1)!=0){
+                        if(bounds2[(disc*2)+1]>=RMATRIX(tree,m,5)){
+                            doing.push_back(int(RMATRIX(tree,m,1)-1));
+                        }
+                    }
+                    doing.pop_front();
+                    s=doing.size(); // WHY?
+                    continue;
+                }
+                /* >LB ********************************************************************/
+                if(bounds2[(disc*2)+0]>RMATRIX(data,m,((disc*2)+1))){
+                    if(RMATRIX(tree,m,1)!=0){
+                        if(bounds2[(disc*2)+0]<=RMATRIX(tree,m,6)){
+                            doing.push_back(int(RMATRIX(tree,m,1)-1));
+                        }
+                    }
+                    if(RMATRIX(tree,m,2)!=0){
+                        if(bounds2[(disc*2)+0]<=RMATRIX(tree,m,6)){
+                            doing.push_back(int(RMATRIX(tree,m,2)-1));
+                        }
+                    }
+                    doing.pop_front();
+                    continue;
+                }
+                /* else ********************************************************************/
+                if(RMATRIX(tree,m,0)!=0){
+                    doing.push_back(int(RMATRIX(tree,m,0)-1));
+                }
+                if(RMATRIX(tree,m,1)!=0){
+                    doing.push_back(int(RMATRIX(tree,m,1)-1));
+                }
+                if(RMATRIX(tree,m,2)!=0){
+                    doing.push_back(int(RMATRIX(tree,m,2)-1));
                 }
                 doing.pop_front();
             }
