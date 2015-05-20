@@ -11,6 +11,7 @@
 
 #define RMATRIX(m,i,j) (REAL(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
 #define RMATRIX2(m,i,j) (INTEGER(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
+#define RVECTOR(m,i) (REAL(m)[i])
 #define RRow(m) (INTEGER(GET_DIM(m))[0])
 #define RCol(m) (INTEGER(GET_DIM(m))[1])
 
@@ -48,7 +49,7 @@ void search_tree_sub(SEXP data, SEXP tree, SEXP bounds, std::deque<int> &found){
 
     /* find root node & initialize */
     for(n=0;n<nrow;n++){
-        if(RMATRIX(tree,n,3)==1){
+        if(RMATRIX(tree,n,2)==1){
             break;
         }
     }
@@ -80,6 +81,81 @@ void search_tree_sub(SEXP data, SEXP tree, SEXP bounds, std::deque<int> &found){
     }
 
 }
+
+void search_tree_sub2(SEXP data, SEXP tree, SEXP bounds, SEXP new_found, int m, SEXP marked, double i_at){
+
+    int n,nrow;
+    double value;
+    nrow=RRow(data);
+    std::deque<int> at_nodes;
+
+    /* find root node & initialize */
+    for(n=0;n<nrow;n++){
+        if(RMATRIX(tree,n,2)==1){
+            break;
+        }
+    }
+    at_nodes.push_back(n);
+    while(at_nodes.size()>0){
+        /* first node within search bounds? */
+        if(RMATRIX(marked,at_nodes.front(),0)!=i_at){ // already found in this sweep?
+            if( inbound(data,at_nodes.front(),bounds)==1 ){
+                if(RMATRIX(marked,at_nodes.front(),0)!=(i_at-1)){ // not found in last sweep?
+                    RVECTOR(new_found,m)=(at_nodes.front()+1);
+                    m++;
+                }
+                RMATRIX(marked,at_nodes.front(),0)=i_at;
+            }
+        }
+        /* ... on LOSON */
+        if(RMATRIX(tree,at_nodes.front(),0)!=0){
+            /* still within bounds? */
+            value=RMATRIX(data,at_nodes.front(),int((RMATRIX(tree,at_nodes.front(),3))-1));
+            if(RMATRIX(bounds,int(RMATRIX(tree,at_nodes.front(),3)-1),0)<=value){
+                at_nodes.push_back(int(RMATRIX(tree,at_nodes.front(),0)-1));
+            }
+        }
+        /* ... on HISON */
+        if(RMATRIX(tree,at_nodes.front(),1)!=0){
+            /* still within bounds? */
+            value=RMATRIX(data,at_nodes.front(),int(RMATRIX(tree,at_nodes.front(),3)-1));
+            if(RMATRIX(bounds,int(RMATRIX(tree,at_nodes.front(),3)-1),1)>=value){
+                /* include HISON & update its bounds */
+                at_nodes.push_back(int(RMATRIX(tree,at_nodes.front(),1)-1));
+            }
+        }
+        /* remove current = first node */
+        at_nodes.pop_front();
+    }
+
+}
+
+inline int findmin(SEXP data, SEXP tree, int where, int dim){
+
+    int a=-1;
+    double minval=R_PosInf;
+    std::deque<int> node;
+    node.push_back(where);
+
+    while(node.size()>0){
+        if(RMATRIX(data,node.front(),dim)<minval){
+            a=node.front();
+            minval=RMATRIX(data,node.front(),dim);
+        }
+        if(RMATRIX(tree,node.front(),0)!=0){ // LOSON
+            node.push_back(int(RMATRIX(tree,node.front(),0)-1));
+        }
+        if(RMATRIX(tree,node.front(),1)!=0){ // HISON
+            if(int(RMATRIX(tree,node.front(),3))!=(dim+1)){
+                node.push_back(int(RMATRIX(tree,node.front(),1)-1));
+            }
+        }
+        node.pop_front();
+    }
+
+    return a;
+}
+
 
 double *qua_a2;
 int qua_b2;
@@ -622,11 +698,11 @@ extern "C"{
                     results2[(1*nrow)+n]=0;
                     results2[(2*nrow)+n]=0;
                     results2[(3*nrow)+n]=0;
-                    results2[(4*nrow)+n]=0;
-                    results2[(5*nrow)+n]=0;
+                    results2[(4*nrow)+n]=0; // min Manhattan distance ...
+                    results2[(5*nrow)+n]=0; // ... to which son. Used for nearest neighbour searches
             }
 
-            SEXP utilsPackage; /* definitions for the progres bar */
+            SEXP utilsPackage; /* definitions for the progress bar */
             PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
             SEXP percentComplete;
             PROTECT(percentComplete = NEW_NUMERIC(1));
@@ -1072,7 +1148,7 @@ extern "C"{
             std::vector<int> disc (1);
             disc[0]=0;
             std::vector<int> parent (1);
-            parent[0]=0;
+            parent[0]=-1;
 
             SEXP ordit;
             PROTECT(ordit = NEW_INTEGER(nrow));
@@ -1097,7 +1173,7 @@ extern "C"{
             for(n=0;n<nrow;n++){*(intermed2+n) = 0;};
 
             SEXP results;
-            PROTECT(results = allocMatrix(REALSXP, nrow, 4));
+            PROTECT(results = allocMatrix(REALSXP, nrow, 5));
             double *results2;
             results2 = REAL(results);
             for(n=0;n<nrow;n++){
@@ -1105,6 +1181,7 @@ extern "C"{
                     results2[(1*nrow)+n]=0;
                     results2[(2*nrow)+n]=0;
                     results2[(3*nrow)+n]=0;
+                    results2[(4*nrow)+n]=0;
             }
 
             while(from.size()>0){
@@ -1136,7 +1213,7 @@ extern "C"{
                     results2[(2*nrow)+*(atordit+splitit)]=level[0];
                     results2[(3*nrow)+*(atordit+splitit)]=(disc[0]+1);
                     /* complete old parent */
-                    if(parent[0]!=0){
+                    if(parent[0]!=-1){
                         last_k=(disc[0]-1);
                         if(last_k<0){
                             last_k=(ncol-1);
@@ -1178,7 +1255,7 @@ extern "C"{
                     disc.erase (disc.begin());
                     parent.erase (parent.begin());
                 }else{ /* terminal node */
-                    if(parent[0]!=0){
+                    if(parent[0]!=-1){
                         last_k=(disc[0]-1);
                         if(last_k<0){
                             last_k=(ncol-1);
@@ -1197,6 +1274,16 @@ extern "C"{
                     level.erase (level.begin());
                     disc.erase (disc.begin());
                     parent.erase (parent.begin());
+                }
+            }
+
+            // add parent column
+            for(n=0;n<nrow;n++){
+                if(RMATRIX(results,n,0)!=0){ // on LOSON
+                    RMATRIX(results,(int(RMATRIX(results,n,0))-1),4)=(n+1);
+                }
+                if(RMATRIX(results,n,1)!=0){ // on HISON
+                    RMATRIX(results,(int(RMATRIX(results,n,1))-1),4)=(n+1);
                 }
             }
 
@@ -1448,9 +1535,42 @@ extern "C"{
             }
     }
 
+/******************************************************************************/
+/* Search kd tree: range search ***********************************************/
+/******************************************************************************/
+
+    SEXP search_kdtree(
+        SEXP data,
+        SEXP tree,
+        SEXP bounds
+    ){
+
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
+            std::deque<int> found;
+            int s,n;
+
+            search_tree_sub(data, tree, bounds, found);
+
+            s=found.size();
+            SEXP results;
+            PROTECT(results = allocMatrix(REALSXP, s, 1));
+            double *results2;
+            results2 = REAL(results);
+            for(n=0;n<s;n++){
+                    results2[n]=(found.front()+1);
+                    found.pop_front();
+            }
+            UNPROTECT(4);
+            return(results);
+
+    }
+
 
 /******************************************************************************/
 /* Search kd tree: nearest neighbour, euclidean *******************************/
+/* need kdtree4 output (with preliminary nearest ******************************/
 /******************************************************************************/
 
     SEXP search_kdtree2(
@@ -1468,7 +1588,7 @@ extern "C"{
             PROTECT(scaled = AS_NUMERIC(scaled));
             double *scaled2;
             scaled2 = NUMERIC_POINTER(scaled);
-            int n,nearest,ncol,nrow,disc,LOSON,HISON,son,parent,here,sized;
+            int n,nearest,ncol,nrow,disc,LOSON,HISON,son,parent,here=0,sized;
             double dist_global,dist_local,distance;
             dist_global=RMATRIX(tree,i,4);
             nearest=(int(RMATRIX(tree,i,5))-1);
@@ -1576,41 +1696,349 @@ extern "C"{
             for(n=1;n<=ncol;n++){
                 results2[n] = fabs(RMATRIX(data,nearest,n-1)-RMATRIX(data,i,n-1));
             }
+            UNPROTECT(6);
+            return(results);
+
+    }
+
+
+/******************************************************************************/
+/* Search kd tree: nearest neighbour, euclidean *******************************/
+/******************************************************************************/
+
+    SEXP search_kdtree3(
+        SEXP data,
+        SEXP tree,
+        SEXP ID,
+        SEXP scaled
+    ){
+
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(ID = AS_INTEGER(ID));
+            int i;
+            i = (INTEGER_VALUE(ID)-1);
+            PROTECT(scaled = AS_NUMERIC(scaled));
+            double *scaled2;
+            scaled2 = NUMERIC_POINTER(scaled);
+            int n,nearest,ncol,nrow,disc,LOSON,HISON,son,parent,here=0,sized;
+            double dist_global,dist_local,distance;
+            dist_global=R_PosInf;
+            nearest=-2;
+            ncol=RCol(data);
+            nrow=RRow(data);
+
+            /* initialize */
+            std::vector<int> SON;
+            std::vector<int> PARENT;
+            std::vector<double> DISTANCE;
+
+            for(n=0;n<nrow;n++){ /* find starting point */
+                if(RMATRIX(tree,n,2)==1){
+                    break;
+                }
+            }
+            SON.push_back(n);
+            PARENT.push_back(-1);
+            DISTANCE.push_back(0);
+
+            /* run search */
+            while(SON.size()>0){
+                /* find subtree with smallest potential distance */
+                dist_local=R_PosInf;
+                here=0;
+                sized=DISTANCE.size();
+                for(n=0;n<sized;n++){
+                    if(DISTANCE[n]<dist_local){
+                        dist_local=DISTANCE[n];
+                        here=n;
+                    }
+                }
+                son=SON[here];
+                parent=PARENT[here];
+                distance=DISTANCE[here];
+                SON.erase(SON.begin()+here);
+                PARENT.erase(PARENT.begin()+here);
+                DISTANCE.erase(DISTANCE.begin()+here);
+                if(distance<=dist_global){
+                    if(son!=i){
+                        dist_local=0;
+                        for(n=0;n<ncol;n++){
+                            dist_local=(dist_local+(pow(((RMATRIX(data,son,n)-RMATRIX(data,i,n))/scaled2[n]),2)));
+                        }
+                        dist_local=sqrt(dist_local);
+                        if(dist_local<=dist_global){
+                            dist_global=dist_local;
+                            nearest=son;
+                        }
+                    }
+                    disc=int(RMATRIX(tree,son,3)-1);
+                    LOSON=int(RMATRIX(tree,son,0));
+                    HISON=int(RMATRIX(tree,son,1));
+                    if(LOSON!=0){
+                        LOSON=(LOSON-1);
+                        if((RMATRIX(data,i,disc)>RMATRIX(data,son,disc))){
+                            dist_local=distance;
+                            if(parent!=-1){
+                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                            }
+                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                            dist_local=sqrt(dist_local);
+                            if(dist_local<=dist_global){
+                                SON.push_back(LOSON);
+                                PARENT.push_back(son);
+                                DISTANCE.push_back(dist_local);
+                            }
+                        }else{
+                            SON.push_back(LOSON);
+                            PARENT.push_back(son);
+                            DISTANCE.push_back(distance);
+                        }
+                    }
+                    if(HISON!=0){
+                        HISON=(HISON-1);
+                        if((RMATRIX(data,i,disc)<RMATRIX(data,son,disc))){
+                            dist_local=distance;
+                            if(parent!=-1){
+                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                            }
+                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                            dist_local=sqrt(dist_local);
+                            if(dist_local<=dist_global){
+                                SON.push_back(HISON);
+                                PARENT.push_back(son);
+                                DISTANCE.push_back(dist_local);
+                            }
+                        }else{
+                            SON.push_back(HISON);
+                            PARENT.push_back(son);
+                            DISTANCE.push_back(distance);
+                        }
+                    }
+                }
+            }
+
+            SEXP results;
+            PROTECT(results = allocMatrix(REALSXP, 1, (ncol+1)));
+            double *results2;
+            results2 = REAL(results);
+            results2[0] = double(nearest+1);
+            for(n=1;n<=ncol;n++){
+                results2[n] = fabs(RMATRIX(data,nearest,n-1)-RMATRIX(data,i,n-1));
+            }
             UNPROTECT(5);
             return(results);
 
     }
 
+
 /******************************************************************************/
-/* Search kd tree: range ******************************************************/
+/* Search kd tree: range for marked homologues - returns extend_found *********/
 /******************************************************************************/
 
-    SEXP search_kdtree(
+    SEXP search_kdtree_homol(
         SEXP data,
         SEXP tree,
-        SEXP bounds
+        SEXP bounds,
+        SEXP marked,
+        SEXP i,
+        SEXP new_found,
+        SEXP clean_new_found
     ){
 
             PROTECT(data = AS_NUMERIC(data));
             PROTECT(tree = AS_NUMERIC(tree));
             PROTECT(bounds = AS_NUMERIC(bounds));
-            std::deque<int> found;
-            int s,n;
+            PROTECT(marked = AS_NUMERIC(marked));
+            PROTECT(i = AS_NUMERIC(i));
+            PROTECT(new_found = AS_NUMERIC(new_found));
+            PROTECT(clean_new_found = AS_NUMERIC(clean_new_found));
 
-            search_tree_sub(data, tree, bounds, found);
+            int n,m=0,nrow;
+            double i_at,i_clean;
+            i_at = NUMERIC_VALUE(i);
+            i_clean = NUMERIC_VALUE(clean_new_found);
+            nrow=RRow(data);
 
-            s=found.size();
-            SEXP results;
-            PROTECT(results = allocMatrix(REALSXP, s, 1));
-            double *results2;
-            results2 = REAL(results);
-            for(n=0;n<s;n++){
-                    results2[n]=(found.front()+1);
-                    found.pop_front();
+            /* clean new_found vector or find last empty entry */
+            for(n=0;n<nrow;n++){
+                if(RVECTOR(new_found,n)==0){
+                    break;
+                }else{
+                    if(i_clean==1){
+                        RVECTOR(new_found,n)=0;
+                    }else{
+                        m++;
+                    }
+                }
             }
-            UNPROTECT(4);
-            return(results);
+
+            search_tree_sub2(data, tree, bounds, new_found, m, marked, i_at);
+
+            UNPROTECT(7);
+            return(R_NilValue);
 
     }
 
+
+/******************************************************************************/
+/* Delete data node i (= row in matrix data) from tree ************************/
+/* Length of tree remains unaltered *******************************************/
+/* requires input from kdtree, i.e., a 5th column with parent reference *******/
+/******************************************************************************/
+
+    SEXP node_delete(
+        SEXP i,
+        SEXP data,
+        SEXP tree
+    ){
+
+        PROTECT(i = AS_NUMERIC(i));
+        PROTECT(data = AS_NUMERIC(data));
+        PROTECT(tree = AS_NUMERIC(tree));
+
+        int nrow,i_clean,i_new;
+        i_clean=int(NUMERIC_VALUE(i)-1);
+        nrow=RRow(data);
+
+        if(i_clean>nrow){ // indexed outside bounds
+            Rprintf("FAILED!");
+            UNPROTECT(3);
+            return(R_NilValue);
+        }
+
+        // find node modification (deletion & replacement) sequence first - then apply node replacement changes reversed
+        std::deque<int> out_node; // node to be replaced
+        std::deque<int> in_node;  // replacement node
+        std::deque<int> repla;    // replacement type
+        bool doing=true;
+        //Rprintf("\n");
+        while(doing==true){ // find deletion & replacement sequence
+            // HISON replacement or ...
+            if(RMATRIX(tree,i_clean,1)!=0){
+                //Rprintf("HISON-");
+                i_new=findmin(data,tree,int(RMATRIX(tree,i_clean,1)-1),int(RMATRIX(tree,i_clean,3)-1));
+                out_node.push_back(i_clean);
+                in_node.push_back(i_new);
+                repla.push_back(1);
+                i_clean=i_new;
+                continue;
+            }
+            // ... LOSON replacement or ...
+            if(RMATRIX(tree,i_clean,0)!=0){
+                //Rprintf("LOSON-");
+                i_new=findmin(data,tree,int(RMATRIX(tree,i_clean,0)-1),int(RMATRIX(tree,i_clean,3)-1));
+                out_node.push_back(i_clean);
+                in_node.push_back(i_new);
+                repla.push_back(2);
+                i_clean=i_new;
+                continue;
+            }
+            // ... LEAF replacement.
+            //Rprintf("LEAF.");
+            out_node.push_back(i_clean);
+            in_node.push_back(0);
+            repla.push_back(3);
+            doing=false;
+        }
+
+        //Rprintf("  seq.:");
+        while(out_node.size()>0){ // operate deletion sequence
+
+            if(repla.back()==1){ // HISON replacement = copy values, mark parent & sons
+            if(1==1){
+                //Rprintf("HISON-");
+                RMATRIX(tree,in_node.back(),0)=RMATRIX(tree,out_node.back(),0);
+                RMATRIX(tree,in_node.back(),1)=RMATRIX(tree,out_node.back(),1);
+                RMATRIX(tree,in_node.back(),2)=RMATRIX(tree,out_node.back(),2);
+                RMATRIX(tree,in_node.back(),3)=RMATRIX(tree,out_node.back(),3);
+                RMATRIX(tree,in_node.back(),4)=RMATRIX(tree,out_node.back(),4);
+                if(RMATRIX(tree,in_node.back(),0)!=0){ // LOSON update
+                    RMATRIX(tree,int(RMATRIX(tree,in_node.back(),0)-1),4)=(in_node.back()+1);
+                }
+                if(RMATRIX(tree,in_node.back(),1)!=0){ // HISON update
+                    RMATRIX(tree,int(RMATRIX(tree,in_node.back(),1)-1),4)=(in_node.back()+1);
+                }
+                if(RMATRIX(tree,in_node.back(),4)>0){ // parent`s LOSON?
+                    if(RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),0)==(out_node.back()+1)){
+                        RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),0)=(in_node.back()+1);
+                    }else{  // or parent`s  HISON?
+                        RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),1)=(in_node.back()+1);
+                    }
+                }
+            }
+                out_node.pop_back();
+                in_node.pop_back();
+                repla.pop_back();
+                continue;
+            }
+
+            if(repla.back()==2){ // LOSON replacement
+                //Rprintf("LOSON-");
+                RMATRIX(tree,in_node.back(),0)=RMATRIX(tree,out_node.back(),0);
+                RMATRIX(tree,in_node.back(),1)=RMATRIX(tree,out_node.back(),1);
+                RMATRIX(tree,in_node.back(),2)=RMATRIX(tree,out_node.back(),2);
+                RMATRIX(tree,in_node.back(),3)=RMATRIX(tree,out_node.back(),3);
+                RMATRIX(tree,in_node.back(),4)=RMATRIX(tree,out_node.back(),4);
+                if(RMATRIX(tree,in_node.back(),0)!=0){ // LOSON update
+                    RMATRIX(tree,int(RMATRIX(tree,in_node.back(),0)-1),4)=(in_node.back()+1);
+                }
+                if(RMATRIX(tree,in_node.back(),1)!=0){ // HISON update
+                        Rprintf("\n debug me");        // HISON must NOT exist at this stage!
+                }
+                if( RMATRIX(tree,in_node.back(),4)>0 ){ // parent`s LOSON?
+                    if(RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),0)==(out_node.back()+1)){
+                        RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),0)=(in_node.back()+1);
+                    }else{  // or parent`s  HISON?
+                        RMATRIX(tree,int(RMATRIX(tree,in_node.back(),4)-1),1)=(in_node.back()+1);
+                    }
+                }
+                RMATRIX(tree,in_node.back(),1)=RMATRIX(tree,in_node.back(),0); // swap left subtree to right side
+                RMATRIX(tree,in_node.back(),0)=0;
+                out_node.pop_back();
+                in_node.pop_back();
+                repla.pop_back();
+                continue;
+            }
+
+            if(repla.back()==3){  // LEAF replacement = delete parent`s SON
+                //Rprintf("LEAF-");
+                if(RMATRIX(tree,out_node.back(),4)>0){ // any parent remaining / root node?
+                    if(RMATRIX(tree,int(RMATRIX(tree,out_node.back(),4)-1),0)==(out_node.back()+1)){ // parent`s LOSON?
+                        RMATRIX(tree,int(RMATRIX(tree,out_node.back(),4)-1),0)=0;
+                    }else{  // or parent`s  HISON?
+                        RMATRIX(tree,int(RMATRIX(tree,out_node.back(),4)-1),1)=0;
+                    }
+                }
+                out_node.pop_back();
+                in_node.pop_back();
+                repla.pop_back();
+            }
+
+        }
+
+        // clean node i to be deleted
+        i_clean=int(NUMERIC_VALUE(i)-1);
+        RMATRIX(tree,i_clean,0)=0;
+        RMATRIX(tree,i_clean,1)=0;
+        RMATRIX(tree,i_clean,2)=0;
+        RMATRIX(tree,i_clean,3)=0;
+        RMATRIX(tree,i_clean,4)=0;
+
+        UNPROTECT(3);
+        return(R_NilValue);
+
 }
+
+
+}
+
+
+
+
+
+
+
+
+
+

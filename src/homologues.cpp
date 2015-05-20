@@ -7,7 +7,170 @@
 #include <Rinternals.h>
 #include <vector>
 
+
+#define RMATRIX(m,i,j) (REAL(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
+#define RMATRIX2(m,i,j) (INTEGER(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
+#define RVECTOR(m,i) (REAL(m)[i])
+#define RRow(m) (INTEGER(GET_DIM(m))[0])
+#define RCol(m) (INTEGER(GET_DIM(m))[1])
+
 extern "C"{
+
+
+/******************************************************************************/
+/* filter homologue triplets **************************************************/
+/******************************************************************************/
+
+    SEXP homol_triplet(
+        SEXP peaklist3,
+		SEXP dist_ID,
+		SEXP dist_dist,
+		SEXP triplets,
+		SEXP at_triplets,
+		SEXP peaklist4,
+        SEXP use,
+        SEXP max_delmz,
+        SEXP rttol
+   ){
+
+        PROTECT(peaklist3 = AS_NUMERIC(peaklist3));
+        PROTECT(dist_ID = AS_NUMERIC(dist_ID));
+        PROTECT(dist_dist = AS_NUMERIC(dist_dist));
+        PROTECT(triplets = AS_NUMERIC(triplets));
+        PROTECT(at_triplets = AS_NUMERIC(at_triplets));
+        PROTECT(peaklist4 = AS_NUMERIC(peaklist4));
+        PROTECT(use = AS_NUMERIC(use));
+        PROTECT(max_delmz = AS_NUMERIC(max_delmz));
+        PROTECT(rttol = AS_NUMERIC(rttol));
+
+        int n,m,nrow;
+        nrow=RRow(triplets);
+        int leng_dist=LENGTH(dist_dist);
+        double max_mass,min_mass2,delmz_use;
+        double massdef1,massdef1_LB,massdef1_UB,massdef2,massdef2_LB,massdef2_UB;
+        double rtdif1,rtdif1_LB,rtdif1_UB,rtdif2,rtdif2_LB,rtdif2_UB;
+        delmz_use=RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1));
+
+        int a=0,b=0; // precheck for occurrence of positive AND negative distances
+        for(n=0;n<leng_dist;n++){
+            if(RVECTOR(dist_dist,n)<0){
+                a++;
+            }else{
+                b++;
+            }
+        }
+        if((a==0)||(b==0)){
+            UNPROTECT(9);
+            return(R_NilValue);
+        }
+
+        for(n=0;n<leng_dist;n++){ // find matching (1) mass distance -> (2) mass defect changes -> (3) RT changes
+            if(n<(leng_dist-1)){
+                if((fabs(RVECTOR(dist_dist,(n+1)))-fabs(RVECTOR(dist_dist,n)))>(NUMERIC_VALUE(max_delmz))){ // pre-check
+                    continue;
+                }
+                if(RVECTOR(dist_dist,n)<0){ // initiate a search at a negative distance ...
+                    max_mass=(fabs(RVECTOR(dist_dist,n))+RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1))+delmz_use);
+                    for(m=(n+1);m<leng_dist;m++){
+                        if((fabs(RVECTOR(dist_dist,m))-fabs(RVECTOR(dist_dist,n)))>(NUMERIC_VALUE(max_delmz))){
+                            break;
+                        }
+                        if(RVECTOR(dist_dist,m)>0){
+                            // (1) mass distance overlap?
+                            min_mass2=(fabs(RVECTOR(dist_dist,m))-RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1))-delmz_use);
+                            if(min_mass2<max_mass){
+                                // (2) mass defect change consistent?
+                                massdef1=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),2)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),2)); // lower to mid: CHANGE order!
+                                massdef1_LB=( massdef1 - RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1)) - RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)) );
+                                massdef2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),2)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),2)); // mid to upper: CHANGE order!
+                                massdef2_UB=( massdef2 + RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1)) + RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)));
+                                if(!(massdef2_UB<massdef1_LB)){
+                                    massdef2_LB=( massdef2 - RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1)) - RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)));
+                                    massdef1_UB=( massdef1 + RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1)) + RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)) );
+                                    if(!(massdef2_LB>massdef1_UB)){
+                                        // (3) RT change within tolerance?
+                                        rtdif1=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),1));
+                                        rtdif1_LB=(rtdif1-NUMERIC_VALUE(rttol));
+                                        rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),1));
+                                        rtdif2_UB=(rtdif2+NUMERIC_VALUE(rttol));
+                                        if(!(rtdif2_UB<rtdif1_LB)){
+                                            rtdif1_UB=(rtdif1+NUMERIC_VALUE(rttol));
+                                            rtdif2_LB=(rtdif2-NUMERIC_VALUE(rttol));
+                                            if(!(rtdif2_LB>rtdif1_UB)){
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),0)=RVECTOR(dist_ID,n); // CHANGED to m below
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),1)=NUMERIC_VALUE(use);
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),2)=RVECTOR(dist_ID,m); // CHANGED to n below
+
+
+                                                RVECTOR(at_triplets,0)=(RVECTOR(at_triplets,0)+1);
+                                                if(NUMERIC_VALUE(at_triplets)>nrow){
+                                                    Rprintf("vec_size too small!");
+                                                    UNPROTECT(9);
+                                                    return(R_NilValue);
+                                                }
+
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                }else{ // ... or a positive one
+                    max_mass=(fabs(RVECTOR(dist_dist,n))+RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1))+delmz_use);
+                    for(m=(n+1);m<leng_dist;m++){
+                        if(((RVECTOR(dist_dist,m))-fabs(RVECTOR(dist_dist,n)))>(NUMERIC_VALUE(max_delmz))){ // RVECTOR(dist_dist,n) is >0
+                            break;
+                        }
+                        if(RVECTOR(dist_dist,m)<0){
+                            min_mass2=(fabs(RVECTOR(dist_dist,m))-RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1))-delmz_use);
+                            if(min_mass2<max_mass){ // (1) mass distance overlap?
+                                massdef1=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),2)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),2));
+                                massdef1_LB=( massdef1 - RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1)) - RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)) );
+                                massdef2=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),2)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),2));
+                                massdef2_UB=( massdef2 + RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1)) + RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)));
+                                if(!(massdef2_UB<massdef1_LB)){ // (2) mass defect change consistent?
+                                    massdef2_LB=( massdef2 - RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1)) - RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)));
+                                    massdef1_UB=( massdef1 + RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1)) + RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1)) );
+                                    if(!(massdef2_LB>massdef1_UB)){
+                                        // (3) RT change within tolerance?
+                                        rtdif1=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),1));
+                                        rtdif1_LB=(rtdif1-NUMERIC_VALUE(rttol));
+                                        rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),1));
+                                        rtdif2_UB=(rtdif2+NUMERIC_VALUE(rttol));
+                                        if(!(rtdif2_UB<rtdif1_LB)){
+                                            rtdif1_UB=(rtdif1+NUMERIC_VALUE(rttol));
+                                            rtdif2_LB=(rtdif2-NUMERIC_VALUE(rttol));
+                                            if(!(rtdif2_LB>rtdif1_UB)){
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),0)=RVECTOR(dist_ID,m);
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),1)=NUMERIC_VALUE(use);
+                                                RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),2)=RVECTOR(dist_ID,n);
+
+
+
+                                                RVECTOR(at_triplets,0)=(RVECTOR(at_triplets,0)+1);
+                                                if(NUMERIC_VALUE(at_triplets)>nrow){
+                                                    Rprintf("vec_size too small!");
+                                                    UNPROTECT(9);
+                                                    return(R_NilValue);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        UNPROTECT(9);
+        return(R_NilValue);
+
+   }
+
 
 /******************************************************************************/
 /* filter homologue peak-to-peak differences **********************************/
@@ -306,5 +469,13 @@ extern "C"{
             return(homologues);
 
     }
+
+
+
+
+
+
+
+
 
 }

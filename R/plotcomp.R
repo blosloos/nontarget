@@ -278,7 +278,7 @@ function(
               }
               
             }
-            names(relat)<-c("concerned peaks","all peaks within range","relations","Part of homologue series:");
+            names(relat)<-c("a","all peaks within range","relations","Part of homologue series:");
             return(relat);
             ####################################################################
 
