@@ -1,12 +1,13 @@
 nontarget News
 
 
-CHANGES in version 1.8:
+CHANGES in versions 1.8-2.0:
 	
 	(1) change src comparison
 	(2) shorthened title
 	(3) debug charges
-
+	(4) New homologue series detection
+	(5) Optimized box queries in pattern.search2
 
 CHANGES in version 1.7:
 	

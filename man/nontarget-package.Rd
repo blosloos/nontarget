@@ -145,21 +145,23 @@ plotgroup(pattern,adduct,groupID=1,massrange=10,allmass=FALSE);
 ######################################################
 # (4.1) Screen for homologue series ##################
 homol<-homol.search(
-		peaklist,
-		isotopes,
-		elements=c("C","H","O"),
-		charge=c(1,2),
-		use_C=TRUE,
-		minmz=5,
-		maxmz=60,
-		minrt=0.5,
-		maxrt=2,
-		ppm=TRUE,
-		mztol=3.5,
-        rttol=0.5,
-		minlength=4,
-		mzfilter=FALSE,
-		vec_size=1E6
+	peaklist,
+	isotopes,	
+	elements=c("C","H","O"),
+	use_C=TRUE,
+	minmz=5,
+	maxmz=120,
+	minrt=2,
+	maxrt=2,
+	ppm=TRUE,
+	mztol=3.5,
+    rttol=0.5,
+	minlength=5,
+	mzfilter=FALSE,
+	vec_size=3E6,
+	spar=.45,
+	R2=.98,
+	plotit=FALSE
 )
 # (4.2) Plot results #################################
 plothomol(homol,xlim=FALSE,ylim=FALSE,plotlegend=TRUE);

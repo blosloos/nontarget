@@ -87,9 +87,9 @@ pattern.search2<-function(
 	colnames(done)<-charge_key
 	rownames(done)<-isotope_key
 	search_bounds<-rep(0,6)
-	marker_bounds<-rep(0,6)
-	marker_bounds[3]<-min(peaklist[,2])
-	marker_bounds[4]<-max(peaklist[,2])
+	marker_bounds<-matrix(ncol=2,nrow=3,0)
+	marker_bounds[2,1]<-min(peaklist[,2])
+	marker_bounds[2,2]<-max(peaklist[,2])
 	from_peak<-c()
 	to_peak<-c()
 	isotope<-c()
@@ -132,8 +132,8 @@ pattern.search2<-function(
 			# without marker peak #################################################
 			if(strsplit(names(quantiz[[6]])[i],"_")[[1]][3]=="wo"){
 				found <- .Call("search_boxtree", 
-						as.matrix(quantiz[[6]][[i]][,1:6]),
-						as.matrix(quantiz[[6]][[i]][,16:20]),
+						quantiz[[6]][[i]][,1:6],
+						quantiz[[6]][[i]][,16:20],
 						as.numeric(search_bounds),
 						as.integer(0),
 						PACKAGE="nontarget"
@@ -155,8 +155,8 @@ pattern.search2<-function(
 				if(done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]==FALSE){  # if not hit w/o marker - just check
 					if(use_marker!="TRUE"){ # just check for intersection
 						found <- .Call("search_boxtree", 
-								as.matrix(quantiz[[6]][[i]][,1:6]),
-								as.matrix(quantiz[[6]][[i]][,16:20]),
+								quantiz[[6]][[i]][,1:6],
+								quantiz[[6]][[i]][,16:20],
 								as.numeric(search_bounds),
 								as.integer(0),
 								PACKAGE="nontarget"
@@ -172,8 +172,8 @@ pattern.search2<-function(
 						retr_1<-c(retr_1+1)							
 					}else{ # check explicitly for marker peak 
 						found <- .Call("search_boxtree", 
-								as.matrix(quantiz[[6]][[i]][,1:6]),
-								as.matrix(quantiz[[6]][[i]][,16:20]),
+								quantiz[[6]][[i]][,1:6],
+								quantiz[[6]][[i]][,16:20],
 								as.numeric(search_bounds),
 								as.integer(1), # return full findings
 								PACKAGE="nontarget"
@@ -184,18 +184,18 @@ pattern.search2<-function(
 								marker_delmass<-c((peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],8]),(peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],7]))
 								# marker m/z bounds
 								if(ppm==TRUE){
-									marker_bounds[1]<-(min(marker_delmass)-(2*mztol*peaklist[relat[j,1],1]/1E6))
-									marker_bounds[2]<-(max(marker_delmass)+(2*mztol*peaklist[relat[j,1],1]/1E6))
+									marker_bounds[1,1]<-(min(marker_delmass)-(2*mztol*peaklist[relat[j,1],1]/1E6))
+									marker_bounds[1,2]<-(max(marker_delmass)+(2*mztol*peaklist[relat[j,1],1]/1E6))
 								}else{
-									marker_bounds[1]<-(min(marker_delmass)-(2*mztol))
-									marker_bounds[2]<-(max(marker_delmass)+(2*mztol))
+									marker_bounds[1,1]<-(min(marker_delmass)-(2*mztol))
+									marker_bounds[1,2]<-(max(marker_delmass)+(2*mztol))
 								}
 								# marker intensity bounds. set above: marker_bounds[4]; reset lower bound
 								max_int<-max(peaklist[relat[j,],2])
-								marker_bounds[3]<-(max_int*(1-inttol))
+								marker_bounds[2,1]<-(max_int*(1-inttol))
 								# maker RT bounds
-								marker_bounds[5]<-(peaklist[relat[j,1],3]-rttol)
-								marker_bounds[6]<-(peaklist[relat[j,1],3]+rttol)
+								marker_bounds[3,1]<-(peaklist[relat[j,1],3]-rttol)
+								marker_bounds[3,2]<-(peaklist[relat[j,1],3]+rttol)
 								found_m<-.Call("search_kdtree", 
 										as.matrix(peaklist[,1:3]),
 										as.matrix(peakTree),		# peaks - search tree
