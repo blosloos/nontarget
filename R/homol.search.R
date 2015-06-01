@@ -45,8 +45,8 @@ function(
 	}
 	if(length(mztol)==1){
 		if(ppm==TRUE){
-			delmz<-(mztol*max(peaklist[,1])/1e6);
-			peaklist4<-(mztol*peaklist[,1]/1e6);
+			delmz<-c(mztol*max(peaklist[,1])/1e6);
+			peaklist4<-c(mztol*peaklist[,1]/1e6);
 		}else{
 			delmz<-mztol;
 			peaklist4<-rep(mztol,length(peaklist[,1]))
@@ -82,21 +82,21 @@ function(
 	}else{
 		delmass<-( c( delmass-round(delmass,digits=0) ) / delmass );
 	}
-	maxup<-max(delmass);
-	maxdown<-abs(min(delmass));
+	maxup<-c(max(delmass));
+	maxdown<-c(abs(min(delmass)));
 	##########################################################################
     # (2) Set internal data & parameters #####################################
-	maxmove<-max(maxup,maxdown)
-	shift<-(maxmz*(maxdown+maxup))
-	mass_def<-(peaklist[,1]-round(peaklist[,1]))		# calculate mass defect
+	maxmove<-c(max(maxup,maxdown))
+	shift<-c(maxmz*(maxdown+maxup))
+	mass_def<-c(peaklist[,1]-round(peaklist[,1]))		# calculate mass defect
 	peaklist2<-peaklist[,-2]
-	uplim<-(mass_def-(peaklist2[,1]*maxup))				# upward mass defect shift - (m/z)/mass defect lower intercept
-	uplim_tol<-(max(peaklist4)*maxup*2)					# upward mass defect shift - maximum tolerance
-	downlim<-(mass_def+(peaklist2[,1]*maxdown))			# downward mass defect shift - (m/z)/mass defect upper intercept
-	downlim_tol<-(max(peaklist4)*maxdown*2)				# downward mass defect shift - maximum tolerance
+	uplim<-c(mass_def-(peaklist2[,1]*maxup))				# upward mass defect shift - (m/z)/mass defect lower intercept
+	uplim_tol<-c(max(peaklist4)*maxup*2)					# upward mass defect shift - maximum tolerance
+	downlim<-c(mass_def+(peaklist2[,1]*maxdown))			# downward mass defect shift - (m/z)/mass defect upper intercept
+	downlim_tol<-c(max(peaklist4)*maxdown*2)				# downward mass defect shift - maximum tolerance
 	peaklist2<-cbind(peaklist2,uplim,downlim)
 	peaklist2<-as.matrix(peaklist2)
-	max_delmz<-(4*max(peaklist4)) 						# maximum m/z-distance gap - used for early aborting
+	max_delmz<-c(4*max(peaklist4)) 						# maximum m/z-distance gap - used for early aborting
 	scaled<-c(abs(maxmz-minmz),abs(maxrt+minrt),shift)	# scaling used for nearest neighbour-search
 	if(any(scaled==0)){stop("debug me on issue #5: scaled entry ==0 -> wrong parameters=")}
 	peaklist3<-cbind(peaklist2[,c(1,2)],mass_def)
@@ -104,11 +104,10 @@ function(
 	bounds<-matrix(ncol=2,nrow=4,0)						# store search bounds
 	marked<-matrix(ncol=3,nrow=length(peaklist2[,1]),0) # first sweep = 1 -> do not set to 0!
 	marked[,1]<--1;
-	marked[,3]<-(1:length(peaklist2[,1]))
+	marked[,3]<-c(1:length(peaklist2[,1]))
 	colnames(marked)<-c("sweep","done","ID")
 	tupels<-matrix(nrow=vec_size,ncol=7,0)				# initially used to store triplets, then any n-tupels
-	tupeldo<-1;										# where to write into tupels
-cat("\n ");cat(tupeldo)
+	tupeldo<-c(1);											# where to write into tupels
 	new_found<-rep(0,length(peaklist2[,1]))				# store newly detected m/z-differences
 	new_found_ceiling<-rep(0,length(peaklist2[,1])) 	# if mass defect rounding hits ceiling
 	ceiled<-FALSE
@@ -116,9 +115,9 @@ cat("\n ");cat(tupeldo)
 	floored<-FALSE
 	dist_ID<-c()										# point ID
 	dist_dist<-c()										# store distance
-	mz_last<-0											# store last sweep`s m/z-value for correction
-	a<-0												# track over sweeps: how many points within bounds?
-	use<-1												# for nearest neighbour search
+	mz_last<-c(0)										# store last sweep`s m/z-value for correction
+	a<-c(0)												# track over sweeps: how many points within bounds?
+	use<-c(1)											# for nearest neighbour search
 	along<-rep(0,length(peaklist2[,1]))					# for nearest neighbour search
 	along[1]<-1											# for nearest neighbour search
 	##########################################################################
@@ -281,7 +280,6 @@ cat("\n ");cat(tupeldo)
 			dist_dist<-dist_dist[ord]
 			##################################################################
 			# find triplets ##################################################
-#cat("\n ");cat(tupeldo)
 			.Call("homol_triplet", 
 				peaklist3,
 				dist_ID,
@@ -294,7 +292,6 @@ cat("\n ");cat(tupeldo)
 				rttol,
 				PACKAGE="nontarget"
 			);
-#cat(" - ");cat(tupeldo)
 			if(tupeldo>vec_size){stop("\n tupels out of bounds. increase vec_size")}
 			##################################################################
 		}	
@@ -303,9 +300,8 @@ cat("\n ");cat(tupeldo)
 	if(inter){close(pBar)}
 	if(tupeldo==1){stop("no series detected")}
 	tupeldo<-(tupeldo-1)
-	#print(tupeldo)
 	tupels<-tupels[1:tupeldo,]
-#tupels<-tupels[tupels[,1]!=0,]
+	tupels<-tupels[tupels[,1]!=0,] # backup - if tupeldo fails for some reason ...
 	tupels<-tupels[order(tupels[,4]),]
 	if(plotit){
 		######################################################################	

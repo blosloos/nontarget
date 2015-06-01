@@ -26,7 +26,7 @@ extern "C"{
 		SEXP dist_ID,
 		SEXP dist_dist,
 		SEXP triplets,
-		SEXP at_triplets,
+		SEXP tupeldo,
 		SEXP peaklist4,
         SEXP use,
         SEXP max_delmz,
@@ -37,7 +37,7 @@ extern "C"{
         PROTECT(dist_ID = AS_NUMERIC(dist_ID));
         PROTECT(dist_dist = AS_NUMERIC(dist_dist));
         PROTECT(triplets = AS_NUMERIC(triplets));
-        PROTECT(at_triplets = AS_NUMERIC(at_triplets));
+        PROTECT(tupeldo = AS_NUMERIC(tupeldo));
         PROTECT(peaklist4 = AS_NUMERIC(peaklist4));
         PROTECT(use = AS_NUMERIC(use));
         PROTECT(max_delmz = AS_NUMERIC(max_delmz));
@@ -88,20 +88,20 @@ extern "C"{
                                 rtdif2_LB=(rtdif2-NUMERIC_VALUE(rttol));
                                 if(!(rtdif2_LB>rtdif1_UB)){
                                     // store IDs of peaks in triplet
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),0)=RVECTOR(dist_ID,n); // CHANGED to m below
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),1)=NUMERIC_VALUE(use);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),2)=RVECTOR(dist_ID,m); // CHANGED to n below
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),0)=RVECTOR(dist_ID,n); // CHANGED to m below
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),1)=NUMERIC_VALUE(use);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),2)=RVECTOR(dist_ID,m); // CHANGED to n below
                                     // store mass bounds
                                     min_mass_LB=(min_mass-RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1))-delmz_use);
                                     max_mass_UB=(max_mass+RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1))+delmz_use);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),3)=std::max(min_mass_LB,max_mass_LB);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),4)=std::min(min_mass_UB,max_mass_UB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),3)=std::max(min_mass_LB,max_mass_LB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),4)=std::min(min_mass_UB,max_mass_UB);
                                     // store RT bounds
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),5)=std::min(rtdif1_LB,rtdif2_LB);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),5)=std::min(rtdif1_LB,rtdif2_LB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
                                     //
-                                    RVECTOR(at_triplets,0)=(RVECTOR(at_triplets,0)+1);
-                                    if(NUMERIC_VALUE(at_triplets)>nrow){
+                                    RVECTOR(tupeldo,0)=(RVECTOR(tupeldo,0)+1);
+                                    if(NUMERIC_VALUE(tupeldo)>nrow){
                                         Rprintf("vec_size too small!");
                                         UNPROTECT(9);
                                         return(R_NilValue);
@@ -131,20 +131,20 @@ extern "C"{
                                 rtdif1_UB=(rtdif1+NUMERIC_VALUE(rttol));
                                 rtdif2_LB=(rtdif2-NUMERIC_VALUE(rttol));
                                 if(!(rtdif2_LB>rtdif1_UB)){
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),0)=RVECTOR(dist_ID,m);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),1)=NUMERIC_VALUE(use);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),2)=RVECTOR(dist_ID,n);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),0)=RVECTOR(dist_ID,m);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),1)=NUMERIC_VALUE(use);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),2)=RVECTOR(dist_ID,n);
                                     // store mass bounds
                                     min_mass_LB=(min_mass-RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1))-delmz_use);
                                     max_mass_UB=(max_mass+RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1))+delmz_use);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),3)=std::max(min_mass_LB,max_mass_LB);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),4)=std::min(min_mass_UB,max_mass_UB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),3)=std::max(min_mass_LB,max_mass_LB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),4)=std::min(min_mass_UB,max_mass_UB);
                                     // store RT bounds
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),5)=std::min(rtdif1_LB,rtdif2_LB);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(at_triplets)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),5)=std::min(rtdif1_LB,rtdif2_LB);
+                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
                                     //
-                                    RVECTOR(at_triplets,0)=(RVECTOR(at_triplets,0)+1);
-                                    if(NUMERIC_VALUE(at_triplets)>nrow){
+                                    RVECTOR(tupeldo,0)=(RVECTOR(tupeldo,0)+1);
+                                    if(NUMERIC_VALUE(tupeldo)>nrow){
                                         Rprintf("vec_size too small!");
                                         UNPROTECT(9);
                                         return(R_NilValue);
