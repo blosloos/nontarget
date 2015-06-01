@@ -343,7 +343,7 @@ function(
 	# (5) Apply mzfilter #####################################################
 	if( mzfilter[1]!="FALSE" ){
 		cat("\n(5) Apply mzfilter ... ");	
-		keep<-rep(FALSE,(tupeldo-1))
+		keep<-rep(FALSE,tupeldo)
 		for(k in 1:length(mzfilter)){
 			keep[	
 				tupels[,4]<=mzfilter[k] &
