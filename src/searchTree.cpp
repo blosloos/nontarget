@@ -1716,21 +1716,21 @@ extern "C"{
             PROTECT(data = AS_NUMERIC(data));
             PROTECT(tree = AS_NUMERIC(tree));
             PROTECT(ID = AS_INTEGER(ID));
+            PROTECT(scaled = AS_NUMERIC(scaled));
             int i;
             i = (INTEGER_VALUE(ID)-1);
-            PROTECT(scaled = AS_NUMERIC(scaled));
             double *scaled2;
+            bool add_it;
             scaled2 = NUMERIC_POINTER(scaled);
-            int n,nearest,ncol,nrow,disc,LOSON,HISON,son,parent,here=0,sized;
-            double dist_global,dist_local,distance;
-            dist_global=R_PosInf;
+            int n,m,nearest,ncol,nrow,disc,LOSON,HISON,here=0,sized;
             nearest=-2;
+            double dist_global,dist_local;
+            dist_global=R_PosInf;
             ncol=RCol(data);
             nrow=RRow(data);
 
             /* initialize */
-            std::vector<int> SON;
-            std::vector<int> PARENT;
+            std::vector<int> NODE;
             std::vector<double> DISTANCE;
 
             for(n=0;n<nrow;n++){ /* find starting point */
@@ -1738,85 +1738,77 @@ extern "C"{
                     break;
                 }
             }
-            SON.push_back(n);
-            PARENT.push_back(-1);
-            DISTANCE.push_back(0);
+            NODE.push_back(n);
+            dist_local=0;
+            for(m=0;m<ncol;m++){
+                dist_local=(dist_local+(pow(((RMATRIX(data,n,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
+            }
+            dist_local=sqrt(dist_local);
+            DISTANCE.push_back(dist_local);
 
-            /* run search */
-            while(SON.size()>0){
-                /* find subtree with smallest potential distance */
+            while(NODE.size()>0){
+                /* continue node with smallest distance */
                 dist_local=R_PosInf;
-                here=0;
                 sized=DISTANCE.size();
                 for(n=0;n<sized;n++){
-                    if(DISTANCE[n]<dist_local){
+                    if(DISTANCE[n]<=dist_local){
                         dist_local=DISTANCE[n];
                         here=n;
                     }
                 }
-                son=SON[here];
-                parent=PARENT[here];
-                distance=DISTANCE[here];
-                SON.erase(SON.begin()+here);
-                PARENT.erase(PARENT.begin()+here);
-                DISTANCE.erase(DISTANCE.begin()+here);
-                if(distance<=dist_global){
-                    if(son!=i){
-                        dist_local=0;
-                        for(n=0;n<ncol;n++){
-                            dist_local=(dist_local+(pow(((RMATRIX(data,son,n)-RMATRIX(data,i,n))/scaled2[n]),2)));
-                        }
-                        dist_local=sqrt(dist_local);
-                        if(dist_local<=dist_global){
-                            dist_global=dist_local;
-                            nearest=son;
-                        }
-                    }
-                    disc=int(RMATRIX(tree,son,3)-1);
-                    LOSON=int(RMATRIX(tree,son,0));
-                    HISON=int(RMATRIX(tree,son,1));
-                    if(LOSON!=0){
-                        LOSON=(LOSON-1);
-                        if((RMATRIX(data,i,disc)>RMATRIX(data,son,disc))){
-                            dist_local=distance;
-                            if(parent!=-1){
-                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
-                            }
-                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
-                            dist_local=sqrt(dist_local);
-                            if(dist_local<=dist_global){
-                                SON.push_back(LOSON);
-                                PARENT.push_back(son);
-                                DISTANCE.push_back(dist_local);
-                            }
-                        }else{
-                            SON.push_back(LOSON);
-                            PARENT.push_back(son);
-                            DISTANCE.push_back(distance);
-                        }
-                    }
-                    if(HISON!=0){
-                        HISON=(HISON-1);
-                        if((RMATRIX(data,i,disc)<RMATRIX(data,son,disc))){
-                            dist_local=distance;
-                            if(parent!=-1){
-                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
-                            }
-                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
-                            dist_local=sqrt(dist_local);
-                            if(dist_local<=dist_global){
-                                SON.push_back(HISON);
-                                PARENT.push_back(son);
-                                DISTANCE.push_back(dist_local);
-                            }
-                        }else{
-                            SON.push_back(HISON);
-                            PARENT.push_back(son);
-                            DISTANCE.push_back(distance);
-                        }
+                if(NODE[here]!=i){
+                    if(DISTANCE[here]<=dist_global){
+                        dist_global=DISTANCE[here];
+                        nearest=NODE[here];
                     }
                 }
+                disc=int(RMATRIX(tree,NODE[here],3)-1);
+                LOSON=int(RMATRIX(tree,NODE[here],0));
+                HISON=int(RMATRIX(tree,NODE[here],1));
+                if(LOSON!=0){
+                    LOSON=(LOSON-1);
+                    add_it=true;
+                    if(RMATRIX(data,NODE[here],disc)<RMATRIX(data,i,disc)){
+                        dist_local=(pow(((RMATRIX(data,LOSON,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                        dist_local=sqrt(dist_local);
+                        if(dist_local>dist_global){
+                            add_it=false;
+                        }
+                    }
+                    if(add_it){
+                        dist_local=0;
+                        for(m=0;m<ncol;m++){
+                            dist_local=(dist_local+(pow(((RMATRIX(data,LOSON,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
+                        }
+                        dist_local=sqrt(dist_local);
+                        DISTANCE.push_back(dist_local);
+                        NODE.push_back(LOSON);
+                    }
+                }
+                if(HISON!=0){
+                    HISON=(HISON-1);
+                    add_it=true;
+                    if(RMATRIX(data,NODE[here],disc)>RMATRIX(data,i,disc)){
+                        dist_local=(pow(((RMATRIX(data,HISON,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
+                        dist_local=sqrt(dist_local);
+                        if(dist_local>dist_global){
+                            add_it=false;
+                        }
+                    }
+                    if(add_it){
+                        dist_local=0;
+                        for(m=0;m<ncol;m++){
+                            dist_local=(dist_local+(pow(((RMATRIX(data,HISON,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
+                        }
+                        dist_local=sqrt(dist_local);
+                        DISTANCE.push_back(dist_local);
+                        NODE.push_back(HISON);
+                    }
+                }
+                DISTANCE.erase(DISTANCE.begin()+here);
+                NODE.erase(NODE.begin()+here);
             }
+
 
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, 1, (ncol+1)));

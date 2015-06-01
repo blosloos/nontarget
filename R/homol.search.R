@@ -97,7 +97,8 @@ function(
 	peaklist2<-cbind(peaklist2,uplim,downlim)
 	peaklist2<-as.matrix(peaklist2)
 	max_delmz<-(4*max(peaklist4)) 						# maximum m/z-distance gap - used for early aborting
-	scaled<-c(abs(maxmz-minmz),abs(maxrt-minrt),shift)	# scaling used for nearest neighbour-search
+	scaled<-c(abs(maxmz-minmz),abs(maxrt+minrt),shift)	# scaling used for nearest neighbour-search
+	if(any(scaled==0)){stop("debug me on issue #5: scaled entry ==0 -> wrong parameters=")}
 	peaklist3<-cbind(peaklist2[,c(1,2)],mass_def)
 	peaklist3<-as.matrix(peaklist3)
 	bounds<-matrix(ncol=2,nrow=4,0)						# store search bounds
@@ -106,7 +107,8 @@ function(
 	marked[,3]<-(1:length(peaklist2[,1]))
 	colnames(marked)<-c("sweep","done","ID")
 	tupels<-matrix(nrow=vec_size,ncol=7,0)				# initially used to store triplets, then any n-tupels
-	at_tupels<-1										# where to write into tupels
+	tupeldo<-1;										# where to write into tupels
+cat("\n ");cat(tupeldo)
 	new_found<-rep(0,length(peaklist2[,1]))				# store newly detected m/z-differences
 	new_found_ceiling<-rep(0,length(peaklist2[,1])) 	# if mass defect rounding hits ceiling
 	ceiled<-FALSE
@@ -137,6 +139,7 @@ function(
 			scaled,	
 			PACKAGE="nontarget"
 		)[,1]
+		if(use2==-1){stop("debug me on issue #4 - use2=-1")}
 		.Call("node_delete", 
 			use,
 			peaklist3,
@@ -278,26 +281,31 @@ function(
 			dist_dist<-dist_dist[ord]
 			##################################################################
 			# find triplets ##################################################
+#cat("\n ");cat(tupeldo)
 			.Call("homol_triplet", 
 				peaklist3,
 				dist_ID,
 				dist_dist,
 				tupels,
-				at_tupels,
+				tupeldo,
 				peaklist4,
 				use, # = current point
 				max_delmz,
 				rttol,
 				PACKAGE="nontarget"
 			);
+#cat(" - ");cat(tupeldo)
+			if(tupeldo>vec_size){stop("\n tupels out of bounds. increase vec_size")}
 			##################################################################
 		}	
 		######################################################################
 	}
 	if(inter){close(pBar)}
-	if(at_tupels==1){stop("no series detected")}
-	at_tupels<-(at_tupels-1)
-	tupels<-tupels[1:at_tupels,]
+	if(tupeldo==1){stop("no series detected")}
+	tupeldo<-(tupeldo-1)
+	#print(tupeldo)
+	tupels<-tupels[1:tupeldo,]
+#tupels<-tupels[tupels[,1]!=0,]
 	tupels<-tupels[order(tupels[,4]),]
 	if(plotit){
 		######################################################################	
@@ -338,7 +346,7 @@ function(
 	# (5) Apply mzfilter #####################################################
 	if( mzfilter[1]!="FALSE" ){
 		cat("\n(5) Apply mzfilter ... ");	
-		keep<-rep(FALSE,(at_tupels-1))
+		keep<-rep(FALSE,(tupeldo-1))
 		for(k in 1:length(mzfilter)){
 			keep[	
 				tupels[,4]<=mzfilter[k] &
