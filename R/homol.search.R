@@ -16,7 +16,8 @@ function(
 	vec_size=3E6,
 	R2=.98,
 	spar=.45,
-	plotit=FALSE
+	plotit=FALSE,
+	deb=0
 ){
   
     ##########################################################################
@@ -27,7 +28,7 @@ function(
     if(mztol<=0){warning("mztol should be >0!")};
 	if(length(elements)<1){stop("specify elements")}
 	if(!is.numeric(mzfilter) & mzfilter[1]!="FALSE"){stop("mzfilter must either be a numeric vector or set to FALSE")}
-	if(any(is.na(match(elements,isotopes[,1])))){ stop("unknown elements") }
+	if(elements[1]!="FALSE"){if(any(is.na(match(elements,isotopes[,1])))){ stop("unknown elements") }}
 	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
 	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
 	if(R2!=FALSE){if((R2<=0)||(R2>1)){stop("R2 must be either FALSE or 0<R2<=1")}}
@@ -429,6 +430,7 @@ function(
 		tupels<-merged_tupels;
 	}
 	cat(" - done.");
+	if(deb==1){return(HS)}
 	if(length(HS)<minlength){
 		stop("\n No homologueseries detected with this minlength setting");
 	}

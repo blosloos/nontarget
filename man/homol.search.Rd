@@ -9,7 +9,7 @@ Dynamic programming algorithm for unsupervised detection of homologue series in 
 }
 \usage{
 homol.search(peaklist,isotopes,	elements=c("C","H","O"),use_C=FALSE,minmz=5,maxmz=120,minrt=2,maxrt=2,
-ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar=.45,plotit=FALSE)
+ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar=.45,plotit=FALSE,deb=0)
 }
 
 \arguments{
@@ -79,6 +79,10 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 
   \item{plotit}{
 	Logical. Intermediate plots of nearest neigbour paths and spline fits of individual homologues series >=\code{minlength}. 
+}
+
+  \item{deb}{
+	Debug returns, ignore.
 }
 
 }

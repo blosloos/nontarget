@@ -17,6 +17,7 @@
 
 
 inline int inbound (SEXP data,int n,SEXP bounds){
+
     int a=1,i,ncol;
     ncol=RCol(data);
     for(i=0;i<ncol;i++){
@@ -26,6 +27,7 @@ inline int inbound (SEXP data,int n,SEXP bounds){
         }
     }
     return a;
+
 }
 
 inline int boundbound (SEXP data,int n,SEXP bounds){
@@ -64,13 +66,15 @@ void search_tree_sub(SEXP data, SEXP tree, SEXP bounds, std::deque<int> &found){
             /* still within bounds? */
             value=RMATRIX(data,at_nodes.front(),int((RMATRIX(tree,at_nodes.front(),3))-1));
             if(RMATRIX(bounds,int(RMATRIX(tree,at_nodes.front(),3)-1),0)<=value){
+                /* include LOSON & update its bounds */
                 at_nodes.push_back(int(RMATRIX(tree,at_nodes.front(),0)-1));
             }
         }
         /* ... on HISON */
         if(RMATRIX(tree,at_nodes.front(),1)!=0){
+
             /* still within bounds? */
-            value=RMATRIX(data,at_nodes.front(),int(RMATRIX(tree,at_nodes.front(),3)-1));
+            value=RMATRIX(data,at_nodes.front(),int((RMATRIX(tree,at_nodes.front(),3))-1));
             if(RMATRIX(bounds,int(RMATRIX(tree,at_nodes.front(),3)-1),1)>=value){
                 /* include HISON & update its bounds */
                 at_nodes.push_back(int(RMATRIX(tree,at_nodes.front(),1)-1));
@@ -784,7 +788,6 @@ extern "C"{
 
     }
 
-
 /******************************************************************************/
 /* Build kd tree - partial sort on n_th element - only sorting indices ********/
 /******************************************************************************/
@@ -910,7 +913,6 @@ extern "C"{
             return(results);
 
     }
-
 
 /******************************************************************************/
 /* Build kd tree - partial sort on n_th element *******************************/
@@ -1124,7 +1126,6 @@ extern "C"{
             return(results);
 
     }
-
 
 /******************************************************************************/
 /* Build kd tree - full sort **************************************************/
@@ -1567,7 +1568,6 @@ extern "C"{
 
     }
 
-
 /******************************************************************************/
 /* Search kd tree: nearest neighbour, euclidean *******************************/
 /* need kdtree4 output (with preliminary nearest ******************************/
@@ -1701,7 +1701,6 @@ extern "C"{
 
     }
 
-
 /******************************************************************************/
 /* Search kd tree: nearest neighbour, euclidean *******************************/
 /******************************************************************************/
@@ -1823,7 +1822,6 @@ extern "C"{
 
     }
 
-
 /******************************************************************************/
 /* Search kd tree: range for marked homologues - returns extend_found *********/
 /******************************************************************************/
@@ -1871,7 +1869,6 @@ extern "C"{
             return(R_NilValue);
 
     }
-
 
 /******************************************************************************/
 /* Delete data node i (= row in matrix data) from tree ************************/
@@ -2021,7 +2018,6 @@ extern "C"{
         return(R_NilValue);
 
 }
-
 
 }
 
