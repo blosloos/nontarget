@@ -81,7 +81,7 @@ extern "C"{
                         if(max_mass_LB<min_mass_UB){
                             rtdif1=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),1));
                             rtdif1_LB=(rtdif1-NUMERIC_VALUE(rttol));
-                            rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),1));
+                            rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1));
                             rtdif2_UB=(rtdif2+NUMERIC_VALUE(rttol));
                             if(!(rtdif2_UB<rtdif1_LB)){
                                 rtdif1_UB=(rtdif1+NUMERIC_VALUE(rttol));
@@ -125,7 +125,7 @@ extern "C"{
                             // (3) RT change within tolerance?
                             rtdif1=(RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1)-RMATRIX(peaklist3,int(RVECTOR(dist_ID,n)-1),1));
                             rtdif1_LB=(rtdif1-NUMERIC_VALUE(rttol));
-                            rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)),1));
+                            rtdif2=(RMATRIX(peaklist3,int(RVECTOR(dist_ID,m)-1),1)-RMATRIX(peaklist3,int(NUMERIC_VALUE(use)-1),1));
                             rtdif2_UB=(rtdif2+NUMERIC_VALUE(rttol));
                             if(!(rtdif2_UB<rtdif1_LB)){
                                 rtdif1_UB=(rtdif1+NUMERIC_VALUE(rttol));

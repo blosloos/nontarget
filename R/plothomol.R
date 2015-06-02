@@ -43,6 +43,8 @@ function(
     that<-levels(as.factor(this));
     colo<-rainbow(length(that))
     for(i in 1:length(homol[[5]])){
+	
+	
       for(j in 2:length(homol[[5]][[i]])){
        for(k in 1:length(homol[[5]][[i]][j-1])){
         for(m in 1:length(homol[[5]][[i]][j])){
@@ -64,6 +66,9 @@ function(
         } 
        }
       }
+	  #i<-(i+1)
+	  
+	  
     }
     # add a legend
     if(plotlegend==TRUE){

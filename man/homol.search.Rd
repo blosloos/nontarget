@@ -90,13 +90,14 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 \details{
 A dynamic programming approach is used to extract series of peaks that differ in constant m/z units and smooth changes in their retention time. First, a greedy nearest neighbour path through a kd-tree representation of
 the data is used to extract all feasible peak triplets. These triplets are then combined to all plausible n-tupels in n-3 steps. At each such step, each n-tupel is checked for smooth changes of RT with increasing m/z of
-the homologues, using cubic splines and a threshold of the model fit. 
+the homologues, using cubic splines and a R2-based threshold of the model fit. 
 }
 
 \note{
 Arguments \code{isotopes} and \code{elements} are needed to limit intermediate numbers of m/z differences to screen over, based on feasible changes in mass defect. 
-Similarly, intermediate numbers are limited by the retention time and m/z windows defined by \code{minmz/maxmz} and \code{minrt/maxrt}, respectively. 
+Similarly, intermediate numbers are limited by the retention time and m/z windows defined by \code{minmz/maxmz} and \code{minrt/maxrt/rttol}, respectively. 
 The latter are always set relative to the individual RT and m/z values of the peaks to be searched from. 
+Overall, these parameters must be chosen carefully to avoid a combinatorial explosion of triplet m/z differences, leading to slow computation, memory problems or senseless results.
 
 Values for \code{spar} and \code{R2} have to be adjusted for different chromatographic settings; the smoothing spline fits are used to eliminate homologue series candidates with erratic RT-behaviour.
 Spline fits can be viewed by \code{plotit=TRUE}.

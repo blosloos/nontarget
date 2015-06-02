@@ -299,11 +299,11 @@ function(
 		######################################################################
 	}
 	if(inter){close(pBar)}
-	if(tupeldo==1){stop("no series detected")}
 	tupeldo<-(tupeldo-1)
-	tupels<-tupels[1:tupeldo,]
-	tupels<-tupels[tupels[,1]!=0,] # backup - if tupeldo fails for some reason ...
-	tupels<-tupels[order(tupels[,4]),]
+	if(tupeldo==0){stop("no series detected")}
+	tupels<-tupels[1:tupeldo,,drop=FALSE]
+	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails for some reason ...
+	tupels<-tupels[order(tupels[,4]),,drop=FALSE]
 	if(plotit){
 		######################################################################	
 		# path in m/z vs. mass defect ########################################
@@ -351,7 +351,7 @@ function(
 			]<-TRUE
 		}
 		if(!any(keep)){stop("No homologues detected after mzfilter application")}
-		tupels<-tupels[keep,]
+		tupels<-tupels[keep,,drop=FALSE]
 		cat("done.");
 	}else{
 		cat("\n(5) Skip mzfilter. ");	
@@ -365,7 +365,8 @@ function(
 	while(any(tupels[,1]!=0)){
 	    cat(paste(" ",HS_length,sep=""));
 		keeper<-rep(0,length(tupels[,1]))
-		if(length(tupels[,1])<=1){stop("\n debug me, issue #1")}
+		if(length(tupels[,1])==1){break}
+		if(length(tupels[,1])==0){stop("\n debug me, issue #1")}
 		if(any(tupels[,1]<1)){stop("\n debug me, issue #3")}
 		merged_tupels<-.Call("combine_tuple", 
 			tupels[,1:HS_length],
@@ -432,7 +433,7 @@ function(
 	cat(" - done.");
 	if(deb==1){return(HS)}
 	if(length(HS)<minlength){
-		stop("\n No homologueseries detected with this minlength setting");
+		stop("\n No homologueseries detected with such (minlength) setting");
 	}
 	##########################################################################	
 	# (7) Generate data output ###############################################
