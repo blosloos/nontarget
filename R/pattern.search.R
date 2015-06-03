@@ -1014,7 +1014,7 @@ function(
         deep<-"No groups formed"
     }
     ############################################################################
-    hits<-data.frame(isomat[,c(1,7,4)],rep(0,length(isomat[,1])),rep("0",length(isomat[,1])));
+    hits<-data.frame(isomat[,c(1,7,4)],rep(0,length(isomat[,1])),rep("0",length(isomat[,1])),stringsAsFactors=FALSE);
     names(hits)<-c("isotope","charge","peak counts","group counts","element");
     # increment counts
     for(j in 1:length(getit1)){
@@ -1056,7 +1056,7 @@ function(
       }
     }
     ############################################################################
-    removals<-data.frame(seq(1:length(rules)),rep(0,length(rules)));
+    removals<-data.frame(seq(1:length(rules)),rep(0,length(rules)),stringsAsFactors=FALSE);
     names(removals)=c("Rule","Counts");
     removals[1,2]=countrem1;
     removals[2,2]=countrem2;
@@ -1108,7 +1108,7 @@ function(
       groupinfo<-"No groups detected"
     }
     ############################################################################
-    groupcount<-data.frame(charges,rep(0,length(charges)));
+    groupcount<-data.frame(charges,rep(0,length(charges)),stringsAsFactors=FALSE);
     names(groupcount)<-c("Charge level","Counts");
     that2<-seq(1:length(charges));
     if(length(group6)>0){
@@ -1122,11 +1122,11 @@ function(
       groupcount<-"No groups detected"
     }
     ############################################################################
-    grouped_samples<-data.frame(samples,ID,group1,group2,getit4,getit1,getit5,getit6);
+    grouped_samples<-data.frame(samples,ID,group1,group2,getit4,getit1,getit5,getit6,stringsAsFactors=FALSE);
     grouped_samples<-grouped_samples[order(ID,decreasing=FALSE),]
 	names(grouped_samples)<-c(names(samples),"peak ID","group ID","interaction level","to ID","isotope(s)","mass tolerance","charge level")
     #
-    parameters<-data.frame(rttol[1],rttol[2],mztol,mzfrac,ppm,inttol,cutint,deter)
+    parameters<-data.frame(rttol[1],rttol[2],mztol,mzfrac,ppm,inttol,cutint,deter,stringsAsFactors=FALSE)
 	#
     if(length(group4)>0){
 		for(k in 1:length(group3)){

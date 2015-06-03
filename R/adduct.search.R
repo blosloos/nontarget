@@ -119,7 +119,7 @@ function(
 		}
 	}	
     ID<-seq(1:length(peaklist[,1]));	
-    list_adducts<-data.frame(peaklist[,1:3],ID,getit4,getit2,getit1,getit3);
+    list_adducts<-data.frame(peaklist[,1:3],ID,getit4,getit2,getit1,getit3,stringsAsFactors=FALSE);
     names(list_adducts)<-c("m/z","int","ret","peak ID","group ID","to ID","adduct(s)","mass tolerance");
 	# (3.2) Groupwise ##########################################################
     group1<-paste("/",as.character(1:max(groups)),"/",sep="") 	# groupnumber?
@@ -146,11 +146,11 @@ function(
 	}
 	group2<-substr(group2,2,nchar(group2))
 	group3<-substr(group3,2,nchar(group3))
-    grouping<-data.frame(group1,group2,group3,group4);
+    grouping<-data.frame(group1,group2,group3,group4,stringsAsFactors=FALSE);
     names(grouping)<-c("group ID","peak IDs","adducts","ambig.?");
 	overlaps<-sum(as.numeric(as.logical(group4)));
     # (3.3) counts of adduct matches ###########################################
-    hits<-data.frame(use_adducts,rep(0,length(use_adducts)));
+    hits<-data.frame(use_adducts,rep(0,length(use_adducts)),stringsAsFactors=FALSE);
     names(hits)<-c("names","counts");
     for(i in 1:length(group1)){
 		this1<-strsplit(as.character(group3[i]),"/")[[1]];
@@ -159,7 +159,7 @@ function(
 		};
     };
 	# list #####################################################################
-    parameters<-data.frame(rttol,mztol,ppm,ion_mode);	
+    parameters<-data.frame(rttol,mztol,ppm,ion_mode,stringsAsFactors=FALSE);	
     adduct<-list(list_adducts,parameters,grouping,hits,overlaps);
     names(adduct)<-c("adducts","Parameters","Peaks in adduct groups","Adduct counts","Overlaps");
     cat("done.\n\n");

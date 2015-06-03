@@ -430,14 +430,52 @@ function(
 		}
 		tupels<-merged_tupels;
 	}
-	cat(" - done.");
 	if(deb==1){return(HS)}
 	if(length(HS)<minlength){
 		stop("\n No homologueseries detected with such (minlength) setting");
 	}
+	cat(" - done.");
 	##########################################################################	
-	# (7) Generate data output ###############################################
-	cat(paste("\n(7) Parse output for ",found," homologue series ... ",sep=""));
+	# (7) remove nested HS ###################################################
+	if(deb!=2){
+		cat("\n(7) Remove nested HS: ");
+		reject<-0;
+		if(length(HS)>minlength){ # anything to do?
+			for(i in minlength:(length(HS)-1)){
+				if(length(HS[[i]])>0){
+					keeper<-rep(TRUE,length(HS[[i]][,1]))
+					for(a in 1:length(HS[[i]][,1])){
+						for(j in (minlength+1):length(HS)){
+							if(length(HS[[j]])>0){
+								for(b in 1:length(HS[[j]][,1])){
+									if(HS[[i]][a,(i+4)]<HS[[j]][b,(j+3)]){next}
+									if(HS[[i]][a,(i+3)]>HS[[j]][b,(j+4)]){next}
+									rem<-TRUE
+									for(d in 1:i){
+										if(is.na(match(HS[[i]][a,d],HS[[j]][b,1:j]))){
+											rem<-FALSE;
+											break;
+										}
+									}
+									if(rem){
+										keeper[a]<-FALSE
+										reject<-(reject+1)
+									}
+								}
+							}
+						}
+					}
+					HS[[i]]<-HS[[i]][keeper,,drop=FALSE]
+				}
+			}
+		}
+		cat(paste(reject," cases - done.",sep=""));
+	}else{
+		cat("\n(7) Removal of nested HS skipped");	
+	}
+	##########################################################################	
+	# (8) Generate data output ###############################################
+	cat(paste("\n(8) Parse output for ",found," homologue series ... ",sep=""));
     # generate peaklist with links & #####################################
     # generate component list with relevant m/z & RT increments ##########
     group1<-c();  # group ID
@@ -501,9 +539,9 @@ function(
 			getit3[i]<-substr(getit3[i],3,nchar(getit3[i]))
 		}
 	}
-	grouped_samples<-data.frame(peaklist,seq(1,len,1),getit1,getit2,getit3,getit4,getit5);
+	grouped_samples<-data.frame(peaklist,seq(1,len,1),getit1,getit2,getit3,getit4,getit5,stringsAsFactors=FALSE);
 	names(grouped_samples)<-c("mz","intensity","RT","peak ID","group ID","series level","to ID","m/z increment","RT increment");
-	grouping<-data.frame(group1,group2,group3,group4,group5,group6,group6-group5);
+	grouping<-data.frame(group1,group2,group3,group4,group5,group6,group6-group5,stringsAsFactors=FALSE);
 	names(grouping)<-c("group ID","peak IDs","m/z increment","RT increment","min. RT in series","max. RT in series","max.-min. RT");
 	# store parameters used ##################################################
 	parameters<-list(0)
@@ -525,7 +563,7 @@ function(
 	cat("done.\n");
 	##########################################################################		
 	homol<-list(grouped_samples,parameters,grouping,mzfilter,peakID);
-	names(homol)<-c("Homologue Series","Parameters","Peaks in homologue series","m/z-Filter used","Peaks per level")
+	names(homol)<-c("Peaks in homologue series","Parameters","Homologue Series","m/z-Filter used","Peaks per level")
 	##########################################################################
 	return(homol); ###########################################################
 	##########################################################################

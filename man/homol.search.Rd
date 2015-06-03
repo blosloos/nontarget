@@ -62,7 +62,7 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 }
 
   \item{mzfilter}{
-	Vector of numerics. Can be used to filter output for homologue series with certain differences in m/z along the series, given the tolerances in \code{mztol}.
+	Vector of numerics to filter for homologue series with specific m/z differences of their repeating units, given the tolerances in \code{mztol}. Mind charge z!
 }
 
   \item{vec_size}{
@@ -95,12 +95,12 @@ the homologues, using cubic splines and a R2-based threshold of the model fit.
 
 \note{
 Arguments \code{isotopes} and \code{elements} are needed to limit intermediate numbers of m/z differences to screen over, based on feasible changes in mass defect. 
-Similarly, intermediate numbers are limited by the retention time and m/z windows defined by \code{minmz/maxmz} and \code{minrt/maxrt/rttol}, respectively. 
+Similarly, intermediate numbers are also limited by the retention time and m/z windows defined by \code{minmz/maxmz} and \code{minrt/maxrt/rttol}, respectively. 
 The latter are always set relative to the individual RT and m/z values of the peaks to be searched from. 
 Overall, these parameters must be chosen carefully to avoid a combinatorial explosion of triplet m/z differences, leading to slow computation, memory problems or senseless results.
 
 Values for \code{spar} and \code{R2} have to be adjusted for different chromatographic settings; the smoothing spline fits are used to eliminate homologue series candidates with erratic RT-behaviour.
-Spline fits can be viewed by \code{plotit=TRUE}.
+Spline fits at >=\code{minlength} can be viewed by \code{plotit=TRUE}, after two plots of shortest path.
 
 Peak IDs refer to the order in which peaks are provided. Different group IDs exist for adduct groups, isotope pattern groups and homologue series peak 
 groups. Yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
@@ -151,7 +151,7 @@ homol<-homol.search(
 	maxrt=2,
 	ppm=TRUE,
 	mztol=3.5,
-    rttol=0.5,
+	rttol=0.5,
 	minlength=5,
 	mzfilter=FALSE,
 	vec_size=3E6,

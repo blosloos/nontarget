@@ -289,13 +289,13 @@ pattern.search2<-function(
 		};
 		if(getit6[i]!="0"){getit6[i]<-substr(getit6[i],3,nchar(getit6[i]))};
 	}
-	grouped_peaks<-data.frame(peaklist,ID,getit5,getit6,getit1,getit2,getit3,getit4)
+	grouped_peaks<-data.frame(peaklist,ID,getit5,getit6,getit1,getit2,getit3,getit4,stringsAsFactors=FALSE)
     names(grouped_peaks)<-c(names(peaklist),"peak ID","group ID","interaction level","to ID",
 		"isotope(s)","mass tolerance","charge level")
 	pattern[[1]]<-grouped_peaks
 	# (2) Parameters #######################################################################
 	parameters<-data.frame(-rttol,rttol,mztol,0,ppm,inttol,0,0,adductmass_LB,adductmass_UB,
-		size_deltamass,size_mass,size_intens)
+		size_deltamass,size_mass,size_intens,stringsAsFactors=FALSE)
 	names(parameters)<-c("rttol","rttol","mztol","mzfrac","ppm","inttol","cutint",
 		"deter","adductmass_LB","adductmass_UB","size_deltamass","size_mass","size_intens")
 	pattern[[2]]<-parameters
@@ -329,14 +329,14 @@ pattern.search2<-function(
 	for(i in 1:length(groupID)){
 		groupID[i]<-paste("/",as.character(groupID[i]),"/",sep="")
 	}
-	grouping<-data.frame(groupID,peakIDs,charge_group)
+	grouping<-data.frame(groupID,peakIDs,charge_group,stringsAsFactors=FALSE)
 	names(grouping)<-c("group ID","peak IDs","charge")
 	pattern[[3]]<-grouping
 	########################################################################################
 	# (4) Atom counts ######################################################################
 	pattern[[4]]<-"no information"
 	# (5) Count of pattern groups ##########################################################
-	charge_count<-data.frame(charge_count,counted)
+	charge_count<-data.frame(charge_count,counted,stringsAsFactors=FALSE)
 	names(charge_count)<-c("Charge level","Counts")
 	pattern[[5]]<-charge_count
 	# (6) Removal by rules #################################################################
@@ -384,7 +384,7 @@ pattern.search2<-function(
 				group_count[isos==get1[j,1] & chrgs==get1[j,2]]<-(group_count[isos==get1[j,1] & chrgs==get1[j,2]]+1)
 			}
 		}
-		counts<-data.frame(isos,chrgs,incr_count,group_count,element)
+		counts<-data.frame(isos,chrgs,incr_count,group_count,element,stringsAsFactors=FALSE)
 		names(counts)<-c("isotope","charge","peak counts","group counts","element")	
 		counts<-counts[(counts[,3]!=0 | counts[,4]!=0),]
 		pattern[[9]]<-counts
