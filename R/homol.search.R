@@ -438,37 +438,66 @@ function(
 	##########################################################################	
 	# (7) remove nested HS ###################################################
 	if(deb!=2){
-		cat("\n(7) Remove nested HS: ");
+		cat("\n(7) Remove nested HS:  \n");
 		reject<-0;
-		if(length(HS)>minlength){ # anything to do?
-			for(i in minlength:(length(HS)-1)){
+		if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
+		# membership of peaks in HS #########################################
+		peakHS<-list(0)
+		for(i in 1:length(peaklist[,1])){
+			peakHS[[i]]<-matrix(ncol=2,nrow=0)
+		}
+		if(length(HS)>minlength){ # anything to do?		
+			for(i in minlength:length(HS)){		
 				if(length(HS[[i]])>0){
-					keeper<-rep(TRUE,length(HS[[i]][,1]))
+					HS[[i]][,length(HS[[i]][1,])]<-1 # use last column as marker for keeping a HS
 					for(a in 1:length(HS[[i]][,1])){
-						for(j in (minlength+1):length(HS)){
-							if(length(HS[[j]])>0){
-								for(b in 1:length(HS[[j]][,1])){
-									if(HS[[i]][a,(i+4)]<HS[[j]][b,(j+3)]){next}
-									if(HS[[i]][a,(i+3)]>HS[[j]][b,(j+4)]){next}
-									rem<-TRUE
-									for(d in 1:i){
-										if(is.na(match(HS[[i]][a,d],HS[[j]][b,1:j]))){
-											rem<-FALSE;
-											break;
-										}
-									}
-									if(rem){
-										keeper[a]<-FALSE
-										reject<-(reject+1)
-									}
-								}
-							}
+						for(b in 1:i){
+							peakHS[[ HS[[i]][a,b] ]]<-(
+								rbind(peakHS[[ HS[[i]][a,b] ]],c(i,a))
+							)
 						}
 					}
-					HS[[i]]<-HS[[i]][keeper,,drop=FALSE]
 				}
 			}
 		}
+		# check peak memberships of HS for subsets ##########################
+		for(i in 1:length(peakHS)){
+			if(inter){setTxtProgressBar(pBar,i,title = NULL, label = NULL)}
+			if(length(peakHS[[i]])>2){
+				ns<-unique(peakHS[[i]][,1])
+				if(length(ns)>1){
+					for(a in 1:(length(peakHS[[i]][,1])-1)){
+						n<-peakHS[[i]][a,1]
+						for(b in (a+1):length(peakHS[[i]][,1])){
+							m<-peakHS[[i]][b,1]
+							if(n<m){
+								if( m>=((n*2)-1) ){ # series nesting requirement
+									this<-HS[[n]][peakHS[[i]][a,2],1:n]
+									that<-HS[[m]][peakHS[[i]][b,2],1:m]
+									if(all(!is.na(match(this,that)))){
+										k<-peakHS[[i]][a,2]
+										HS[[n]][k,length(HS[[n]][1,])]<-0
+										reject<-(reject+1)
+										#stop()	
+									}
+									
+								}
+							}
+						}
+					}	
+				}
+			}
+		}
+		if(inter){close(pBar)}
+		# remove unmarked HS ################################################
+		if(length(HS)>minlength){ # anything to do?		
+			for(i in minlength:length(HS)){		
+				if(length(HS[[i]])>0){
+					HS[[i]]<-(HS[[i]][HS[[i]][,length(HS[[i]][1,])]==1,,drop=FALSE])
+				}
+			}
+		}
+		#####################################################################
 		cat(paste(reject," cases - done.",sep=""));
 	}else{
 		cat("\n(7) Removal of nested HS skipped");	
@@ -501,6 +530,7 @@ function(
 				atthat<-""
 				meanmz<-mean(HS[[a]][b,((a+1):(a+2))]);
 				meanRT<-mean(HS[[a]][b,((a+3):(a+4))]);
+#if(atgroup==9){stop()}
 				minRT<-min(peaklist[HS[[a]][b,1:a],3]);
 				maxRT<-max(peaklist[HS[[a]][b,1:a],3]);
 				difRT<-(maxRT-minRT);
