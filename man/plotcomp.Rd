@@ -40,8 +40,8 @@ Martin Loos
 }
 \note{
 Input peaklist is internally sorted and saved in the lists returned by (a) increasing retention time and (b) m/z by all \code{\link[nontarget]{pattern.search}}, \code{\link[nontarget]{adduct.search}} 
-and \code{\link[nontarget]{homol.search}}. Peak IDs refer to this very order - in contrast to group IDs. Different groups IDs exist for adduct groups, isotope pattern groups and homologue series peak 
-groups. Moreover, and at the highest level, IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
+and \code{\link[nontarget]{homol.search}}. Peak IDs refer to this very order - in contrast to group IDs. Different IDs exist for adduct groups, isotope pattern groups, grouped homologue series (HS) peaks 
+and homologue series cluster. Moreover, and at the highest level, IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
 
 }
 

@@ -78,7 +78,7 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 }
 
   \item{plotit}{
-	Logical. Intermediate plots of nearest neigbour paths and spline fits of individual homologues series >=\code{minlength}. 
+	Logical FALSE or 0<integer<5. Intermediate plots of nearest neigbour paths, spline fits of individual homologues series >=\code{minlength}, clustered HS pairs, etc . 
 }
 
   \item{deb}{
@@ -88,8 +88,9 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 }
 
 \details{
-A dynamic programming approach is used to extract series of peaks that differ in constant m/z units and smooth changes in their retention time. First, a greedy nearest neighbour path through a kd-tree representation of
-the data is used to extract all feasible peak triplets. These triplets are then combined to all plausible n-tupels in n-3 steps. At each such step, each n-tupel is checked for smooth changes of RT with increasing m/z of
+A dynamic programming approach is used to extract series of peaks that differ in constant m/z units and smooth changes in their retention time within bounds of mass defect changes. 
+First, a nearest neighbour path through a kd-tree representation of the data is used to extract all feasible peak triplets. 
+These triplets are then combined to all plausible n-tupels in n-3 steps. At each such step, each newly formed n-tupel is checked for smooth changes of RT with increasing m/z of
 the homologues, using cubic splines and a R2-based threshold of the model fit. 
 }
 
@@ -100,12 +101,12 @@ The latter are always set relative to the individual RT and m/z values of the pe
 Overall, these parameters must be chosen carefully to avoid a combinatorial explosion of triplet m/z differences, leading to slow computation, memory problems or senseless results.
 
 Values for \code{spar} and \code{R2} have to be adjusted for different chromatographic settings; the smoothing spline fits are used to eliminate homologue series candidates with erratic RT-behaviour.
-Spline fits at >=\code{minlength} can be viewed by \code{plotit=TRUE}, after two plots of shortest path.
+Spline fits at >=\code{minlength} can be viewed by \code{plotit=2}.
 
-Peak IDs refer to the order in which peaks are provided. Different group IDs exist for adduct groups, isotope pattern groups and homologue series peak 
-groups. Yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
+Peak IDs refer to the order in which peaks are provided. Different IDs exist for adduct groups, isotope pattern groups, grouped homologue series (HS) peaks 
+and homologue series cluster. Yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
 
-Here, IDs of homologue series group are given both in the function output \code{homol[[1]]} and \code{homol[[3]]}, with one homologue series stating one group of interrelated peaks.
+Here, IDs of homologue series group are given both in the function output \code{homol[[1]]}, \code{homol[[3]]} and \code{homol[[6]]}, with one homologue series stating one group of interrelated peaks.
 }
 
 \section{Warning}{
@@ -113,16 +114,16 @@ The \code{rttol} argument of \code{\link[nontarget]{homol.search}} must not be m
 }
 \value{
 
-List of type homol with 5 entries 
+List of type homol with 6 entries 
 
 \item{homol[[1]]}{\code{Homologue Series}. Dataframe with peaks (\code{mass},\code{intensity},\code{rt},\code{peak ID}) and their homologue series relations (\code{to ID},\code{m/z increment},\code{RT increment}) within
-groups of homologue series (\code{group ID},\code{series level}).}
+different homologue series (\code{HS IDs},\code{series level}). Last column \code{HS cluster} states HS clusters into which a peak was assigned via its HS.}
 \item{homol[[2]]}{\code{Parameters}. Parameters used.}
-\item{homol[[3]]}{\code{Peaks in homologue series}. Dataframe listing all peaks (\code{peak IDs}) per homologue series (\code{group ID}), the underlying mean m/z & RT increments 
-(\code{m/z increments}, \code{RT increments}) 
-and the minimum and maximum RT changes between individual peaks of the series.}
+\item{homol[[3]]}{\code{Peaks in homologue series}. Dataframe listing all peaks (\code{peak IDs}) per homologue series (\code{HS IDs}), the underlying mean m/z & RT increments 
+(\code{m/z increments}, \code{RT increments}) and the minimum and maximum RT changes between individual peaks of the series.}
 \item{homol[[4]]}{\code{m/z restrictions used}. See function argument \code{mzfilter}.}
 \item{homol[[5]]}{\code{Peaks per level}. List of peak IDs per level in the individual series.}
+\item{homol[[6]]}{List with HS IDs per cluster.}
 }
 
 \author{

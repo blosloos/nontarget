@@ -66,8 +66,8 @@ Martin Loos
 }
 \note{
 Peak IDs refer to the order in which peaks are provided. 
-Different group IDs exist for adduct groups, isotope pattern groups and homologue series peak groups. 
-Moreover, and at the highest level, yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
+Different IDs exist for adduct groups, isotope pattern groups, grouped homologue series (HS) peaks 
+and homologue series cluster. Yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
 
 The same peak may appear as different adducts in column \code{adduct[[1]][,7]}, indicating a conflict in assigning the correct adduct.
 Beware, some adduct combinations from \code{\link[enviPat]{adducts}} may lead to the same results (e.g. M+H<->M+Na vs M+3H<->M+3Na).

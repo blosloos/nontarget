@@ -108,8 +108,8 @@ group of z=y.
 
 \note{
 Peak IDs refer to the order in which peaks are provided. 
-In turn, different group IDs exist for adduct groups, isotope pattern groups and homologue series peak groups. 
-Moreover, and at the highest level, yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
+Different IDs exist for adduct groups, isotope pattern groups, grouped homologue series (HS) peaks 
+and homologue series cluster. Moreover, and at the highest level, yet other IDs exist for the individual components (see note section of \code{\link[nontarget]{combine}}).
 
 Depending on values of \code{mztol}, several m/z isotope differences from argument \code{iso} may match a measured m/z difference between two peaks.
 

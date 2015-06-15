@@ -149,7 +149,7 @@ function(
 		along[i]<-use2
 		use<-use2
 	}
-	if(any(peakTree3[,1]!=0)){stop("debug me: peakTree3 was not fully emptied in NN-search!")}
+	if(any(peakTree3[,1]!=0)){stop("debug me on issue #5: peakTree3 was not fully emptied in NN-search!")}
 	cat("done.");
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################
@@ -304,7 +304,7 @@ function(
 	tupels<-tupels[1:tupeldo,,drop=FALSE]
 	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails for some reason ...
 	tupels<-tupels[order(tupels[,4]),,drop=FALSE]
-	if(plotit){
+	if(plotit==1){
 		######################################################################	
 		# path in m/z vs. mass defect ########################################
 		plot.new()
@@ -404,7 +404,7 @@ function(
 					keeper_2[i]<-0
 					reject<-(reject+1)
 				}
-				if(plotit & (HS_length>=minlength)){
+				if(plotit==2 & (HS_length>=minlength)){
 					plot(y,x,pch=19,main=R2_i,xlab="m/z",ylab="RT");
 					points(b$y,b$x,type="l",col="red");	
 					Sys.sleep(1.4)
@@ -432,7 +432,7 @@ function(
 	}
 	if(deb==1){return(HS)}
 	if(length(HS)<minlength){
-		stop("\n No homologueseries detected with such (minlength) setting");
+		stop("\n No homologue series detected. Check parameters (e.g., minlength) and units?");
 	}
 	cat(" - done.");
 	##########################################################################	
@@ -440,7 +440,6 @@ function(
 	if(deb!=2){
 		cat("\n(7) Remove nested HS:  \n");
 		reject<-0;
-		if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
 		# membership of peaks in HS #########################################
 		peakHS<-list(0)
 		for(i in 1:length(peaklist[,1])){
@@ -461,6 +460,7 @@ function(
 			}
 		}
 		# check peak memberships of HS for subsets ##########################
+		if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
 		for(i in 1:length(peakHS)){
 			if(inter){setTxtProgressBar(pBar,i,title = NULL, label = NULL)}
 			if(length(peakHS[[i]])>2){
@@ -490,10 +490,12 @@ function(
 		}
 		if(inter){close(pBar)}
 		# remove unmarked HS ################################################
+		found<-0
 		if(length(HS)>minlength){ # anything to do?		
 			for(i in minlength:length(HS)){		
 				if(length(HS[[i]])>0){
 					HS[[i]]<-(HS[[i]][HS[[i]][,length(HS[[i]][1,])]==1,,drop=FALSE])
+					found<-(found+length(HS[[i]][,1]))
 				}
 			}
 		}
@@ -503,34 +505,222 @@ function(
 		cat("\n(7) Removal of nested HS skipped");	
 	}
 	##########################################################################	
-	# (8) Generate data output ###############################################
-	cat(paste("\n(8) Parse output for ",found," homologue series ... ",sep=""));
-    # generate peaklist with links & #####################################
-    # generate component list with relevant m/z & RT increments ##########
-    group1<-c();  # group ID
+	# (8) cluster similar HS #################################################
+	if(deb!=3){
+		cat("\n(8) Cluster similar HS:  \n");
+		# HS_IDs: table to translate HS list to a continous ID and back ######
+		# use 2nd last column in HS to place a unique ID #####################
+		# peakHS: membership of peaks in HS ##################################
+		if(length(HS)<minlength){stop("length(HS)<minlength")}
+		peakHS<-list(0)
+		for(i in 1:length(peaklist[,1])){
+			peakHS[[i]]<-matrix(ncol=2,nrow=0)
+		}
+		number<-1
+		for(i in minlength:length(HS)){		
+			if(length(HS[[i]])>0){
+				HS[[i]][,i+5]<-seq(number,(number+length(HS[[i]][,1])-1),1)
+				number<-(number+length(HS[[i]][,1]))
+				for(a in 1:length(HS[[i]][,1])){
+					for(b in 1:i){
+						peakHS[[ HS[[i]][a,b] ]]<-(
+							rbind(peakHS[[ HS[[i]][a,b] ]],c(i,a))
+						)
+					}
+				}
+			}	
+		}
+		HS_IDs<-matrix(nrow=(number-1),ncol=4,0)
+		number<-1
+		for(i in minlength:length(HS)){		
+			if(length(HS[[i]])>0){
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),1]<-HS[[i]][,i+5];
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),2]<-i;
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),3]<-seq(1,length(HS[[i]][,1]),1)
+				number<-(number+length(HS[[i]][,1]))
+			}	
+		}
+		if(any(duplicated(HS_IDs))){stop("debug me on issue #6: duplicated IDs in similarity grouping of HS!")}
+		# check peak memberships of HS for subsets ##########################
+		if(inter){pBar <- txtProgressBar( min = 0, max = length(peakHS), style = 3 )}
+		at<-1;
+		leng<-5000;
+		from<-rep(0,leng);
+		to<-rep(0,leng);
+		for(i in 1:length(peakHS)){
+			if(inter){setTxtProgressBar(pBar,i,title = NULL, label = NULL)}
+			del_mz<-(peaklist4[i]*4)
+			if(length(peakHS[[i]])>2){
+				for(a in 1:(length(peakHS[[i]][,1])-1)){
+					n<-peakHS[[i]][a,1]
+					ID_a<-HS[[n]][peakHS[[i]][a,2],(n+5)]
+					rt1_LB<-(HS[[n]][peakHS[[i]][a,2],(n+3)])		
+					rt1_UB<-(HS[[n]][peakHS[[i]][a,2],(n+4)])	
+					for(b in (a+1):length(peakHS[[i]][,1])){
+						m<-peakHS[[i]][b,1]
+						ID_b<-HS[[m]][peakHS[[i]][b,2],(m+5)]
+						if(TRUE){
+							rt2_UB<-(HS[[m]][peakHS[[i]][b,2],(m+4)])	
+							if(!(rt2_UB<rt1_LB)){
+								rt2_LB<-(HS[[m]][peakHS[[i]][b,2],(m+3)])	
+								if(!(rt1_UB<rt2_LB)){
+									m1<-mean(HS[[n]][peakHS[[i]][a,2],(n+1):(n+2)])		
+									m2<-mean(HS[[m]][peakHS[[i]][b,2],(m+1):(m+2)])		
+									if(m1>=m2){
+										if((m1%%m2)>del_mz){next}
+									}else{
+										if((m2%%m1)>del_mz){next}
+									}
+									if(plotit==3){														
+											this<-(HS[[n]][peakHS[[i]][a,2],1:n])
+											that<-(HS[[m]][peakHS[[i]][b,2],1:m])
+											rt1<-peaklist[this,3]
+											m1<-peaklist[this,1]
+											rt2<-peaklist[that,3]
+											m2<-peaklist[that,1]									
+											plot.new();
+											plot.window(xlim=c(min(c(m1,m2)),max(c(m1,m2))),ylim=c(min(c(rt1,rt2)),max(c(rt1,rt2))));
+											title(xlab="m/z",ylab="RT")
+											box();axis(1);axis(2);
+											points(m1,rt1,type="l",col="red",lwd=2)
+											points(m1,rt1,pch=19,col="red",cex=.8)
+											points(m2,rt2,type="l",col="blue",lwd=2)
+											points(m2,rt2,pch=19,col="blue",cex=.8)
+											Sys.sleep(.1)						
+									}
+									from[at]<-ID_a
+									to[at]<-ID_b
+									at<-(at+1)
+									if(at>leng){
+										from<-c(from,rep(0,leng))
+										to<-c(to,rep(0,leng))
+										leng<-(leng+leng)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(inter){close(pBar)}
+		if(any(from!=0)){ # any pairs formed? ...
+			from<-from[from!=0]
+			to<-to[to!=0]
+			# add non-paired HS to have them assigned as a group, too
+			gotthose<-unique(c(from,to))
+			singled<-HS_IDs[-gotthose,1]
+			use<-c(rep(1,length(from)),rep(2,length(to)),rep(1,length(singled)))
+			from2<-c(from,to,singled)
+			to2<-c(to,from,singled)
+			use<-use[order(from2,decreasing=FALSE)]
+			to2<-to2[order(from2,decreasing=FALSE)]
+			from2<-from2[order(from2,decreasing=FALSE)]
+			groups<-.Call("metagroup",
+				as.integer(from2),
+				as.integer(to2),
+				PACKAGE="nontarget" 
+			)
+			to2<-to2[use==1]
+			from2<-from2[use==1]
+			groups<-groups[use==1]
+			HS_IDs[to2,4]<-groups
+			HS_IDs[from2,4]<-groups
+			if(any(HS_IDs[,4]==0)){stop("debug me on issue #7: ungrouped HS formed.")}
+		}else{ # otherwise, insert a consecutive grouping ID
+			# insert a consecutive grouping ID
+			HS_IDs[,4]<-seq(1,length(HS_IDs[,4]),1);
+			groups<-length(HS_IDs[,4]);
+		}
+		cat(paste(max(groups)," HS cluster formed - done.",sep=""));
+	}else{
+		# insert a consecutive grouping ID
+		HS_IDs<-matrix(nrow=(number-1),ncol=4,0)
+		number<-1
+		for(i in minlength:length(HS)){		
+			if(length(HS[[i]])>0){
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),1]<-HS[[i]][,i+5];
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),2]<-i;
+				HS_IDs[number:(number+length(HS[[i]][,1])-1),3]<-seq(1,length(HS[[i]][,1]),1)
+				number<-(number+length(HS[[i]][,1]))
+			}	
+		}
+		if(any(duplicated(HS_IDs))){stop("debug me on issue #6: duplicated IDs in similarity grouping of HS!")}
+		HS_IDs[,4]<-seq(1,length(HS_IDs[,4]),1);
+		cat("\n(8) Clustering of similar HS skipped");	
+	}
+	##########################################################################	
+	# (9) Generate data output ###############################################
+	cat(paste("\n(9) Parse output for ",found," homologue series and ", max(HS_IDs[,4]) ," cluster ... ",sep=""));
+	# generate HS group lists ################################################
+	HS_groups<-list(0)
+	for(i in 1:length(HS_IDs[,4])){
+		HS_groups[[HS_IDs[i,4]]]<-numeric(0)
+	}
+	for(i in 1:length(HS_IDs[,4])){
+		HS_groups[[HS_IDs[i,4]]]<-c(HS_groups[[HS_IDs[i,4]]],HS_IDs[i,1])
+	}
+	if(plotit==4){
+		for(i in 1:length(HS_groups)){
+			those<-HS_IDs[HS_groups[[i]],,drop=FALSE]
+			peaks<-c()
+			delmz<-c()
+			for(j in 1:length(those[,1])){
+				peaks<-c(peaks,
+					HS[[those[j,2]]][those[j,3],1:those[j,2]]
+				)
+				delmz<-c(delmz,
+					mean(HS[[those[j,2]]][those[j,3],(those[j,2]+1):(those[j,2]+2)])
+				)
+			}
+			min_mz<-min(peaklist[peaks,1])
+			max_mz<-max(peaklist[peaks,1])
+			min_RT<-min(peaklist[peaks,3])
+			max_RT<-max(peaklist[peaks,3])
+			plot.new();
+			plot.window(xlim=c(min_mz,max_mz),ylim=c(min_RT,max_RT));			
+			title(xlab="m/z",ylab="RT",main=paste(length(those[,1]),"HS"))
+			box();axis(1);axis(2);
+			this<-round(delmz,digits=2);
+			that<-levels(as.factor(this));
+			colo<-rainbow(length(that))
+			for(j in 1:length(those[,1])){
+				peaks<-HS[[those[j,2]]][those[j,3],1:those[j,2]]
+				points(peaklist[peaks,1],peaklist[peaks,3],
+					col=colo[that==this[j]],pch=19,cex=0.5)
+				points(peaklist[peaks,1],peaklist[peaks,3],
+					col=colo[that==this[j]],type="l")			
+			}
+			Sys.sleep(.8)
+		}
+	}
+    # generate peaklist with links & #########################################
+    # generate component list with relevant m/z & RT increments ##############
+    group1<-c();  # HS ID
     group2<-c();  # peak IDs
     group3<-c();  # mzincr
     group4<-c();  # retincr
     group5<-c();  # retmin
     group6<-c();  # retmax
 	group7<-c();  # retdel
+	group8<-c();  # HS cluster ID
 	len<-length(peaklist[,1])
-    getit1<-rep("0",len);      	# (1) group ID
+    getit1<-rep("0",len);      	# (1) HS ID
     getit2<-rep("0",len);      	# (2) level
     getit3<-rep("0",len);   	# (3) to which peak
     getit4<-rep("none",len);   	# (4) mean dmass
     getit5<-rep("none",len);    # (5) mean RT
+    getit6<-rep("0",len);      	# (6) HS cluster ID	
 	peakID<-list(0);
 	atgroup<-1;
 	for(a in minlength:length(HS)){
-		if(length(HS[[a]])>0){ 
+		if(length(HS[[a]])>0){ 		
 			for(b in 1:length(HS[[a]][,1])){
 				peakID[[atgroup]]<-numeric(0)
 				listit<-list(0)
 				atthat<-""
 				meanmz<-mean(HS[[a]][b,((a+1):(a+2))]);
 				meanRT<-mean(HS[[a]][b,((a+3):(a+4))]);
-#if(atgroup==9){stop()}
 				minRT<-min(peaklist[HS[[a]][b,1:a],3]);
 				maxRT<-max(peaklist[HS[[a]][b,1:a],3]);
 				difRT<-(maxRT-minRT);
@@ -542,9 +732,9 @@ function(
 					}
 					getit4[HS[[a]][b,k]]<-paste(getit4[HS[[a]][b,k]],"/",as.character(round(meanmz,digits=4)),sep="")
 					getit5[HS[[a]][b,k]]<-paste(getit5[HS[[a]][b,k]],"/",as.character(round(meanRT,digits=4)),sep="")	
+					getit6[HS[[a]][b,k]]<-paste(getit6[HS[[a]][b,k]],"/",as.character(HS[[a]][b,a+5]),sep="")
 					listit[[k]]<-HS[[a]][b,k];
 					atthat<-paste(atthat,",",as.character(HS[[a]][b,k]),sep="");
-					
 				}
 				peakID[[atgroup]]<-listit;
 				group1<-c(group1,atgroup); 
@@ -554,6 +744,7 @@ function(
 				group5<-c(group5,minRT);				
 				group6<-c(group6,maxRT);				
 				group7<-c(group7,difRT);
+				group8<-c(group8,HS[[a]][b,a+5]);
 				atgroup<-(atgroup+1);
 			}
 		}
@@ -564,15 +755,16 @@ function(
 			getit2[i]<-substr(getit2[i],3,nchar(getit2[i]))
 			getit4[i]<-substr(getit4[i],6,nchar(getit4[i]))
 			getit5[i]<-substr(getit5[i],6,nchar(getit5[i]))
+			getit6[i]<-substr(getit6[i],3,nchar(getit6[i]))			
 		}
 		if(getit3[i]!="0"){
 			getit3[i]<-substr(getit3[i],3,nchar(getit3[i]))
 		}
 	}
-	grouped_samples<-data.frame(peaklist,seq(1,len,1),getit1,getit2,getit3,getit4,getit5,stringsAsFactors=FALSE);
-	names(grouped_samples)<-c("mz","intensity","RT","peak ID","group ID","series level","to ID","m/z increment","RT increment");
-	grouping<-data.frame(group1,group2,group3,group4,group5,group6,group6-group5,stringsAsFactors=FALSE);
-	names(grouping)<-c("group ID","peak IDs","m/z increment","RT increment","min. RT in series","max. RT in series","max.-min. RT");
+	grouped_samples<-data.frame(peaklist,seq(1,len,1),getit1,getit2,getit3,getit4,getit5,getit6,stringsAsFactors=FALSE);
+	names(grouped_samples)<-c("mz","intensity","RT","peak ID","HS IDs","series level","to ID","m/z increment","RT increment","HS cluster");
+	grouping<-data.frame(group1,group2,group3,group4,group5,group6,group6-group5,group8,stringsAsFactors=FALSE);
+	names(grouping)<-c("HS IDs","peak IDs","m/z increment","RT increment","min. RT in series","max. RT in series","max.-min. RT","HS cluster");
 	# store parameters used ##################################################
 	parameters<-list(0)
 	parameters[[1]]<-elements;
@@ -592,8 +784,9 @@ function(
 	names(parameters)<-c("elements","use_C","minmz","maxmz","minrt","maxrt","ppm","mztol","rttol","minlength","vec_size","spar","R2","plotit")
 	cat("done.\n");
 	##########################################################################		
-	homol<-list(grouped_samples,parameters,grouping,mzfilter,peakID);
-	names(homol)<-c("Peaks in homologue series","Parameters","Homologue Series","m/z-Filter used","Peaks per level")
+	# store HS memberships per peak ##########################################
+	homol<-list(grouped_samples,parameters,grouping,mzfilter,peakID,HS_groups);
+	names(homol)<-c("Peaks in homologue series","Parameters","Homologue Series","m/z-Filter used","Peaks per level","HS cluster")
 	##########################################################################
 	return(homol); ###########################################################
 	##########################################################################
