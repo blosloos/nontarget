@@ -37,7 +37,7 @@ use_marker=TRUE,quick=FALSE,isotopes)
 	Restrict query to certain isotopes dominating centroid relations; set to \code{FALSE} to use all available isotopes.
 }
   \item{use_charges}{
-	Vector of signed integers. Restrict query to certain charges z; set to \code{FALSE} to use all charges states. 
+	Vector of signed integers. Restrict query to certain charges z; set to \code{FALSE} to use all charge states. 
 }  
   \item{use_marker}{  
 	Query for marker peaks, \code{FALSE} or \code{TRUE}?
