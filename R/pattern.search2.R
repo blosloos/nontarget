@@ -180,7 +180,7 @@ pattern.search2<-function(
 						)	
 						retr_1<-c(retr_1+1)	
 						if(length(found)>0){
-							for(k in 1:length(found)){
+							for( k in 1:length(found) ){
 								marker_delmass<-c((peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],8]),(peaklist[relat[j,2],1]-quantiz[[6]][[i]][found[k],7]))
 								# marker m/z bounds
 								if(ppm==TRUE){
@@ -193,7 +193,7 @@ pattern.search2<-function(
 								# marker intensity bounds. set above: marker_bounds[4]; reset lower bound
 								max_int<-max(peaklist[relat[j,],2])
 								marker_bounds[2,1]<-(max_int*(1-inttol))
-								# maker RT bounds
+								# marker RT bounds
 								marker_bounds[3,1]<-(peaklist[relat[j,1],3]-rttol)
 								marker_bounds[3,2]<-(peaklist[relat[j,1],3]+rttol)
 								found_m<-.Call("search_kdtree", 

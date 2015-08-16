@@ -162,7 +162,7 @@ function(
 	cat("done.");
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################
-	cat("\n(4) Data sweep: \n");	
+	cat("\n(4) Triplet extraction \n");	
 	if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
 	for(i in 1:length(peaklist2[,1])){
 
@@ -311,7 +311,7 @@ function(
 	tupeldo<-(tupeldo-1)
 	if(tupeldo==0){stop("no series detected")}
 	tupels<-tupels[1:tupeldo,,drop=FALSE]
-	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails for some reason ...
+	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails 
 	tupels<-tupels[order(tupels[,4]),,drop=FALSE]
 	if(plotit==1){
 		######################################################################	
@@ -366,13 +366,13 @@ function(
 		cat("\n(5) Skip mzfilter. ");	
 	}
 	##########################################################################
-	# (6) Combine tripel to n-tupel - possibly check for smoothness ##########
+	# (6) Combine triplets to n-tupel - possibly check for smoothness ########
 	cat("\n(6) Combine n-tupels, n(rejects):");	
 	HS<-list();
 	HS_length<-3;
 	found<-0
 	while(any(tupels[,1]!=0)){
-	    cat(paste(" ",HS_length,sep=""));
+	    cat(paste(" ",HS_length," - ",length(tupels[,1]),sep=""));
 		keeper<-rep(0,length(tupels[,1]))
 		if(length(tupels[,1])==1){break}
 		if(length(tupels[,1])==0){stop("\n debug me, issue #1")}
@@ -424,6 +424,7 @@ function(
 			cat(paste("(0)",sep=""));			
 		}
 		HS[[HS_length]]<-tupels[keeper==0,,drop=FALSE]
+cat(", ",sum(keeper!=0),sep="")
 		if(HS_length>=minlength){
 			found<-c(found+length(HS[[HS_length]][,1]))
 		}

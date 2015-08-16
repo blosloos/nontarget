@@ -1696,7 +1696,7 @@ extern "C"{
             for(n=1;n<=ncol;n++){
                 results2[n] = fabs(RMATRIX(data,nearest,n-1)-RMATRIX(data,i,n-1));
             }
-            UNPROTECT(6);
+            UNPROTECT(5);
             return(results);
 
     }
