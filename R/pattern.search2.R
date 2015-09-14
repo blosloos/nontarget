@@ -90,6 +90,7 @@ pattern.search2<-function(
 	marker_bounds<-matrix(ncol=2,nrow=3,0)
 	marker_bounds[2,1]<-min(peaklist[,2])
 	marker_bounds[2,2]<-max(peaklist[,2])
+	bound_int<-log10((1+inttol)/(1-inttol)) # epsilon_4
 	from_peak<-c()
 	to_peak<-c()
 	isotope<-c()
@@ -112,8 +113,9 @@ pattern.search2<-function(
 		search_bounds[3]<-(peaklist[relat[j,1],1]+adductmass_LB)
 		search_bounds[4]<-(peaklist[relat[j,1],1]+adductmass_UB)
 		# intensity bounds: extend by intensity tolerance
-		search_bounds[5]<-log10((peaklist[relat[j,1],2]*(1-inttol))/(peaklist[relat[j,2],2]*(1+inttol))) # Lower bound
-		search_bounds[6]<-log10((peaklist[relat[j,1],2]*(1+inttol))/(peaklist[relat[j,2],2]*(1-inttol))) # Upper bound
+		log_int<-log10(peaklist[relat[j,1],2]/peaklist[relat[j,2],2])
+		search_bounds[5]<-(log_int-bound_int)	# Lower bound
+		search_bounds[6]<-(log_int+bound_int) 	# Upper bound
 		# iterate over all quantizations	
 		for(i in 1:length(quantiz[[6]])){
 			# use this isotope & charge ? #########################################
@@ -237,8 +239,8 @@ pattern.search2<-function(
 	use<-use[order(from_peak2,decreasing=FALSE)]
 	isotope<-isotope[order(from_peak2,decreasing=FALSE)]
 	charge<-charge[order(from_peak2,decreasing=FALSE)]
-	to_peak2<-to_peak[order(from_peak2,decreasing=FALSE)]
-	from_peak2<-from_peak[order(from_peak2,decreasing=FALSE)]
+	to_peak2<-to_peak2[order(from_peak2,decreasing=FALSE)]
+	from_peak2<-from_peak2[order(from_peak2,decreasing=FALSE)]
 	groups<-.Call("metagroup",
 		as.integer(from_peak2),
 		as.integer(to_peak2),
