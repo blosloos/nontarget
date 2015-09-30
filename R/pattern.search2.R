@@ -69,7 +69,7 @@ pattern.search2<-function(
 			as.matrix(peaklist[,1:3]),
 			as.matrix(peakTree),		# peaks - search tree
 			as.matrix(mass_slots),		# prefilter on mass
-			as.matrix(int_slots),		# prefilter on intensity ratioes
+			as.matrix(int_slots),		# prefilter on intensity ratios
 			as.numeric(mztol), 			# precision measurement mass
 			as.numeric(ppm2),			# precision measurement - mass in ppm?
 			as.numeric(inttol),			# precision measurement, %percent, NOT fraction
@@ -82,7 +82,6 @@ pattern.search2<-function(
 	if(length(relat)<1){stop("\n No matches found \n ")}
 	########################################################################################
 	# find matches in quantized data #######################################################
-	cat("\n(3) Query quantized data ... ");	
 	done<-matrix(ncol=length(charge_key),nrow=length(isotope_key),FALSE) # w/ marker necesssary?
 	colnames(done)<-charge_key
 	rownames(done)<-isotope_key
@@ -95,7 +94,7 @@ pattern.search2<-function(
 	to_peak<-c()
 	isotope<-c()
 	charge<-c()
-	retr_1<-0;
+	retr_1<-0; # number of queries 	
 	pBar <- txtProgressBar( min = 0, max = length(relat[,1]), style = 3 )
 	for(j in 1:length(relat[,1])){
 		done[,]<-FALSE;
@@ -139,7 +138,8 @@ pattern.search2<-function(
 						as.numeric(search_bounds),
 						as.integer(0),
 						PACKAGE="nontarget"
-				)	
+				)
+				retr_1<-c(retr_1+1)					
 				if(found==-2){
 					done[as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]),as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2])]<-TRUE;
 					from_peak<-c(from_peak,relat[j,1])
@@ -147,8 +147,7 @@ pattern.search2<-function(
 					isotope<-c(isotope,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][1]))
 					charge<-c(charge,as.numeric(strsplit(names(quantiz[[6]])[i],"_")[[1]][2]))
 					got<-TRUE;
-				}	
-				retr_1<-c(retr_1+1)				
+				}				
 			}
 			if(got & quick) break;
 			if(got) next;
@@ -251,6 +250,7 @@ pattern.search2<-function(
 	charge<-charge[use==1]
 	isotope<-isotope[use==1]
 	groups<-groups[use==1]
+	cat(paste("\n  ",length(to_peak)," of ",length(relat[,1])," candidate linkages accepted.","\n",sep=""));
 	########################################################################################
 	# generate output ######################################################################
 	cat("(3) Create output ...");
