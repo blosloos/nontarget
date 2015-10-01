@@ -375,7 +375,7 @@ function(
         }
         ######################################################################
         # rules[1]: deal with interfering peaks also seperately ? ############
-        if(rules[1]==TRUE){
+        if(rules[1]!=TRUE){
 			allpeaks<-oldpeaks;
 			no3[allpeaks]<-FALSE;
         }
