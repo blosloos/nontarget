@@ -688,7 +688,7 @@ cat(", ",sum(keeper!=0),sep="")
 	}
 	##########################################################################	
 	# (9) Generate data output ###############################################
-	cat(paste("\n(9) Parse output for ",found," homologue series and ", max(HS_IDs[,4]) ," cluster ... ",sep=""));
+	cat(paste("\n(9) Parse output for ",max(HS_IDs[,4])," homologue series and ",found," cluster ... ",sep=""));
 	# generate HS group lists ################################################
 	HS_groups<-list(0)
 	for(i in 1:length(HS_IDs[,4])){
