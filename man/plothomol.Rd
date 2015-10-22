@@ -9,7 +9,7 @@ Herein, homologue series receive a color code based on the mean m/z differences 
 are rounded up to the second digit.
 }
 \usage{
-plothomol(homol, xlim = FALSE, ylim = FALSE,plotlegend=TRUE)
+plothomol(homol, xlim = FALSE, ylim = FALSE,plotlegend=TRUE,plotdefect=FALSE)
 }
 
 \arguments{
@@ -25,7 +25,9 @@ plothomol(homol, xlim = FALSE, ylim = FALSE,plotlegend=TRUE)
   \item{plotlegend}{
 	Should a listing of m/z differences within homologue series and the concommittant color codes been added to the plot? If not, set to FALSE.
 	}
-	
+   \item{plotdefect}{
+	Plot the mass defect instead of the m/z value.
+	}
 }
 \author{
 Martin Loos
@@ -57,7 +59,7 @@ homol<-homol.search(
 	R2=.98,
 	plotit=FALSE
 )
-plothomol(homol,xlim=FALSE,ylim=FALSE,plotlegend=FALSE);
+plothomol(homol,xlim=FALSE,ylim=FALSE,plotlegend=FALSE,plotdefect=FALSE);
 }
 }
 
