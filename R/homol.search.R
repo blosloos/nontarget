@@ -14,6 +14,7 @@ function(
 	minlength=5,
 	mzfilter=FALSE,
 	vec_size=3E6,
+	mat_size=3,
 	R2=.98,
 	spar=.45,
 	plotit=FALSE,
@@ -380,7 +381,8 @@ function(
 		merged_tupels<-.Call("combine_tuple", 
 			tupels[,1:HS_length],
 			tupels[,(HS_length+1):(HS_length+4)],
-			keeper
+			keeper,
+			mat_size
 		)	
 		merged_tupels<-merged_tupels[merged_tupels[,1]!=0,,drop=FALSE]	
 		if(length(merged_tupels[,1])==0){
@@ -424,7 +426,7 @@ function(
 			cat(paste("(0)",sep=""));			
 		}
 		HS[[HS_length]]<-tupels[keeper==0,,drop=FALSE]
-cat(", ",sum(keeper!=0),sep="")
+		cat(", ",sum(keeper!=0),sep="")
 		if(HS_length>=minlength){
 			found<-c(found+length(HS[[HS_length]][,1]))
 		}
@@ -438,7 +440,7 @@ cat(", ",sum(keeper!=0),sep="")
 			}			
 			break;
 		}
-		tupels<-merged_tupels;
+		tupels<-merged_tupels;	
 	}
 	if(any(deb==1)){return(HS)}
 	if(length(HS)<minlength){
@@ -517,7 +519,7 @@ cat(", ",sum(keeper!=0),sep="")
 	##########################################################################	
 	# (8) cluster similar HS #################################################
 	if(!any(deb==3)){
-		cat("\n(8) Cluster similar HS:  \n");
+		cat("\n(8) Grouping of superjacent HS:  \n");
 		# HS_IDs: table to translate HS list to a continous ID and back ######
 		# use 2nd last column in HS to place a unique ID #####################
 		# peakHS: membership of peaks in HS ##################################
@@ -633,7 +635,12 @@ cat(", ",sum(keeper!=0),sep="")
 			}
 		}
 		if(inter){close(pBar)}
+		
+		
 		HSpairs<-HSpairs[sim>=.9,,drop=FALSE]
+		
+		
+		
 		if(length(HSpairs[,1])>0){ # any pairs formed? ...
 			from<-HSpairs[,1]
 			to<-HSpairs[,2]
@@ -684,7 +691,6 @@ cat(", ",sum(keeper!=0),sep="")
 		}
 		if(any(duplicated(HS_IDs))){stop("debug me on issue #6: duplicated IDs in similarity grouping of HS!")}
 		HS_IDs[,4]<-seq(1,length(HS_IDs[,4]),1);
-		cat("\n(8) Clustering of similar HS skipped");	
 	}
 	##########################################################################	
 	# (9) Generate data output ###############################################

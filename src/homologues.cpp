@@ -173,12 +173,14 @@ extern "C"{
     SEXP combine_tuple(
 		SEXP tuples,
 		SEXP bounds,
-		SEXP keeper
+		SEXP keeper,
+		SEXP mat_size
     ){
 
         PROTECT(tuples = AS_NUMERIC(tuples));
         PROTECT(bounds = AS_NUMERIC(bounds));
         PROTECT(keeper = AS_NUMERIC(keeper));
+        PROTECT(mat_size = AS_NUMERIC(mat_size));
 
         int n,m,nrow,ncol,ncol2,k,skip_a=0,skip_b=0,doing=0,siz;
         nrow=RRow(tuples);
@@ -187,8 +189,8 @@ extern "C"{
 
         siz=((ncol+1)+ncol2+2);
         SEXP merged_tuples;
-        PROTECT(merged_tuples = allocMatrix(REALSXP, nrow, siz));
-        for(n=0;n<nrow;n++){
+        PROTECT(merged_tuples = allocMatrix(REALSXP, (nrow*NUMERIC_VALUE(mat_size)), siz));
+        for(n=0;n<(nrow*NUMERIC_VALUE(mat_size));n++){
             for(m=0;m<siz;m++){
                 RMATRIX(merged_tuples,n,m)=0;
             }
@@ -235,6 +237,10 @@ extern "C"{
                                 RMATRIX(merged_tuples,doing,k)=RMATRIX(tuples,m,k);
                             }
                         }
+                        if(doing>=(nrow*NUMERIC_VALUE(mat_size))){ // more combination results than length of original matrix? then extend:
+                            Rprintf("ERROR: matrix out of bounds! increase mat_size");
+                            break;
+                        }
                         // update bounds
                         // m/z differences
                         RMATRIX(merged_tuples,doing,(ncol+1))=std::max(RMATRIX(bounds,n,0),RMATRIX(bounds,m,0));
@@ -254,7 +260,7 @@ extern "C"{
             }
         }
 
-        UNPROTECT(4);
+        UNPROTECT(5);
         return(merged_tuples);
     }
 

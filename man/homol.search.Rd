@@ -9,7 +9,7 @@ Dynamic programming algorithm for unsupervised detection of homologue series in 
 }
 \usage{
 homol.search(peaklist,isotopes,	elements=c("C","H","O"),use_C=FALSE,minmz=5,maxmz=120,minrt=2,maxrt=2,
-ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar=.45,plotit=FALSE,deb=0)
+ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,mat_size=3,R2=.98,spar=.45,plotit=FALSE,deb=0)
 }
 
 \arguments{
@@ -69,6 +69,11 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,R2=.98,spar
 	Vector size. Ignore unless a relevant error message is printed (then try to increase size).
 }
 
+
+  \item{mat_size}{
+	Matrix size forr recombining. Ignore unless a relevant error message is printed (then try to increase size).
+}
+
   \item{R2}{
   FALSE or 0<numeric<=1. Coefficient of determination for cubic smoothing spline fits of m/z versus retention time; homologue series with lower R2 are rejected. See \code{\link[stats]{smooth.spline}}.
 }
@@ -123,7 +128,7 @@ different homologue series (\code{HS IDs},\code{series level}). Last column \cod
 (\code{m/z increments}, \code{RT increments}) and the minimum and maximum RT changes between individual peaks of the series.}
 \item{homol[[4]]}{\code{m/z restrictions used}. See function argument \code{mzfilter}.}
 \item{homol[[5]]}{\code{Peaks per level}. List of peak IDs per level in the individual series.}
-\item{homol[[6]]}{List with HS IDs per cluster.}
+\item{homol[[6]]}{Ignore. List with superjacent HS IDs per group - for set\code{deb=c(3,...)} }
 }
 
 \author{
@@ -156,6 +161,7 @@ homol<-homol.search(
 	minlength=5,
 	mzfilter=FALSE,
 	vec_size=3E6,
+	mat_size=3,
 	spar=.45,
 	R2=.98,
 	plotit=FALSE
