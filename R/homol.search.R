@@ -518,7 +518,7 @@ function(
 	}
 	##########################################################################	
 	# (8) cluster similar HS #################################################
-	if(!any(deb==3)){
+	if(any(deb==3)){
 		cat("\n(8) Grouping of superjacent HS:  \n");
 		# HS_IDs: table to translate HS list to a continous ID and back ######
 		# use 2nd last column in HS to place a unique ID #####################
