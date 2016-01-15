@@ -71,7 +71,7 @@ ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,mat_size=3,
 
 
   \item{mat_size}{
-	Matrix size forr recombining. Ignore unless a relevant error message is printed (then try to increase size).
+	Matrix size for recombining, multiple of input tuples. Ignore unless a relevant error message is printed (then try to increase size).
 }
 
   \item{R2}{

@@ -371,7 +371,8 @@ function(
 	cat("\n(6) Combine n-tupels, n(rejects):");	
 	HS<-list();
 	HS_length<-3;
-	found<-0
+	found<-0;
+	tupels<-cbind(tupels[,],seq(1,length(tupels[,1]),1))
 	while(any(tupels[,1]!=0)){
 	    cat(paste(" ",HS_length," - ",length(tupels[,1]),sep=""));
 		keeper<-rep(0,length(tupels[,1]))
@@ -638,8 +639,6 @@ function(
 		
 		
 		HSpairs<-HSpairs[sim>=.9,,drop=FALSE]
-		
-		
 		
 		if(length(HSpairs[,1])>0){ # any pairs formed? ...
 			from<-HSpairs[,1]
