@@ -372,7 +372,7 @@ function(
 	HS<-list();
 	HS_length<-3;
 	found<-0;
-	tupels<-cbind(tupels[,],seq(1,length(tupels[,1]),1))
+	tupels<-cbind(tupels[,],seq(1,length(tupels[,1]),1)) # dummy column
 	while(any(tupels[,1]!=0)){
 	    cat(paste(" ",HS_length," - ",length(tupels[,1]),sep=""));
 		keeper<-rep(0,length(tupels[,1]))
