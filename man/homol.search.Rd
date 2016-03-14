@@ -8,8 +8,9 @@ Homologue series extraction from LC-MS data.
 Dynamic programming algorithm for unsupervised detection of homologue series in LC-(HR)MS data.
 }
 \usage{
-homol.search(peaklist,isotopes,	elements=c("C","H","O"),use_C=FALSE,minmz=5,maxmz=120,minrt=2,maxrt=2,
-ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,mzfilter=FALSE,vec_size=3E6,mat_size=3,R2=.98,spar=.45,plotit=FALSE,deb=0)
+homol.search(peaklist,isotopes,	elements=c("C","H","O"),use_C=FALSE,minmz=5,
+maxmz=120,minrt=2,maxrt=2,ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,
+mzfilter=FALSE,vec_size=3E6,mat_size=3,R2=.98,spar=.45,plotit=FALSE,deb=0)
 }
 
 \arguments{

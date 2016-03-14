@@ -636,10 +636,7 @@ function(
 			}
 		}
 		if(inter){close(pBar)}
-		
-		
 		HSpairs<-HSpairs[sim>=.9,,drop=FALSE]
-		
 		if(length(HSpairs[,1])>0){ # any pairs formed? ...
 			from<-HSpairs[,1]
 			to<-HSpairs[,2]

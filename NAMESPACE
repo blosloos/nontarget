@@ -3,3 +3,7 @@ useDynLib(nontarget,mass,metagroup,adduct_search,peak_search,boxtree,kdtree4,sea
 import("enviPat")
 import("nontargetData")
 import("mgcv")
+import("grDevices")
+import("graphics")
+import("stats")
+import("utils")
