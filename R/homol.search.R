@@ -6,7 +6,7 @@ function(
 	use_C=FALSE,
 	minmz=5,
 	maxmz=120,
-	minrt=2,
+	minrt=-2,
 	maxrt=2,
 	ppm=TRUE,
 	mztol=3.5,
@@ -24,9 +24,9 @@ function(
     ##########################################################################
     # (0) Issue warnings: check arguments ####################################
 	if(!is.logical(use_C)){stop("use_C must be logial.")}
-    if(ppm==TRUE & mztol>10){cat("Too big mztol?")};
+	if(!is.logical(ppm)){stop("ppm must be logial.")}
+    if(ppm==TRUE & mztol>100){cat("Too big mztol?")};
     if(minlength<3){stop("invalid minlen argument. set minlen >= 3")};
-    if(mztol<=0){warning("mztol should be >0!")};
 	if(length(elements)<1){stop("specify elements")}
 	if(!is.numeric(mzfilter) & mzfilter[1]!="FALSE"){stop("mzfilter must either be a numeric vector or set to FALSE")}
 	if(elements[1]!="FALSE"){if(any(is.na(match(elements,isotopes[,1])))){ stop("unknown elements") }}
@@ -34,6 +34,30 @@ function(
 	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
 	if(R2!=FALSE){if((R2<=0)||(R2>1)){stop("R2 must be either FALSE or 0<R2<=1")}}
 	if(R2!=FALSE){if((spar<=0)||(spar>1)){stop("R2 must be either FALSE or 0<R2<=1")}}	
+	if(mztol<=0){ # Set precision to digits of inputs
+		min_char<-Inf
+		for(i in 1:length(peaklist[,1])){
+			n_char<-nchar(strsplit(as.character(peaklist[i,1]),".",fixed=TRUE)[[1]][2])
+			if(n_char<min_char){
+				min_char<-n_char
+			}
+		}
+		mztol<-(10^(-min_char+1))
+		warning(paste("zero mztol - mztol set to ",mztol," for numeric precision!",sep=""))	
+	}
+	if(rttol<=0){ # Set precision to digits of inputs
+		min_char<-Inf
+		for(i in 1:length(peaklist[,3])){
+			n_char<-nchar(strsplit(as.character(peaklist[i,3]),".",fixed=TRUE)[[1]][2])
+			if(n_char<min_char){
+				min_char<-n_char
+			}
+		}
+		rttol<-(10^(-min_char+1))
+		warning(paste("zero rttol - rttol set to ",rttol," for numeric precision!",sep=""))	
+	}
+	if(minrt>maxrt){stop("minrt cannot be larger than maxrt!")}
+	if(minmz>maxmz){stop("minmz cannot be larger than maxmz!")}	
 	if(mzfilter[1]!="FALSE"){
 		if(!is.numeric(mzfilter)){stop("mzfilter must either be FALSE or (a vector of) numeric")}
 		mzfilter<-mzfilter[order(mzfilter)]
@@ -53,13 +77,17 @@ function(
 			delmz<-mztol;
 			peaklist4<-rep(mztol,length(peaklist[,1]))
 		}
+		max_delmz<-max(delmz)
 	}else{
-		if(length(mztol)!=length(peaklist[,1])){
+		if(length(mztol)==length(peaklist[,1])){
 			peaklist4<-mztol
+			delmz<-max(mztol)
 		}else{
 			stop("mztol: must be either one value or of length peaklist[,1]")
 		}
 	}
+	minmz<-(minmz-delmz)
+	maxmz<-(maxmz+delmz)
 	inter<-interactive()
 	##########################################################################
     # (1) retrieve feasible mass differences & all combinations thereof ######
@@ -72,7 +100,7 @@ function(
 	delmass<-c();
 	c_ratio<-c();
 	for(i in 1:length(elements)){
-		isos<-isotopes[isotopes[,1]==elements[i],]
+		isos<-isotopes[as.character(isotopes[,1])==elements[i],]
 		delmass<-c(delmass,
 			isos[isos[,3]==min(isos[,3]),3]
 		);
@@ -82,25 +110,33 @@ function(
 	if(use_C){
 		delmass<-( c( delmass-round(delmass,digits=0) ) / (delmass+(1/c_ratio*12)) );		
 	}else{
-		delmass<-( c( delmass-round(delmass,digits=0) ) / delmass );
+		delmass<-( c( delmass-round(delmass,digits=0) ) / delmass );	
 	}
 	maxup<-c(max(delmass));
-	maxdown<-c(abs(min(delmass)));
+	maxdown<-c(min(delmass));
+	#maxdown<-abs(min(delmass));
 	##########################################################################
     # (2) Set internal data & parameters #####################################
-	maxmove<-c(max(maxup,maxdown))
-	shift<-c(maxmz*(maxdown+maxup))
+	#maxmove<-c(max(maxup,maxdown))
+	shift<-c(maxmz*(maxup-maxdown))
+	#shift<-c(maxmz*(maxdown+maxup))
 	mass_def<-c(peaklist[,1]-round(peaklist[,1]))		# calculate mass defect
 	peaklist2<-peaklist[,-2]
-	uplim<-c(mass_def-(peaklist2[,1]*maxup))				# upward mass defect shift - (m/z)/mass defect lower intercept
-	uplim_tol<-c(max(peaklist4)*maxup*2)					# upward mass defect shift - maximum tolerance
-	downlim<-c(mass_def+(peaklist2[,1]*maxdown))			# downward mass defect shift - (m/z)/mass defect upper intercept
-	downlim_tol<-c(max(peaklist4)*maxdown*2)				# downward mass defect shift - maximum tolerance
+	uplim<-c(mass_def-(peaklist2[,1]*maxup))			# upward mass defect shift - (m/z)/mass defect lower intercept
+	uplim_tol<-abs(max(peaklist4)*maxup*2)				# upward mass defect shift - maximum tolerance
+	#uplim_tol<-c(max(peaklist4)*maxup*2)				# upward mass defect shift - maximum tolerance
+	downlim<-c(mass_def-(peaklist2[,1]*maxdown))		# downward mass defect shift - (m/z)/mass defect upper intercept
+	#downlim<-c(mass_def+(peaklist2[,1]*maxdown))		# downward mass defect shift - (m/z)/mass defect upper intercept	
+	downlim_tol<-abs(max(peaklist4)*maxdown*2)			# downward mass defect shift - maximum tolerance
+	#downlim_tol<-c(max(peaklist4)*maxdown*2)			# downward mass defect shift - maximum tolerance
 	peaklist2<-cbind(peaklist2,uplim,downlim)
 	peaklist2<-as.matrix(peaklist2)
 	max_delmz<-c(4*max(peaklist4)) 						# maximum m/z-distance gap - used for early aborting
 	scaled<-c(abs(maxmz-minmz),abs(maxrt+minrt),shift)	# scaling used for nearest neighbour-search
-	if(any(scaled==0)){stop("debug me on issue #5: scaled entry ==0 -> wrong parameters=")}
+	if(any(scaled==0)){
+		scaled[scaled==0]<-1
+		#stop("debug me on issue #5: scaled entry ==0 -> wrong parameters=")
+	}
 	peaklist3<-cbind(peaklist2[,c(1,2)],mass_def)
 	peaklist3<-as.matrix(peaklist3)
 	bounds<-matrix(ncol=2,nrow=4,0)						# store search bounds
@@ -111,10 +147,14 @@ function(
 	tupels<-matrix(nrow=vec_size,ncol=7,0)				# initially used to store triplets, then any n-tupels
 	tupeldo<-c(1);											# where to write into tupels
 	new_found<-rep(0,length(peaklist2[,1]))				# store newly detected m/z-differences
-	new_found_ceiling<-rep(0,length(peaklist2[,1])) 	# if mass defect rounding hits ceiling
-	ceiled<-FALSE
-	new_found_floor<-rep(0,length(peaklist2[,1]))		# if mass defect rounding hits floor
-	floored<-FALSE
+	new_found_ceiling_UA<-rep(0,length(peaklist2[,1])) 	# if mass defect rounding hits ceiling, upper area (UA)
+	new_found_ceiling_LA<-rep(0,length(peaklist2[,1])) 	# if mass defect rounding hits ceiling, lower area (LA)	
+	ceiled_UA<-FALSE
+	ceiled_LA<-FALSE
+	new_found_floor_UA<-rep(0,length(peaklist2[,1]))	# if mass defect rounding hits floor, upper area (UA)
+	new_found_floor_LA<-rep(0,length(peaklist2[,1]))	# if mass defect rounding hits floor, lower area (LA)		
+	floored_UA<-FALSE
+	floored_LA<-FALSE	
 	dist_ID<-c()										# point ID
 	dist_dist<-c()										# store distance
 	mz_last<-c(0)										# store last sweep`s m/z-value for correction
@@ -173,77 +213,127 @@ function(
 		# upper area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]+minmz)
 		bounds[1,2]<-(peaklist2[use,1]+maxmz) 
-		bounds[2,1]<-(peaklist2[use,2]-minrt)
-		bounds[2,2]<-(peaklist2[use,2]+maxrt)
-		bounds[3,1]<-((peaklist2[use,3])-shift-uplim_tol)	# maxup LB
+		bounds[2,1]<-(peaklist2[use,2]+minrt-rttol)
+		bounds[2,2]<-(peaklist2[use,2]+maxrt+rttol)
+		bounds[3,1]<-(peaklist2[use,3]-shift-uplim_tol)		# maxup LB
 		bounds[3,2]<-(peaklist2[use,3]+uplim_tol) 			# maxup UB
 		bounds[4,1]<-(peaklist2[use,4]-downlim_tol)			# maxdown LB
 		bounds[4,2]<-(peaklist2[use,4]+shift+downlim_tol) 	# maxdown UB
+		if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_1")}
 		.Call("search_kdtree_homol", 
 			peaklist2, 	# rows: c(m/z,RT,UB,LB)
 			peakTree,  	# peaks - search tree
 			bounds,
 			marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
-			i,
+			i,			# sweep number
 			new_found,	
 			1, 			# clean new_found?
 			PACKAGE="nontarget"
 		)
-		# -> mass defect rounding hits ceiling? ##############################
-		if((mass_def[use]+(maxmove*maxmz))>=.5){
-			bounds[3,1]<-((peaklist2[use,3])-shift-1-uplim_tol)	# maxup LB
+		# -> mass defect rounding hits ceiling, upper area (_UA)? ############
+		if( (mass_def[use]+(maxup*maxmz)+uplim_tol)>=.5 ){ # PLUS!
+			bounds[3,1]<-(peaklist2[use,3]-shift-1-uplim_tol)	# maxup LB
 			bounds[3,2]<-(peaklist2[use,3]-1+uplim_tol) 		# maxup UB
 			bounds[4,1]<-(peaklist2[use,4]-1-downlim_tol)		# maxdown LB
 			bounds[4,2]<-(peaklist2[use,4]+shift-1+downlim_tol) # maxdown UB
+			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_2")}			
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
 				bounds,
 				marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
-				i,
-				new_found_ceiling,	
+				i,			# sweep number
+				new_found_ceiling_UA,	
 				1, 			# clean new_found?
 				PACKAGE="nontarget"
 			)
-			if(new_found_ceiling[1]!=0){ceiled<-TRUE}
+			if(new_found_ceiling_UA[1]!=0){ceiled_UA<-TRUE}
 		}
+		
+#### BAUSTELLE
+		# -> mass defect rounding hits floor, upper area (_UA)? ###############
+		if((mass_def[use]+(maxdown*maxmz)-downlim_tol)<=-.5){ # PLUS!
+			bounds[3,1]<-(peaklist2[use,3]-shift+1-uplim_tol)	# maxup LB
+			bounds[3,2]<-(peaklist2[use,3]+1+uplim_tol) 		# maxup UB
+			bounds[4,1]<-(peaklist2[use,4]+1-downlim_tol)		# maxdown LB
+			bounds[4,2]<-(peaklist2[use,4]+shift+1+downlim_tol) # maxdown UB
+			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_3")}
+			.Call("search_kdtree_homol", 
+				peaklist2, 	# rows: c(m/z,RT,UB,LB)
+				peakTree,  	# peaks - search tree
+				bounds,
+				marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
+				i,			# sweep number
+				new_found_floor_UA,	
+				1, 			# clean new_found?
+				PACKAGE="nontarget"
+			)
+			if(new_found_floor_UA[1]!=0){floored_UA<-TRUE}
+		}
+#### BAUSTELLE
+		
 		# lower area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]-maxmz)
 		bounds[1,2]<-(peaklist2[use,1]-minmz) 
-		bounds[2,1]<-(peaklist2[use,2]-maxrt)
-		bounds[2,2]<-(peaklist2[use,2]+minrt)
-		bounds[3,1]<-((peaklist2[use,3])-uplim_tol)			# maxup LB
-		bounds[3,2]<-((peaklist2[use,3])+shift+uplim_tol) 	# maxup UB
-		bounds[4,1]<-((peaklist2[use,4])-shift-downlim_tol)	# maxdown LB
+		bounds[2,1]<-(peaklist2[use,2]-maxrt-rttol)
+		bounds[2,2]<-(peaklist2[use,2]-minrt+rttol)
+		bounds[3,1]<-(peaklist2[use,3]-uplim_tol)			# maxup LB
+		bounds[3,2]<-(peaklist2[use,3]+shift+uplim_tol) 	# maxup UB
+		bounds[4,1]<-(peaklist2[use,4]-shift-downlim_tol)	# maxdown LB
 		bounds[4,2]<-(peaklist2[use,4]+downlim_tol) 		# maxdown UB
+if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
 		.Call("search_kdtree_homol", 
 			peaklist2, 	# rows: c(m/z,RT,UB,LB)
 			peakTree,  	# peaks - search tree
 			bounds,
 			marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
-			i,
+			i,			# sweep number
 			new_found,	
 			0, 			# clean new_found?
 			PACKAGE="nontarget"
 		)	
-		# -> mass defect rounding hits floor? ################################
-		if((mass_def[i]-(maxmove*maxmz))<=-.5){
-			bounds[3,1]<-((peaklist2[use,3])+1-uplim_tol)			# maxup LB
-			bounds[3,2]<-((peaklist2[use,3])+shift+1+uplim_tol) 	# maxup UB
-			bounds[4,1]<-((peaklist2[use,4])-shift+1-downlim_tol)	# maxdown LB
-			bounds[4,2]<-(peaklist2[use,4]+1+downlim_tol) 			# maxdown UB
+		# -> mass defect rounding hits floor, lower area (_LA)? #############
+		if((mass_def[use]-(maxup*maxmz)-uplim_tol)<=-.5){ # MINUS!
+			bounds[3,1]<-(peaklist2[use,3]+1-uplim_tol)			# maxup LB
+			bounds[3,2]<-(peaklist2[use,3]+shift+1+uplim_tol) 	# maxup UB
+			bounds[4,1]<-(peaklist2[use,4]-shift+1-downlim_tol)	# maxdown LB
+			bounds[4,2]<-(peaklist2[use,4]+1+downlim_tol) 		# maxdown UB
+			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_5")}
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
 				bounds,
 				marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
-				i,
-				new_found_floor,	
+				i,			# sweep number
+				new_found_floor_LA,	
 				1, 			# clean new_found?
 				PACKAGE="nontarget"
 			)
-			if(new_found_floor[1]!=0){floored<-TRUE}
+			if(new_found_floor_LA[1]!=0){floored_LA<-TRUE}
 		}
+
+#### BAUSTELLE
+		# -> mass defect rounding hits ceiling, lower area (_LA)? ###########
+		if((mass_def[use]-(maxdown*maxmz)+downlim_tol)>=.5){ # MINUS!
+			bounds[3,1]<-(peaklist2[use,3]-1-uplim_tol)			# maxup LB
+			bounds[3,2]<-(peaklist2[use,3]+shift-1+uplim_tol) 	# maxup UB
+			bounds[4,1]<-(peaklist2[use,4]-shift-1-downlim_tol)	# maxdown LB
+			bounds[4,2]<-(peaklist2[use,4]-1+downlim_tol) 		# maxdown UB
+			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_6")}
+			.Call("search_kdtree_homol", 
+				peaklist2, 	# rows: c(m/z,RT,UB,LB)
+				peakTree,  	# peaks - search tree
+				bounds,
+				marked,		# only write to new_found those of marked[,1]!=(i-1) to omit last sweep`s new_found
+				i,			# sweep number
+				new_found_ceiling_LA,	
+				1, 			# clean new_found?
+				PACKAGE="nontarget"
+			)
+			if(new_found_ceiling_LA[1]!=0){ceiled_LA<-TRUE}
+		}
+#### BAUSTELLE
+	
 		######################################################################
 		# delete or update old points ########################################
 		if(length(dist_ID)>0){
@@ -263,24 +353,44 @@ function(
 				peaklist2[new_found[1:many],1]-peaklist2[use,1]	
 			)
 		}
-		if(ceiled){
-			many<-sum(new_found_ceiling!=0)
-			dist_ID<-append(dist_ID,new_found_ceiling[1:many])
+		if(ceiled_UA){
+			many<-sum(new_found_ceiling_UA!=0)
+			dist_ID<-append(dist_ID,new_found_ceiling_UA[1:many])
 			dist_dist<-append(dist_dist,
-				peaklist2[new_found_ceiling[1:many],1]-peaklist2[use,1]	
+				peaklist2[new_found_ceiling_UA[1:many],1]-peaklist2[use,1]	
 			)	
-			new_found_ceiling[]<-0;
-			ceiled<-FALSE;
+			new_found_ceiling_UA[]<-0;
+			ceiled_UA<-FALSE;
 			a<-(a+many)
 		}
-		if(floored){
-			many<-sum(new_found_floor!=0)
-			dist_ID<-append(dist_ID,new_found_floor[1:many])
+		if(floored_UA){
+			many<-sum(new_found_floor_UA!=0)
+			dist_ID<-append(dist_ID,new_found_floor_UA[1:many])
 			dist_dist<-append(dist_dist,
-				peaklist2[new_found_floor[1:many],1]-peaklist2[use,1]	
+				peaklist2[new_found_floor_UA[1:many],1]-peaklist2[use,1]	
 			)	
-			new_found_floor[]<-0;
-			floored<-FALSE;		
+			new_found_floor_UA[]<-0;
+			floored_UA<-FALSE;		
+			a<-(a+many)
+		}		
+		if(floored_LA){
+			many<-sum(new_found_floor_LA!=0)
+			dist_ID<-append(dist_ID,new_found_floor_LA[1:many])
+			dist_dist<-append(dist_dist,
+				peaklist2[new_found_floor_LA[1:many],1]-peaklist2[use,1]	
+			)	
+			new_found_floor_LA[]<-0;
+			floored_LA<-FALSE;		
+			a<-(a+many)
+		}
+		if(ceiled_LA){
+			many<-sum(new_found_ceiling_LA!=0)
+			dist_ID<-append(dist_ID,new_found_ceiling_LA[1:many])
+			dist_dist<-append(dist_dist,
+				peaklist2[new_found_ceiling_LA[1:many],1]-peaklist2[use,1]	
+			)	
+			new_found_ceiling_LA[]<-0;
+			ceiled_LA<-FALSE;
 			a<-(a+many)
 		}
 		if(length(dist_ID)>1){
@@ -303,7 +413,7 @@ function(
 				rttol,
 				PACKAGE="nontarget"
 			);
-			if(tupeldo>vec_size){stop("\n tupels out of bounds. increase vec_size")}
+			if(tupeldo>vec_size){stop("\n Maximum number of tupels reached. increase vec_size")}
 			##################################################################
 		}	
 		######################################################################
@@ -321,15 +431,19 @@ function(
 		plot.window(xlim=c(min(peaklist2[,1]),max(peaklist2[,1])),ylim=c(min(mass_def),max(mass_def)))
 		points(
 			peaklist2[,1],mass_def,
-			pch=19,cex=.1,col="lightgrey"
+			pch=19,cex=1,col="black"
 		)
 		title(xlab="m/z",ylab="Mass defect",main="Nearest neighbour path")
 		box();axis(1);axis(2)
 		for(j in 2:length(along)){
 			lines(
 				c(peaklist2[along[j],1],peaklist2[along[j-1],1]),c(mass_def[along[j]],mass_def[along[j-1]]),
-				,col="black",lwd=.5)
+				,col="black",lwd=.5)		
 		}
+		abline(b=maxup,a=(0-(min(peaklist2[,1])*maxup))
+			,col="darkgreen",lwd=2)
+		abline(b=maxdown,a=(0-(min(peaklist2[,1])*maxdown))
+			,col="red",lwd=2)		
 		Sys.sleep(5)
 		######################################################################	
 		plot.new()
@@ -367,18 +481,18 @@ function(
 		cat("\n(5) Skip mzfilter. ");	
 	}
 	##########################################################################
-	# (6) Combine triplets to n-tupel - possibly check for smoothness ########
+	# (6) Combine triplets to n-tupel - possibly check for smoothness ########	
 	cat("\n(6) Combine n-tupels, n(rejects):");	
 	HS<-list();
 	HS_length<-3;
 	found<-0;
-	tupels<-cbind(tupels[,],seq(1,length(tupels[,1]),1)) # dummy column
+	tupels<-cbind(tupels,seq(1,length(tupels[,1]),1)) # dummy column
 	while(any(tupels[,1]!=0)){
 	    cat(paste(" ",HS_length," - ",length(tupels[,1]),sep=""));
 		keeper<-rep(0,length(tupels[,1]))
-		if(length(tupels[,1])==1){break}
+		if(length(tupels[,1])==1){break} # only one tupel left = nothing to combine
 		if(length(tupels[,1])==0){stop("\n debug me, issue #1")}
-		if(any(tupels[,1]<1)){stop("\n debug me, issue #3")}
+		if(any(tupels[,1]<1)){stop("\n debug me, +issue #3")}
 		merged_tupels<-.Call("combine_tuple", 
 			tupels[,1:HS_length],
 			tupels[,(HS_length+1):(HS_length+4)],
@@ -394,7 +508,7 @@ function(
 			break;
 		}
 		lang<-length(merged_tupels[1,])
-		keeper_2<-rep(1,length(merged_tupels[,1]))
+		keeper_2<-rep(1,length(merged_tupels[,1])) # used for spline smooth
 		if(R2!=FALSE){
 			reject<-0;
 			for(i in 1:length(merged_tupels[,1])){
@@ -408,6 +522,7 @@ function(
 				if(any(duplicated(y)) & (HS_length<4)){next} # bypass fitting issues
 				b <- predict(stats::smooth.spline(x,y,cv=FALSE,spar=.45))
 				SS_tot<-sum((y-mean(y))^2);
+				if(SS_tot==0){next;} # no variance; e.g. under constant RT
 				SS_res<-sum((y-b$y)^2);
 				R2_i<-(1-(SS_res/SS_tot));
 				if(R2_i<R2){
@@ -417,8 +532,8 @@ function(
 					reject<-(reject+1)
 				}
 				if(plotit==2 & (HS_length>=minlength)){
-					plot(y,x,pch=19,main=R2_i,xlab="m/z",ylab="RT");
-					points(b$y,b$x,type="l",col="red");	
+					plot(x,y,pch=19,main=R2_i,xlab="m/z",ylab="RT");
+					points(b$x,b$y,type="l",col="red");	
 					Sys.sleep(1.4)
 				}
 			}

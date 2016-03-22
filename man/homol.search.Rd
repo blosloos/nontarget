@@ -9,7 +9,7 @@ Dynamic programming algorithm for unsupervised detection of homologue series in 
 }
 \usage{
 homol.search(peaklist,isotopes,	elements=c("C","H","O"),use_C=FALSE,minmz=5,
-maxmz=120,minrt=2,maxrt=2,ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,
+maxmz=120,minrt=-2,maxrt=2,ppm=TRUE,mztol=3.5,rttol=0.5,minlength=5,
 mzfilter=FALSE,vec_size=3E6,mat_size=3,R2=.98,spar=.45,plotit=FALSE,deb=0)
 }
 
@@ -39,11 +39,12 @@ mzfilter=FALSE,vec_size=3E6,mat_size=3,R2=.98,spar=.45,plotit=FALSE,deb=0)
 }
 
   \item{minrt}{
-	Defines the lower limit of the retention time (RT) window to look for other homologue peaks, relative to the RT of the one peak to search from, i.e., RT-minrt.
+	Defines the lower limit of the retention time (RT) window to look for other homologue peaks, relative to the RT of the one peak to search from, i.e., RT+minrt.
+	For decreasing RT with increasing HS mass, use negative values of minrt.
 }
 
   \item{maxrt}{
-	Defines the upper limit of the RT window to look for other homologue peaks, relative to the RT of the one peak to search from, i.e., RT+maxrt. 
+	Defines the upper limit of the RT window to look for other homologue peaks, relative to the RT of the one peak to search from, i.e., RT+maxrt. See \code{minrt}.
 }
 
   \item{ppm}{

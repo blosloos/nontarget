@@ -1,5 +1,8 @@
 nontarget News
 
+CHANGES in versions 1.9:
+	
+	(1)	debug homol.search: ceiling of bound mass defect rounding
 
 CHANGES in versions 1.8:
 	
