@@ -219,7 +219,7 @@ function(
 		bounds[3,2]<-(peaklist2[use,3]+uplim_tol) 			# maxup UB
 		bounds[4,1]<-(peaklist2[use,4]-downlim_tol)			# maxdown LB
 		bounds[4,2]<-(peaklist2[use,4]+shift+downlim_tol) 	# maxdown UB
-		if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_1")}
+		#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_1")}
 		.Call("search_kdtree_homol", 
 			peaklist2, 	# rows: c(m/z,RT,UB,LB)
 			peakTree,  	# peaks - search tree
@@ -231,12 +231,12 @@ function(
 			PACKAGE="nontarget"
 		)
 		# -> mass defect rounding hits ceiling, upper area (_UA)? ############
-		if( (mass_def[use]+(maxup*maxmz)+uplim_tol)>=.5 ){ # PLUS!
+		if( (mass_def[use]+(maxup*maxmz)+uplim_tol)>=.5 ){ 		# PLUS!
 			bounds[3,1]<-(peaklist2[use,3]-shift-1-uplim_tol)	# maxup LB
 			bounds[3,2]<-(peaklist2[use,3]-1+uplim_tol) 		# maxup UB
 			bounds[4,1]<-(peaklist2[use,4]-1-downlim_tol)		# maxdown LB
 			bounds[4,2]<-(peaklist2[use,4]+shift-1+downlim_tol) # maxdown UB
-			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_2")}			
+			#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_2")}			
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
@@ -249,15 +249,13 @@ function(
 			)
 			if(new_found_ceiling_UA[1]!=0){ceiled_UA<-TRUE}
 		}
-		
-#### BAUSTELLE
 		# -> mass defect rounding hits floor, upper area (_UA)? ###############
-		if((mass_def[use]+(maxdown*maxmz)-downlim_tol)<=-.5){ # PLUS!
+		if((mass_def[use]+(maxdown*maxmz)-downlim_tol)<=-.5){ 	# PLUS!
 			bounds[3,1]<-(peaklist2[use,3]-shift+1-uplim_tol)	# maxup LB
 			bounds[3,2]<-(peaklist2[use,3]+1+uplim_tol) 		# maxup UB
 			bounds[4,1]<-(peaklist2[use,4]+1-downlim_tol)		# maxdown LB
 			bounds[4,2]<-(peaklist2[use,4]+shift+1+downlim_tol) # maxdown UB
-			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_3")}
+			#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_3")}
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
@@ -270,8 +268,6 @@ function(
 			)
 			if(new_found_floor_UA[1]!=0){floored_UA<-TRUE}
 		}
-#### BAUSTELLE
-		
 		# lower area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]-maxmz)
 		bounds[1,2]<-(peaklist2[use,1]-minmz) 
@@ -281,7 +277,7 @@ function(
 		bounds[3,2]<-(peaklist2[use,3]+shift+uplim_tol) 	# maxup UB
 		bounds[4,1]<-(peaklist2[use,4]-shift-downlim_tol)	# maxdown LB
 		bounds[4,2]<-(peaklist2[use,4]+downlim_tol) 		# maxdown UB
-if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
+		#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
 		.Call("search_kdtree_homol", 
 			peaklist2, 	# rows: c(m/z,RT,UB,LB)
 			peakTree,  	# peaks - search tree
@@ -293,12 +289,12 @@ if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
 			PACKAGE="nontarget"
 		)	
 		# -> mass defect rounding hits floor, lower area (_LA)? #############
-		if((mass_def[use]-(maxup*maxmz)-uplim_tol)<=-.5){ # MINUS!
+		if((mass_def[use]-(maxup*maxmz)-uplim_tol)<=-.5){ 		# MINUS!
 			bounds[3,1]<-(peaklist2[use,3]+1-uplim_tol)			# maxup LB
 			bounds[3,2]<-(peaklist2[use,3]+shift+1+uplim_tol) 	# maxup UB
 			bounds[4,1]<-(peaklist2[use,4]-shift+1-downlim_tol)	# maxdown LB
 			bounds[4,2]<-(peaklist2[use,4]+1+downlim_tol) 		# maxdown UB
-			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_5")}
+			#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_5")}
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
@@ -311,15 +307,13 @@ if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
 			)
 			if(new_found_floor_LA[1]!=0){floored_LA<-TRUE}
 		}
-
-#### BAUSTELLE
 		# -> mass defect rounding hits ceiling, lower area (_LA)? ###########
-		if((mass_def[use]-(maxdown*maxmz)+downlim_tol)>=.5){ # MINUS!
+		if((mass_def[use]-(maxdown*maxmz)+downlim_tol)>=.5){ 	# MINUS!
 			bounds[3,1]<-(peaklist2[use,3]-1-uplim_tol)			# maxup LB
 			bounds[3,2]<-(peaklist2[use,3]+shift-1+uplim_tol) 	# maxup UB
 			bounds[4,1]<-(peaklist2[use,4]-shift-1-downlim_tol)	# maxdown LB
 			bounds[4,2]<-(peaklist2[use,4]-1+downlim_tol) 		# maxdown UB
-			if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_6")}
+			#if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_6")}
 			.Call("search_kdtree_homol", 
 				peaklist2, 	# rows: c(m/z,RT,UB,LB)
 				peakTree,  	# peaks - search tree
@@ -332,8 +326,6 @@ if(any(bounds[,1]>bounds[,2])){stop("debug me on wrong bounds_4")}
 			)
 			if(new_found_ceiling_LA[1]!=0){ceiled_LA<-TRUE}
 		}
-#### BAUSTELLE
-	
 		######################################################################
 		# delete or update old points ########################################
 		if(length(dist_ID)>0){
