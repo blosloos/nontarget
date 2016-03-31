@@ -627,7 +627,7 @@ function(
 	##########################################################################	
 	# (8) cluster similar HS #################################################
 	if(any(deb==3)){
-		cat("\n(8) Grouping of superjacent HS:  \n");
+		cat("\n(7 b) Grouping of superjacent HS:  \n");
 		# HS_IDs: table to translate HS list to a continous ID and back ######
 		# use 2nd last column in HS to place a unique ID #####################
 		# peakHS: membership of peaks in HS ##################################
@@ -797,7 +797,7 @@ function(
 	}
 	##########################################################################	
 	# (9) Generate data output ###############################################
-	cat(paste("\n(9) Parse output for ",max(HS_IDs[,4])," homologue series and ",found," cluster ... ",sep=""));
+	cat(paste("\n(8) Parse output for ",max(HS_IDs[,4])," homologue series and ",found," cluster ... ",sep=""));
 	# generate HS group lists ################################################
 	HS_groups<-list(0)
 	for(i in 1:length(HS_IDs[,4])){
