@@ -385,6 +385,11 @@ function(
 			ceiled_LA<-FALSE;
 			a<-(a+many)
 		}
+		if(deb>4){ # return queried peaks for peak ID == deb (must be >4 as deb used otherwise below)
+			if(use==deb){
+				return(dist_ID)
+			}
+		}
 		if(length(dist_ID)>1){
 			##################################################################
 			# resort to new centre point i ###################################
@@ -474,7 +479,7 @@ function(
 	}
 	##########################################################################
 	# (6) Combine triplets to n-tupel - possibly check for smoothness ########	
-	cat("\n(6) Combine n-tupels, n(rejects):");	
+	cat("\n(6) Combine n-tupels, n(rejects),passed_on:");	
 	HS<-list();
 	HS_length<-3;
 	found<-0;
@@ -534,7 +539,7 @@ function(
 			cat(paste("(0)",sep=""));			
 		}
 		HS[[HS_length]]<-tupels[keeper==0,,drop=FALSE]
-		cat(", ",sum(keeper!=0),sep="")
+		cat(",",sum(keeper!=0),sep="")
 		if(HS_length>=minlength){
 			found<-c(found+length(HS[[HS_length]][,1]))
 		}

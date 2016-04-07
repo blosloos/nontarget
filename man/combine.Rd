@@ -146,7 +146,7 @@ homol<-homol.search(
 	use_C=TRUE,
 	minmz=5,
 	maxmz=120,
-	minrt=2,
+	minrt=1,
 	maxrt=2,
 	ppm=TRUE,
 	mztol=3.5,
