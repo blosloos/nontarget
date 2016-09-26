@@ -7,7 +7,7 @@ Combining isotope, adduct and homologue series relations in HRMS data sets.
 Combines groups of isotope pattern peaks from \code{\link[nontarget]{pattern.search}} and groups of adduct peaks \code{\link[nontarget]{adduct.search}}	
 to components, with information on homologue series relations from \code{\link[nontarget]{homol.search}} attached. Includes some checks for component 
 plausibility. Needs at least two inputs of (1) isotope pattern relations, (2) adduct relations and (3) homologue series relations. Extracts the most intensive peak
-per component, thus allowing for consistent comparison of component occurrence across different HRMS data sets. 
+per component, allowing for a comparison of components among HRMS data sets. 
 
 Individual components and peak relations therein can then be plotted with \code{\link[nontarget]{plotcomp}}.
 Numbers for detected isotope m/z differences among components can be summarized with \code{\link[nontarget]{plotisotopes}}.
@@ -42,7 +42,8 @@ Step one and two thereby lead to the set of peaks defining a component.
 In a third step, all peaks in a component are checked for having adduct or isotope pattern relations to other peaks not yet subsumed into the component, e.g. as
 a result of overlapping isotope pattern groups. These additional peaks are therefore defined as interfering peaks.
 In a fourth step, all peaks found for a component are, if available, related to homologue series they may be part of.
-Once assigned to a component, peaks take not further part in subsequent repetitions of step one (except for interfering peaks, if \code{rules[1]=TRUE}), or any of the other steps.
+Once thus assigned to a component, peaks take not further part in subsequent repetitions of step one to initiate a new component (except for interfering peaks, if \code{rules[1]=TRUE}).
+However, they may repeatedly be involved in steps two and three to reflect ambiguities of assigning components.
 
 Four plausibility checks are implemented, represented by \code{warning} indices 1 to 4.
 The first test checks whether the adduct relations found for the peaks assorted under above steps one and two are consistent. If ambiguous adduct relations (e.g. M+H<->M+K AND M+Na<->M+NH4)
@@ -50,7 +51,8 @@ are found for at least one peak, warning 1 is tagged to the concerned component.
 The second test checks whether variations in peak intensities within isotope pattern groups are consistent among the different adducts of the same component. This
 must account for uncertainty in peak intensities via argument inttol of \code{\link[nontarget]{pattern.search}}. 
 The third check examines whether interfering peaks occur.
-The fourth check takes effect if a component consists of merged isotope pattern groups (only relevant if several z-levels were employed, see charges argument of \code{\link[nontarget]{pattern.search}}).
+The fourth check takes effect if a component consists of ambiguously merged isotope pattern groups (only relevant if several charges are used, see \code{use_charges} argument in 
+\code{\link[nontarget]{make.isos}} and the last of the \code{rules} in \code{\link[nontarget]{pattern.search}}).
 These warning indices can then be used to exclude components affected, using argument \code{dont. }For example, \code{dont=c(1,3)} excludes components with ambiguous adduct relations and interfering peaks from the 
 final component list.
 }
@@ -82,7 +84,7 @@ List of type comp with 7 entries
 \item{comp[[2]]}{\code{pattern peak list}. Entry 1 of list of type pattern produced by \code{\link[nontarget]{pattern.search}}, i.e. \code{pattern[[1]]}.}
 \item{comp[[3]]}{\code{adduct peak list}. Entry 1 of list of type adduct produced by \code{\link[nontarget]{adduct.search}}, i.e. \code{adduct[[1]]}.}
 \item{comp[[4]]}{\code{homologue list}. Entry 1 of list of type homol produced by \code{\link[nontarget]{homol.search}}, i.e. \code{homol[[1]]}.}
-\item{comp[[5]]}{\code{Peaks in components}. Vector of \code{TRUE} or\code{FALSE}, indicating if a peak in \code{pattern[[1]]} or \code{adduct[[1]]} is part of a component.}
+\item{comp[[5]]}{\code{Peaks in components}. Vector of \code{TRUE} or\code{FALSE}, indicating if a peak in \code{pattern[[1]]} or \code{adduct[[1]]} is part of one or several component(s).}
 \item{comp[[6]]}{\code{Summary}.}
 \item{comp[[7]]}{\code{Parameters}.}
 

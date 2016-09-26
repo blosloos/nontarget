@@ -881,7 +881,7 @@ function(
 					if(k<a){
 						getit3[HS[[a]][b,k]]<-paste(getit3[HS[[a]][b,k]],"/",as.character(HS[[a]][b,(k+1)]),sep="")
 					}
-					getit4[HS[[a]][b,k]]<-paste(getit4[HS[[a]][b,k]],"/",as.character(round(meanmz,digits=4)),sep="")
+					getit4[HS[[a]][b,k]]<-paste(getit4[HS[[a]][b,k]],"/",as.character(round(meanmz,digits=7)),sep="")
 					getit5[HS[[a]][b,k]]<-paste(getit5[HS[[a]][b,k]],"/",as.character(round(meanRT,digits=4)),sep="")	
 					getit6[HS[[a]][b,k]]<-paste(getit6[HS[[a]][b,k]],"/",as.character(HS_IDs[HS[[a]][b,a+5],4]),sep="")
 					listit[[k]]<-HS[[a]][b,k];

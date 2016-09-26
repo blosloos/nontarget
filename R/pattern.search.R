@@ -669,8 +669,7 @@ function(
 				these1<-c(along[i],as.numeric(strsplit(getit4[along[i]],"/")[[1]][-1]));
 				# these1<-c(i,as.numeric(strsplit(getit4[i],"/")[[1]][-1]));
 				these5<-as.numeric(strsplit(getit6[along[i]],"/")[[1]])[-1];
-				these1<-these1[c(TRUE,these5==charges[z])];
-				these1<-as.numeric(levels(as.factor(these1))); # remove double entries
+				these1<-unque(these1[c(TRUE,these5==charges[z])]); 	# and remove double entries
 				group2b[along[i]]<-c("1/0");
 				group2b[these1[these1!=along[i]]]<-paste("2",group2b[these1[these1!=along[i]]],sep="/");
 				allpeaks<-these1;
@@ -714,10 +713,8 @@ function(
 						}
 					}
 					# clean for new round ################################################
-					allpeaks<-c(allpeaks,newpeaks1,newpeaks2);
-					allpeaks<-as.numeric(levels(as.factor(allpeaks)));
-					newpeaks1<-newpeaks2;
-					newpeaks1<-as.numeric(levels(as.factor(newpeaks1)));
+					allpeaks<-unique(allpeaks,newpeaks1,newpeaks2);
+					newpeaks1<-unique(newpeaks2);
 					level<-c(level+1);
 				}; # while
 				these1<-allpeaks;
@@ -878,6 +875,7 @@ function(
 		}; # while i
 		############################################################################
 		# merge results from different charge levels! ##############################
+# apply etc
 		for(x in 1:alls){ 
 			if(group1b[x]!="0"){
 				group1[x]<-paste(group1[x],group1b[x],sep="/");
@@ -1043,7 +1041,7 @@ function(
           }
           }
         }
-        hit<-as.numeric(levels(as.factor(hit)))
+        hit<-unique(hits);
         hits[hit,4]<-c( hits[hit,4]+ 1)
       }
       hits<-hits[order((hits[,1]),(hits[,2]),decreasing=FALSE),];

@@ -101,8 +101,8 @@ level 2), a second peak from two 13-C vs. 12-C isotope replacements can be expec
 the m/z of the expected peak. This allows skipping the search of expected peaks in cases of intensity masking by other peaks. For example, intensive 37-Cl often mask the occurrence
 of a second 13-C peak to be expected from \code{rules[6]}, depending on the number of Cl and C atoms and the measurement resolution used.
 
-\code{rules[11]}: In some cases, trees may - if several z-values are used - be nested within each other at different z-levels. This rules merges the nested group of z=x into the nesting peak 
-group of z=y.
+\code{rules[11]}: In some cases, trees may - if several charges z are used - be nested within each other. 
+This rule merges the nested group of charge z=x into the nesting peak group of z>x.
 
 }
 
