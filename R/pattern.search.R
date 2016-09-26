@@ -669,7 +669,8 @@ function(
 				these1<-c(along[i],as.numeric(strsplit(getit4[along[i]],"/")[[1]][-1]));
 				# these1<-c(i,as.numeric(strsplit(getit4[i],"/")[[1]][-1]));
 				these5<-as.numeric(strsplit(getit6[along[i]],"/")[[1]])[-1];
-				these1<-unque(these1[c(TRUE,these5==charges[z])]); 	# and remove double entries
+				these1<-these1[c(TRUE,these5==charges[z])];
+				these1<-as.numeric(unique(these1)); # remove double entries
 				group2b[along[i]]<-c("1/0");
 				group2b[these1[these1!=along[i]]]<-paste("2",group2b[these1[these1!=along[i]]],sep="/");
 				allpeaks<-these1;
@@ -713,8 +714,10 @@ function(
 						}
 					}
 					# clean for new round ################################################
-					allpeaks<-unique(allpeaks,newpeaks1,newpeaks2);
-					newpeaks1<-unique(newpeaks2);
+					allpeaks<-c(allpeaks,newpeaks1,newpeaks2);
+					allpeaks<-as.numeric(unique(allpeaks));
+					newpeaks1<-newpeaks2;
+					newpeaks1<-as.numeric(unique(newpeaks1));
 					level<-c(level+1);
 				}; # while
 				these1<-allpeaks;
@@ -875,7 +878,6 @@ function(
 		}; # while i
 		############################################################################
 		# merge results from different charge levels! ##############################
-# apply etc
 		for(x in 1:alls){ 
 			if(group1b[x]!="0"){
 				group1[x]<-paste(group1[x],group1b[x],sep="/");
@@ -968,20 +970,6 @@ function(
     ############################################################################
 
     ############################################################################
-    # only keep groups of size >=minpeaks ? ####################################
-    #excl<-c()
-    #if(minpeaks!=FALSE & length(group3)>0){
-    #    for(i in 1:length(group4)){
-    #      that<-as.numeric(strsplit(group4[i],",")[[1]])
-    #      if(length(that)<minpeaks){excl<-c(excl,i)}
-    #    }
-    #group3<-group3[-excl];
-    #group4<-group4[-excl];
-    #group6<-group6[-excl];
-    #}
-    ############################################################################
-
-    ############################################################################
     cat("\n (5) Create output... ");
     ############################################################################
     overlap<-rep(0,100);
@@ -1041,7 +1029,7 @@ function(
           }
           }
         }
-        hit<-unique(hits);
+        hit<-as.numeric(unique(hit))
         hits[hit,4]<-c( hits[hit,4]+ 1)
       }
       hits<-hits[order((hits[,1]),(hits[,2]),decreasing=FALSE),];

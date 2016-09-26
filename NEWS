@@ -2,8 +2,8 @@ nontarget News
 
 CHANGES in versions 1.9:
 	
-	(1)	debug homol.search: ceiling of bound mass defect rounding
-	(2) homol.search: parameter redefinitions
+	(1)	R homol.search: ceiling bound mass defect rounding, parameter redefinitions
+	(2) R combine: redefinition for ambiguously merged and nested isotopologue groups
 
 CHANGES in versions 1.8:
 	

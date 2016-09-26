@@ -21,7 +21,7 @@ extern "C"
 {
 void mass(  double *mass,
             double *retent,
-            int *a,
+            size_t *a,
             double *masstol,
             double *massfrac,
             double *rttollow,

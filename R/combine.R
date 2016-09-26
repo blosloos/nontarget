@@ -128,8 +128,7 @@ function(
 				# should be length(where)==1, unless group(s) is nested into several unmergeable groups of higher charge
 				# if so, combine them and issue a warning = 5
 				if(length(where)>1){
-					comp7[length(comp7)]<-paste(comp7[length(comp7)],",5",sep="");
-					cat("!")
+					comp7[length(comp7)]<-paste(comp7[length(comp7)],",5",sep="");#cat("!")
 				}
 				# get all peak IDs from these (possibly nested) group(s) ######
 				get2<-unique(unlist(strsplit(as.character(pattern[[3]][where,"peak IDs"]),",")))
