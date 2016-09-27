@@ -15,21 +15,7 @@ function(
     # warning(2): adduct ranks ok? #############################################
     # warning(3): any interferring peaks? ######################################
     ############################################################################
-    # (0.1) define parameters & check ##########################################
-    cat("\n (1) Assemble lists...");
-    comp1a<-c();    # = ID of pattern group 
-    comp1b<-c();    # = IDs of peaks in main pattern group
-    comp2a<-c();    # = ID of adduct group(s)
-    comp2b<-c();    # = IDs of peaks in adduct group
-    comp2c<-c();    # = main adduct, i.e. that of comp1b
-    comp2d<-c();    # = other adducts, i.e. those of comp2b
-    comp3<-c();     # = ID of homologue serie(s) 
-    comp4<-c();     # = IDs of interfering peaks
-    comp5<-c();     # = IDs of interfering pattern groups
-    comp6<-c();     # = IDs of interfering adduct groups
-    comp7<-c();     # = consistent? -> ok/(1,2,3,4,5,6)
-    comp8<-c();     # = isotope relations
-    comp9<-c();     # = charge levels
+    # (0.1) checks #############################################################
     if(length(pattern)>1 & length(adduct)>1){
 		if(length(pattern[[1]][,1])!=length(adduct[[1]][,1])){stop(("Different data sets pattern<->adduct used for combining!"))}
 		if(any(all(pattern[[1]][,1]==adduct[[1]][,1])!=TRUE)){stop("Different data sets pattern<->adduct used for combining!")};
@@ -92,6 +78,20 @@ function(
 
     ##########################################################################
     # combine # 1 ############################################################
+    cat("\n (1) Assemble lists...");
+    comp1a<-c();    # = ID of pattern group 
+    comp1b<-c();    # = IDs of peaks in main pattern group
+    comp2a<-c();    # = ID of adduct group(s)
+    comp2b<-c();    # = IDs of peaks in adduct group
+    comp2c<-c();    # = main adduct, i.e. that of comp1b
+    comp2d<-c();    # = other adducts, i.e. those of comp2b
+    comp3<-c();     # = ID of homologue serie(s) 
+    comp4<-c();     # = IDs of interfering peaks
+    comp5<-c();     # = IDs of interfering pattern groups
+    comp6<-c();     # = IDs of interfering adduct groups
+    comp7<-c();     # = consistent? -> ok/(1,2,3,4,5,6)
+    comp8<-c();     # = isotope relations
+    comp9<-c();     # = charge levels
     cat("\n (2) Combine...");
     if(length(pattern[[1]])>1){
 		no3<-rep(TRUE,length(pattern[[1]][,1]));
@@ -110,8 +110,8 @@ function(
 		}
     }
     ##########################################################################
-    for(i in 1:length(intord)){ # alond decreasing intensity #################
-		if(no3[intord[i]]==FALSE){next} # if not yet included in some group ###########
+    for(i in 1:length(intord)){ # alond decreasing intensity #################	
+		if(no3[intord[i]]==FALSE){next} # if not yet included in some group ##
         ######################################################################
         comp7<-c(comp7,"-"); # initialized as consistent 
         ######################################################################
@@ -124,7 +124,7 @@ function(
 				# get1: if several groups, the first one should be the nesting group at highest charge	
 				where<-unique(unlist(
 					lapply(get1,function(x) which(grepl(paste("/",x,"/",sep=""),as.character(pattern[[3]][,1]),fixed=TRUE)))
-				))
+				))	
 				# should be length(where)==1, unless group(s) is nested into several unmergeable groups of higher charge
 				# if so, combine them and issue a warning = 5
 				if(length(where)>1){
@@ -155,8 +155,8 @@ function(
                     }
                 }
 				get6<-paste(get6,collapse="/")			
-				comp8<-c(comp8,get6);	# comp8 = isotope relations				
-				get7<-unique(unlist(strsplit(as.character(pattern[[3]][where,"charge level"]),"/")))
+				comp8<-c(comp8,get6);	# comp8 = isotope relations							
+				get7<-unique(unlist(strsplit(as.character(pattern[[3]][where,"charge"]),"/")))
 				get7<-sort(get7,decreasing=TRUE)
 				get7<-paste(get7,collapse="/")
 				comp9<-c(comp9,get7)	# comp9 = charge levels
@@ -182,7 +182,7 @@ function(
             allpeaks<-c(intord[i]);
             no3[intord[i]]<-FALSE;
         }
-        ######################################################################
+		######################################################################
         # on adduct pattern ##################################################
         ######################################################################
         if(length(adduct[[1]])>1){ # if available ...
