@@ -122,7 +122,7 @@ function(
         par(def.par)#- reset to default
     }
     cat(paste("Fraction of peaklist removed: ",round(length(done[done==FALSE])/length(done),digits=3),"\n",sep=""));
-    that<-data.frame(peaklist,done)
+    that<-data.frame(peaklist,done,stringsAsFactors=FALSE)
     names(that)<-c("mass","intensity","rt","not satellite?")
 	############################################################################
     return(that)

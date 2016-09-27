@@ -4,6 +4,7 @@ CHANGES in versions 1.9:
 	
 	(1)	R homol.search: ceiling bound mass defect rounding, parameter redefinitions
 	(2) R combine: redefinition for ambiguously merged and nested isotopologue groups
+	(3)	src: signed int
 
 CHANGES in versions 1.8:
 	

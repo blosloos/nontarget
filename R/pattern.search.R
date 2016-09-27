@@ -982,7 +982,7 @@ function(
     }
     overlap<-overlap[overlap!=0]
     if(length(overlap)>0){
-      this11<-data.frame(seq(1:length(overlap)),overlap)
+      this11<-data.frame(seq(1:length(overlap)),overlap,stringsAsFactors=FALSE)
       names(this11)<-c("Number of groups in overlap","Peak counts")
     }else{
      this11<-"No overlaps detected"
@@ -994,7 +994,7 @@ function(
     }};
     deep<-deep[deep!=0];
     if(length(deep)>0){
-        deep<-data.frame(seq(1:length(deep)),deep);
+        deep<-data.frame(seq(1:length(deep)),deep,stringsAsFactors=FALSE);
         names(deep)<-c("interaction level","peak counts");
     }else{
         deep<-"No groups formed"
@@ -1128,7 +1128,7 @@ function(
 			}
 			group4[k]<-this31;
 		}
-		grouping<-data.frame(group3,group4,group6);
+		grouping<-data.frame(group3,group4,group6,stringsAsFactors=FALSE);
 		names(grouping)<-c("group ID","peak IDs","charge level");
     }else{
 		grouping<-"no groups assembled"

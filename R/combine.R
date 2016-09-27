@@ -447,7 +447,7 @@ function(
     cat("\n (4) Generate output...");
     # main list ################################################################
     comp7[comp7!="-"]<-substr(comp7[comp7!="-"],3,nchar(comp7[comp7!="-"]))
-    comps<-data.frame(seq(1,length(comp1a),1),comp1a,comp1b,comp2a,comp2b,comp3,comp4,comp5,comp6,comp7,comp2c,comp2d)
+    comps<-data.frame(seq(1,length(comp1a),1),comp1a,comp1b,comp2a,comp2b,comp3,comp4,comp5,comp6,comp7,comp2c,comp2d,stringsAsFactors=FALSE)
     names(comps)<-c("Component ID |","ID pattern group |","ID pattern peaks |","ID adduct group(s) |","ID adduct peaks |",
     "ID homologue series |","ID interfering peaks |","ID interfering pattern group(s) |",
     "ID interfering adduct group(s) |","Warnings |","pattern group adduct|","adduct group adduct(s) |");

@@ -341,13 +341,13 @@ function(component,x="mz",y="dm",xlim=FALSE,ylim=FALSE,
     # select data to return ####################################################
     if(filter.for=="raw"){
       if(length(component[[2]])>1){
-        peak.sel<-data.frame(component[[2]][not==FALSE,c(1,2,3)]);
+        peak.sel<-data.frame(component[[2]][not==FALSE,c(1,2,3)],stringsAsFactors=FALSE);
       }else{
-        peak.sel<-data.frame(component[[3]][not==FALSE,c(1,2,3)]);
+        peak.sel<-data.frame(component[[3]][not==FALSE,c(1,2,3)],stringsAsFactors=FALSE);
       }
     }
-    if(filter.for=="pattern"){peak.sel<-data.frame(component[[2]][not==FALSE,])};
-    if(filter.for=="adduct"){peak.sel<-data.frame(component[[3]][not==FALSE,])};
+    if(filter.for=="pattern"){peak.sel<-data.frame(component[[2]][not==FALSE,],stringsAsFactors=FALSE)};
+    if(filter.for=="adduct"){peak.sel<-data.frame(component[[3]][not==FALSE,],stringsAsFactors=FALSE)};
     return(peak.sel);
     ############################################################################
 }
