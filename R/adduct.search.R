@@ -6,7 +6,8 @@ function(
 	mztol=2,
 	ppm=TRUE,
     use_adducts=c("M+H","M+K","M+Na"),
-	ion_mode="positive"
+	ion_mode="positive",
+	get_pairs=FALSE
 ){
 
     ############################################################################
@@ -80,7 +81,21 @@ function(
 		cat("remove self-references ...");
 		relat<-relat[relat[,1]!=relat[,2],];
 	};
-	if(length(relat)==0){stop("\n No matches found \n ")}
+	if(length(relat)==0){stop("\n No matches found \n ")}	
+	############################################################################
+	
+	############################################################################
+	# return pairwise relations, used within enviMass only #####################
+	if(get_pairs){
+		if(any(duplicated(relat))){ # DEBUG?
+			cat("\n WARNING: duplicated relat entries - debug me!")
+			relat<-unique(relat)
+		}
+		return(relat);
+	}
+	############################################################################	
+	
+	############################################################################	
 	# form groups ##############################################################
 	relat<-rbind(
 		cbind(relat,rep(1,length(relat[,1]))),

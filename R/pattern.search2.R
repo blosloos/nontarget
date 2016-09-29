@@ -9,7 +9,8 @@ pattern.search2<-function(
 	use_charges=c(1,2),
 	use_marker=TRUE,
 	quick=FALSE,
-	isotopes
+	isotopes,
+	get_pairs=FALSE
 ){
 	
 	########################################################################################
@@ -226,6 +227,20 @@ pattern.search2<-function(
 	}
 	close(pBar)
 	if(length(from_peak)==0){stop("\n No matches found \n")}
+	########################################################################################
+	
+	########################################################################################
+	# return pairwise relations, used within enviMass only #################################
+	if(get_pairs){
+		relat<-cbind(from_peak,to_peak)
+		if(any(duplicated(relat))){
+			cat("\n WARNING: duplicated relat entries - debug me!")
+			relat<-unique(relat)
+		}
+		return(relat)
+	}	
+	########################################################################################
+	
 	########################################################################################
 	# for grouping, include reverse relation - omit the reverse thereafter... ##############
 	# ... as opposed to adduct.search(), where relations go for- AND backward ##############

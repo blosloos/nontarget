@@ -8,7 +8,7 @@ Algorithm for detecting m/z differences among peaks that may correspond to m/z d
 }
 \usage{
 adduct.search(peaklist, adducts, rttol = 0, mztol = 2,ppm = TRUE, 
-use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive")
+use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive", get_pairs = FALSE)
 }
 
 
@@ -34,6 +34,9 @@ use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive")
 }
   \item{ion_mode}{
 	\code{"positive"} or \code{"negative"}.
+}
+  \item{get_pairs}{
+	enviMass output, please ignore.
 }
 }
 \details{
