@@ -494,7 +494,8 @@ function(
 			tupels[,1:HS_length],
 			tupels[,(HS_length+1):(HS_length+4)],
 			keeper,
-			mat_size
+			mat_size,
+			PACKAGE="nontarget" 
 		)	
 		merged_tupels<-merged_tupels[merged_tupels[,1]!=0,,drop=FALSE]	
 		if(length(merged_tupels[,1])==0){

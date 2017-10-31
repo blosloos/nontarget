@@ -10,7 +10,7 @@ Algorithm for grouping isotope pattern centroids of chemical components by query
 \usage{
 pattern.search2(peaklist,quantiz,mztol=2,ppm=TRUE,inttol=0.5,rttol=0.3,
 use_isotopes=c("13C","37Cl","15N","81Br","34S","18O"),use_charges=c(1,2),
-use_marker=TRUE,quick=FALSE,isotopes, get_pairs = FALSE)
+use_marker=TRUE,quick=FALSE,isotopes, get_pairs = FALSE, get_matches = FALSE)
 }
 
 
@@ -49,6 +49,9 @@ use_marker=TRUE,quick=FALSE,isotopes, get_pairs = FALSE)
 	Dataframe of relevant isotopes as provided by package \code{enviPat}; used for checking user inputs.
 }  
   \item{get_pairs}{
+	enviMass output, please ignore.
+}
+  \item{get_matches}{
 	enviMass output, please ignore.
 }
 }
