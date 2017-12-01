@@ -21,8 +21,12 @@ function(
 	deb=0
 ){
   
+  
+  
+
     ##########################################################################
     # (0) Issue warnings: check arguments ####################################
+	if(vec_size>2147483648){stop("vec_size too large - must be <= (2^31-1)")}
 	if(!is.logical(use_C)){stop("use_C must be logial.")}
 	if(!is.logical(ppm)){stop("ppm must be logial.")}
     if(ppm==TRUE & mztol>100){cat("Too big mztol?")};
@@ -200,7 +204,7 @@ function(
 			replace=FALSE
 		)
 	}
-	cat("done.");
+	cat("done.");	
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################
 	cat("\n(4) Triplet extraction \n");	
@@ -402,7 +406,7 @@ function(
 				peaklist3,
 				dist_ID,
 				dist_dist,
-				tupels,
+				tupels, # = triplets
 				tupeldo,
 				peaklist4,
 				use, # = current point
@@ -410,12 +414,12 @@ function(
 				rttol,
 				PACKAGE="nontarget"
 			);
-			if(tupeldo>vec_size){stop("\n Maximum number of tupels reached. increase vec_size")}
+			if(tupeldo>=vec_size){stop("\n Maximum number of tupels reached. increase vec_size")}
 			##################################################################
 		}	
 		######################################################################
 	}
-	if(inter){close(pBar)}
+	if(inter){close(pBar)}	
 	tupeldo<-(tupeldo-1)
 	if(tupeldo==0){stop("no series detected")}
 	tupels<-tupels[1:tupeldo,,drop=FALSE]

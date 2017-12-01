@@ -8,10 +8,10 @@
 #include <vector>
 #include <algorithm>
 
-
 #define RMATRIX(m,i,j) (REAL(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
 #define RMATRIX2(m,i,j) (INTEGER(m)[ INTEGER(GET_DIM(m))[0]*(j)+(i) ])
 #define RVECTOR(m,i) (REAL(m)[i])
+#define RVECTOR2(m,i) (INTEGER(m)[i])
 #define RRow(m) (INTEGER(GET_DIM(m))[0])
 #define RCol(m) (INTEGER(GET_DIM(m))[1])
 
@@ -30,7 +30,8 @@ extern "C"{
 		SEXP peaklist4,
         SEXP use,
         SEXP max_delmz,
-        SEXP rttol
+        SEXP rttol,
+SEXP diagno
    ){
 
         PROTECT(peaklist3 = AS_NUMERIC(peaklist3));
@@ -101,7 +102,7 @@ extern "C"{
                                     RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
                                     //
                                     RVECTOR(tupeldo,0)=(RVECTOR(tupeldo,0)+1);
-                                    if(NUMERIC_VALUE(tupeldo)>nrow){
+                                    if(NUMERIC_VALUE(tupeldo)>=nrow){
                                         Rprintf("vec_size too small!");
                                         UNPROTECT(9);
                                         return(R_NilValue);
@@ -133,7 +134,7 @@ extern "C"{
                                 if(!(rtdif2_LB>rtdif1_UB)){
                                     RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),0)=RVECTOR(dist_ID,m);
                                     RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),1)=NUMERIC_VALUE(use);
-                                    RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),2)=RVECTOR(dist_ID,n);
+                                   RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),2)=RVECTOR(dist_ID,n);
                                     // store mass bounds
                                     min_mass_LB=(min_mass-RVECTOR(peaklist4,int(RVECTOR(dist_ID,n)-1))-delmz_use);
                                     max_mass_UB=(max_mass+RVECTOR(peaklist4,int(RVECTOR(dist_ID,m)-1))+delmz_use);
@@ -142,9 +143,8 @@ extern "C"{
                                     // store RT bounds
                                     RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),5)=std::min(rtdif1_LB,rtdif2_LB);
                                     RMATRIX(triplets,int(NUMERIC_VALUE(tupeldo)-1),6)=std::max(rtdif1_UB,rtdif2_UB);
-                                    //
                                     RVECTOR(tupeldo,0)=(RVECTOR(tupeldo,0)+1);
-                                    if(NUMERIC_VALUE(tupeldo)>nrow){
+                                    if(NUMERIC_VALUE(tupeldo)>=nrow){
                                         Rprintf("vec_size too small!");
                                         UNPROTECT(9);
                                         return(R_NilValue);

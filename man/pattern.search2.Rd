@@ -19,7 +19,7 @@ use_marker=TRUE,quick=FALSE,isotopes)
 	Dataframe of HRMS peaks with three numeric columns for (a) m/z, (b) intensity and (c) retention time, such as \code{\link[nontarget]{peaklist}}.
 }
   \item{quantiz}{
-	Quantized simulation data of feasible centroid-centroid relations as provided by package \code{nontargetData}.
+	Quantized instrument-specific (!) simulation data of feasible centroid-centroid relations as provided by package \code{nontargetData}.
 }
   \item{mztol}{
 	m/z tolerance setting: value by which the m/z of a peak may vary from its expected value. If parameter \code{ppm=TRUE} (see below) given in ppm, otherwise, if \code{ppm=FALSE}, in absolute m/z [u].
