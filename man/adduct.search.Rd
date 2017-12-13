@@ -8,7 +8,7 @@ Algorithm for detecting m/z differences among peaks that may correspond to m/z d
 }
 \usage{
 adduct.search(peaklist, adducts, rttol = 0, mztol = 2,ppm = TRUE, 
-use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive")
+use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive", get_pairs = FALSE)
 }
 
 
@@ -23,8 +23,7 @@ use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive")
 	Retention time tolerance. Units as given in column 3 of peaklist argument, e.g. [min].
 }
   \item{mztol}{
-	m/z tolerance setting: value by which the m/z of a peak may vary from its expected value. If parameter \code{ppm=TRUE} (see below) given in ppm, otherwise, if \code{ppm=FALSE}, in absolute m/z [u]. Defines
-	the "large" mass tolerance used.
+	m/z tolerance setting: +/- value by which the m/z of a measured peak may vary from its expected m/z value. If parameter \code{ppm=TRUE} (see below) given in ppm, otherwise, if \code{ppm=FALSE}, in absolute m/z [u]. 
 }
   \item{ppm}{
 	Should \code{mztol} be set in ppm (TRUE) or in absolute m/z (FALSE)
@@ -36,17 +35,27 @@ use_adducts = c("M+H", "M+K", "M+Na"), ion_mode = "positive")
   \item{ion_mode}{
 	\code{"positive"} or \code{"negative"}.
 }
+  \item{get_pairs}{
+	enviMass output, please ignore.
+}
 }
 \details{
 Given a peak from the peaklist, the \code{adduct.search} algorithm screens within tolerances \code{mztol} and \code{rttol} whether any other peaks may correspond to this one peak via adduct m/z differences.
 More precisely, the one peak m/z is reset to all possible candidate molecular mass values (M; uncharged, non-adduct). The latter are then used to calculate for all other candidate adduct peaks,
 which, if found, are subsequently grouped.
 
-For example, consider use_adducts=c("M+H", "M+K"). Given the m/z-value of the one peak, two other peaks with 
+For example, consider \code{use_adducts=c("M+H", "M+K")}. Given the m/z-value of the one peak, two other peaks with 
 ((m/z*z("M+H")-X("M+H"))/z("M+K"))+X("M+K") and ((m/z*z("M+K")-X("M+K"))/z("M+H"))+X("M+H") are searched for. The peak found for
 the first term (i.e. with "M+H" being the candidate adduct of the one peak) leads to one group of associated adduct peaks (M+H<->M+K). Another adduct
 peak (i.e. with "M+K" being the candidate adduct of the one peak) would lead to a second group of associated adduct peaks (M+K<->M+H). 
 Logically, larger adduct groups than the one exemplified can be present, if argument "use_adducts" allows for it (e.g. M+H<->M+K,M+H<->M+Na,M+Na<->M+K).
+
+For clarification, \code{mztol} states the maximum m/z deviation of a measured peak from its true value, i.e., the theoretical mass-to-charge ratio of the (often unknown) analyte adduct measured. The latter true value thus ranges +/-\code{mztol} from
+the measured value, leading to a lower and an upper m/z bound for this true value. These bounds are then modified by pairwise adduct m/z differences, leading to new bounds for the true value at other m/z positions. In turn, the values of measured peaks at 
+exactly these positions can again deviate by +/-\code{mztol} from these bounds, which are hence adapted accordingly at these positions for a final search window. 
+This entails: (a) the bounds are calculated from measured instead of true values (using \code{ppm==TRUE}, bound differences are assumed negligible between utilizing measured or true values) and 
+(b) the final search window is larger than 2*\code{mztol} and can therefore lead to contradictory assignments (i.e., peaks B and C can be assigned to peak A for different adduct m/z differences within \code{mztol} but peaks B and C cannot be paired 
+within \code{mztol}).
 }
 \value{
 

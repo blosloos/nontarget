@@ -22,11 +22,11 @@ function(
     }
     if(length(homol)>1 & length(adduct)>1){
 		if(length(homol[[1]][,1])!=length(adduct[[1]][,1])){stop(("Different data sets homol<->adduct used for combining!"))}
-		if(any(all(homol[[1]][,1]==adduct[[1]][,1])!=TRUE)){stop("Different data sets pattern<->adduct used for combining!")}
+		if(any(all(homol[[1]][,1]==adduct[[1]][,1])!=TRUE)){stop("Different data sets homol<->adduct used for combining!")}
     };
     if(length(homol)>1 & length(pattern)>1){
 		if(length(homol[[1]][,1])!=length(pattern[[1]][,1])){stop(("Different data sets homol<->pattern used for combining!"))}    
-		if(any(all(homol[[1]][,1]==pattern[[1]][,1])!=TRUE)){stop("Different data sets pattern<->adduct used for combining!")}
+		if(any(all(homol[[1]][,1]==pattern[[1]][,1])!=TRUE)){stop("Different data sets homol<->pattern used for combining!")}
     };
     if(rules[3]==TRUE & length(homol)<1){stop("rule3 = TRUE not applicable if no correct homologue series are provided!")};
     if(dont[1]!=FALSE){
@@ -110,7 +110,7 @@ function(
 		}
     }
     ##########################################################################
-    for(i in 1:length(intord)){ # alond decreasing intensity #################	
+    for(i in 1:length(intord)){ # along decreasing intensity #################	
 		if(no3[intord[i]]==FALSE){next} # if not yet included in some group ##
         ######################################################################
         comp7<-c(comp7,"-"); # initialized as consistent 

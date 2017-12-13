@@ -44,7 +44,7 @@ function(
     if(xlim[1]!=FALSE & ylim[1]!=FALSE){plot.window(xlim=xlim,ylim=ylim);}
     box();axis(1);axis(2);
 	if(!plotdefect){
-		title(ylab="Retention time",xlab="m/z");
+		title(ylab="Retention time [s]",xlab="m/z");
     }else{
 		title(ylab="mass defect",xlab="m/z");	
 	}

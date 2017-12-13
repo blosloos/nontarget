@@ -1,0 +1,13 @@
+bibentry(	bibtype = "Article",
+			title="Nontargeted homologue series extraction from hyphenated high resolution mass spectrometry data",
+			author = c(person("Martin", "Loos"),
+                    person("Heinz", "Singer")),
+			journal="Journal of Cheminformatics",
+			volume= "9",
+			number= "12",
+			pages= "",
+			year= "2017",
+			textVersion="Loos, M., Singer, H. (2017). 
+			Nontargeted homologue series extraction from hyphenated high resolution mass spectrometry, 
+			Journal of Cheminformatics 9(12), .",
+			url = "http://")

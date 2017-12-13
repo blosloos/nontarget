@@ -304,7 +304,7 @@ extern "C"{
         int n=0,m=0,k=0,leng_peaks=0,leng_add=0,from=0,to=0;
         leng_peaks=RRow(peaklist);
         leng_add=RRow(add2);
-        double prec_dm;
+        double prec_dm, prec_dm_add;
 
         SEXP utilsPackage; /* definitions for the progress bar */
         PROTECT(utilsPackage = eval(lang2(install("getNamespace"), ScalarString(mkChar("utils"))), R_GlobalEnv));
@@ -320,10 +320,10 @@ extern "C"{
                 *rPercentComplete = n;
                 eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
             }
-            if(prec_ppm2==1){
-                prec_dm=(2*(RMATRIX(peaklist,n,0)*prec_mass2/1E6));
+            if(prec_ppm2==1){ // prec_dm defines window in which true value must range at the one adduct
+                prec_dm=((RMATRIX(peaklist,n,0)*prec_mass2/1E6));
             }else{
-                prec_dm=(2*prec_mass2);
+                prec_dm=prec_mass2;
             }
             RMATRIX(bounds_peaks,1,0)=(RMATRIX(peaklist,n,1)-RT_tol2);
             RMATRIX(bounds_peaks,1,1)=(RMATRIX(peaklist,n,1)+RT_tol2);
@@ -331,6 +331,13 @@ extern "C"{
 
                 RMATRIX(bounds_peaks,0,0)=(((((RMATRIX(peaklist,n,0)-prec_dm)-RMATRIX(add2,m,2))*RMATRIX(add2,m,0)/RMATRIX(add2,m,1))*RMATRIX(add2,m,4)/RMATRIX(add2,m,3))+RMATRIX(add2,m,5));
                 RMATRIX(bounds_peaks,0,1)=(((((RMATRIX(peaklist,n,0)+prec_dm)-RMATRIX(add2,m,2))*RMATRIX(add2,m,0)/RMATRIX(add2,m,1))*RMATRIX(add2,m,4)/RMATRIX(add2,m,3))+RMATRIX(add2,m,5));
+                if(prec_ppm2==1){ // prec_dm_add defines window in which true value must range at the other adduct
+                    prec_dm_add=((RMATRIX(bounds_peaks,0,0)*prec_mass2/1E6));
+                }else{
+                    prec_dm_add=prec_mass2;
+                }
+                RMATRIX(bounds_peaks,0,0)=(RMATRIX(bounds_peaks,0,0)-prec_dm_add);
+                RMATRIX(bounds_peaks,0,1)=(RMATRIX(bounds_peaks,0,1)+prec_dm_add);
 
                 from=to_peak.size();
                 search_tree_sub(peaklist, peakTree, bounds_peaks, to_peak);
