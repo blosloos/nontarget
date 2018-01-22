@@ -31,7 +31,7 @@ extern "C"{
         SEXP use,
         SEXP max_delmz,
         SEXP rttol,
-SEXP diagno
+        SEXP diagno
    ){
 
         PROTECT(peaklist3 = AS_NUMERIC(peaklist3));
