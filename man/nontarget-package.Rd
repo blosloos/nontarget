@@ -167,12 +167,12 @@ homol<-homol.search(
 plothomol(homol,xlim=FALSE,ylim=FALSE,plotlegend=TRUE);
 ######################################################
 # (5.1) Combine grouping results to components #######
-comp<-combine(
+comp <- combine(
 	pattern,
 	adduct,
 	homol,
-	dont=FALSE,
-	rules=c(TRUE,FALSE,FALSE)
+	dont = FALSE,
+	rules = c(TRUE, TRUE, FALSE, FALSE)
 );
 # (5.2) plot results ################################# 
 plotisotopes(comp);

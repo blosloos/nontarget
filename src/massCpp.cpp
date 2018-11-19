@@ -52,31 +52,31 @@ void mass(  double *mass,
     PROTECT(getit1bstore = NEW_INTEGER(*a+1));
     int *getit1b;
     getit1b = INTEGER_POINTER(getit1bstore);
-    for(k=0;k<(*a+1);k++){*(getit1b+k) = 0;}
+    for(k=0;k<(size_t)(*a+1);k++){*(getit1b+k) = 0;}
 
     SEXP getit2bstore;
     PROTECT(getit2bstore = NEW_INTEGER(*a+1));
     int *getit2b;
     getit2b = INTEGER_POINTER(getit2bstore);
-    for(k=0;k<(*a+1);k++){*(getit2b+k) = 0;}
+    for(k=0;k<(size_t)(*a+1);k++){*(getit2b+k) = 0;}
 
     SEXP getit4bstore;
     PROTECT(getit4bstore = NEW_INTEGER(*a+1));
     int *getit4b;
     getit4b = INTEGER_POINTER(getit4bstore);
-    for(k=0;k<(*a+1);k++){*(getit4b+k) = 0;}
+    for(k=0;k<(size_t)(*a+1);k++){*(getit4b+k) = 0;}
 
     SEXP getit5bstore;
     PROTECT(getit5bstore = NEW_INTEGER(*a+1));
     int *getit5b;
     getit5b = INTEGER_POINTER(getit5bstore);
-    for(k=0;k<(*a+1);k++){*(getit5b+k) = 0;}
+    for(k=0;k<(size_t)(*a+1);k++){*(getit5b+k) = 0;}
 
     SEXP getit6bstore;
     PROTECT(getit6bstore = NEW_INTEGER(*a+1));
     int *getit6b;
     getit6b = INTEGER_POINTER(getit6bstore);
-    for(k=0;k<(*a+1);k++){*(getit6b+k) = 0;}
+    for(k=0;k<(size_t)(*a+1);k++){*(getit6b+k) = 0;}
 
     // read in data: /////////////////////////////////////////////////////////
     dat dat1;
@@ -168,10 +168,10 @@ void mass(  double *mass,
     //////////////////////////////////////////////////////////////////////////
 
     // check if entry has reached limit //////////////////////////////////////
-    for(j=0;j<(*a-1);j++){if(*(getit1b+j)>entry2){*entry=*(getit1b+j);};};
-    for(j=0;j<(*a-1);j++){if(*(getit2b+j)>entry2){*entry=*(getit2b+j);};};
-    for(j=0;j<(*a-1);j++){if(*(getit4b+j)>entry2){*entry=*(getit4b+j);};};
-    for(j=0;j<(*a-1);j++){if(*(getit5b+j)>entry2){*entry=*(getit5b+j);};};
+    for(j=0;j<(size_t)(*a-1);j++){if(*(getit1b+j)>entry2){*entry=*(getit1b+j);};};
+    for(j=0;j<(size_t)(*a-1);j++){if(*(getit2b+j)>entry2){*entry=*(getit2b+j);};};
+    for(j=0;j<(size_t)(*a-1);j++){if(*(getit4b+j)>entry2){*entry=*(getit4b+j);};};
+    for(j=0;j<(size_t)(*a-1);j++){if(*(getit5b+j)>entry2){*entry=*(getit5b+j);};};
 
     UNPROTECT(5);
 

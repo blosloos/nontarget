@@ -4,6 +4,7 @@ CHANGES in versions 2.0:
 	
 	(1) R, man adduct.search: mztol calculations adapted and explained
 	(2) R adduct.search, pattern.search2: output compatible with enviMass
+	(3) R combine: additional second rule for interfering peaks
 	
 CHANGES in versions 1.9:
 	
