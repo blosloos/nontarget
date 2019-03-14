@@ -83,7 +83,7 @@ Fast precheck to \code{rules[5]} and \code{rules[6]}.
 
 \code{rules[5]}: Repeats \code{rules[4]}, but now uses abundances for only those isotope(s) of argument \code{iso} ranging within the "large" m/z tolerance set by \code{mztol}.
 
-\code{rules[6]}: Repeats \code{rules[4]}, but now uses abundances for only those isotope(s) of argument \code{iso} ranging within the "small" m/z tolerance set by \code{mztol}.
+\code{rules[6]}: Repeats \code{rules[4]}, but now uses abundances for only those isotope(s) of argument \code{iso} ranging within the "small" m/z tolerance set by \code{mztol*mzfrac}.
 
 \code{rules[7]}: Given those isotopes of argument \code{iso} ranging within the "small" m/z tolerance set by \code{mztol} and \code{mzfrac} and their C-ratio set in \code{\link[enviPat]{isotopes}},
 the minimum number of carbon atoms and the associated 13C peak intensity to be expected at M+1 can be calculated. Checks if this expected 13C peak is present in the data set.
