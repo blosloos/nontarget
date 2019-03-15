@@ -202,13 +202,14 @@ function(
 	for(i in 1:length(peaklist2[,1])){
 
 		if(inter) setTxtProgressBar(pBar,i,title = NULL, label = NULL)
-		use<-along[i]
+		use <- along[i]
 
 #> BAUSTELLE
 if(use > dim(peaklist2)[1]){		
-	
 	cat("\n\nHERE:")
 	print(dim(peaklist2))
+	cat("\n")
+	print(use)
 	return(NULL)		
 }
 		
