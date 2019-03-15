@@ -85,15 +85,12 @@ function(
 	minmz <- (minmz - delmz)
 	maxmz <- (maxmz + delmz)
 	inter <- interactive()
-	inter <- FALSE
 	##########################################################################
     # (1) retrieve feasible mass differences & all combinations thereof ######
 	# (1.1) upper & lower mass defect / mass bound ###########################
  	##########################################################################
 	cat("\n(1-3) Build bounds, trees & nearest neighbour path ... ");	
-	if(elements[1] == FALSE){
-		elements <- unique(as.character(isotopes[,1]))
-	}
+	if(elements[1] == FALSE) elements <- unique(as.character(isotopes[,1]))
 	delmass <- c();
 	c_ratio <- c();
 	for(i in 1:length(elements)){
@@ -200,6 +197,13 @@ function(
 	cat("done.");	
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################
+	
+#> BAUSTELLE
+cat("\n\nHERE:")
+print(dim(peaklist2))
+return(NULL)
+	
+	
 	cat("\n(4) Triplet extraction \n");	
 	if(inter) pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )
 	for(i in 1:length(peaklist2[,1])){
