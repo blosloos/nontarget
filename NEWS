@@ -1,5 +1,9 @@
 nontarget News
 
+CHANGES in versions 2.1:
+	
+	(1) src, debugs
+
 CHANGES in versions 2.0:
 	
 	(1) R, man adduct.search: mztol calculations adapted and explained

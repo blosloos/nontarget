@@ -22,8 +22,6 @@ function(
 ){
   
   
-  
-
     ##########################################################################
     # (0) Issue warnings: check arguments ####################################
 	if(vec_size>2147483648) stop("vec_size too large - must be <= (2^31-1)")
@@ -417,9 +415,9 @@ function(
 		}	
 		######################################################################
 	}
-	if(inter){close(pBar)}	
+	if(inter) close(pBar)
 	tupeldo<-(tupeldo-1)
-	if(tupeldo==0){stop("no series detected")}
+	if(tupeldo==0) stop("no series detected")
 	tupels<-tupels[1:tupeldo,,drop=FALSE]
 	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails 
 	tupels<-tupels[order(tupels[,4]),,drop=FALSE]
@@ -558,10 +556,8 @@ function(
 		}
 		tupels<-merged_tupels;	
 	}
-	if(any(deb==1)){return(HS)}
-	if(length(HS)<minlength){
-		stop("\n No homologue series detected. Check parameters (e.g., minlength) and units?");
-	}
+	if(any(deb==1)) return(HS)
+	if(length(HS)<minlength) stop("\n No homologue series detected. Check parameters (e.g., minlength) and units?");
 	cat(" - done.");
 	##########################################################################	
 	# (7) remove nested HS ###################################################
@@ -807,14 +803,10 @@ function(
 	# (9) Generate data output ###############################################
 	cat(paste("\n(8) Parse output for ",max(HS_IDs[,4])," homologue series and ",found," cluster ... ",sep=""));
 	# generate HS group lists ################################################
-	HS_groups<-list(0)
-	for(i in 1:length(HS_IDs[,4])){
-		HS_groups[[HS_IDs[i,4]]]<-numeric(0)
-	}
-	for(i in 1:length(HS_IDs[,4])){
-		HS_groups[[HS_IDs[i,4]]]<-c(HS_groups[[HS_IDs[i,4]]],HS_IDs[i,1])
-	}
-	if(plotit==4){
+	HS_groups <- list(0)
+	for(i in 1:length(HS_IDs[,4])) HS_groups[[HS_IDs[i,4]]] <- numeric(0)
+	for(i in 1:length(HS_IDs[,4])) HS_groups[[HS_IDs[i,4]]] <- c(HS_groups[[HS_IDs[i,4]]],HS_IDs[i,1])
+	if(plotit == 4){
 		for(i in 1:length(HS_groups)){
 			those<-HS_IDs[HS_groups[[i]],,drop=FALSE]
 			peaks<-c()

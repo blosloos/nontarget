@@ -15,6 +15,8 @@
 #define RRow(m) (INTEGER(GET_DIM(m))[0])
 #define RCol(m) (INTEGER(GET_DIM(m))[1])
 
+
+
 extern "C"{
 
 /******************************************************************************/
