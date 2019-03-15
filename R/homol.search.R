@@ -46,7 +46,7 @@ function(
 		warning(paste0("zero mztol - mztol set to ",mztol," for numeric precision!"))	
 	}
 	if(rttol <= 0){ # Set precision to digits of inputs
-		min_char<-Inf
+		min_char <- Inf
 		for(i in 1:length(peaklist[,3])){
 			n_char<-nchar(strsplit(as.character(peaklist[i,3]),".",fixed=TRUE)[[1]][2])
 			if(n_char<min_char){
@@ -66,9 +66,7 @@ function(
 		if(max(mzfilter)>maxmz) stop(" Maximum mzfilter value larger than maxmz - abort.")	
 	}
 	if(!is.data.frame(peaklist) & !is.matrix(peaklist) ) stop("peaklist must be a numeric data.frame")
-	if(!is.matrix(peaklist)){
-		peaklist<-data.matrix(peaklist)
-	}
+	if(!is.matrix(peaklist)) peaklist <- data.matrix(peaklist)
 	if(length(mztol) == 1){
 		if(ppm == TRUE){
 			delmz <- c(mztol*max(peaklist[,1])/1e6);
@@ -82,13 +80,12 @@ function(
 		if(length(mztol) == length(peaklist[,1])){
 			peaklist4 <- mztol
 			delmz <- max(mztol)
-		}else{
-			stop("mztol: must be either one value or of length peaklist[,1]")
-		}
+		}else stop("mztol: must be either one value or of length peaklist[,1]")
 	}
 	minmz <- (minmz - delmz)
 	maxmz <- (maxmz + delmz)
 	inter <- interactive()
+	inter <- FALSE
 	##########################################################################
     # (1) retrieve feasible mass differences & all combinations thereof ######
 	# (1.1) upper & lower mass defect / mass bound ###########################
@@ -164,24 +161,24 @@ function(
 	along[1]<-1											# for nearest neighbour search
 	##########################################################################
 	# (3) build kd-trees & run nearest-neighbour search ######################
-	peakTree<-.Call("kdtree", 
+	peakTree <- .Call("kdtree", 
 			as.matrix(peaklist2),
 			PACKAGE="nontarget"
 	);
-	if(!any(deb==4)){ # along nearest neighbour path ...
-		peakTree3<-.Call("kdtree", 
+	if(!any(deb == 4)){ # along nearest neighbour path ...
+		peakTree3 <- .Call("kdtree", 
 				as.matrix(peaklist3),
-				PACKAGE="nontarget"
+				PACKAGE = "nontarget"
 		);			
 		for(i in 2:length(peakTree3[,1])){	
-			use2<-.Call("search_kdtree3", 
+			use2 <- .Call("search_kdtree3", 
 				peaklist3, 	# rows: c(m/z,RT,UB,LB)
 				peakTree3,  # peaks - search tree
 				use,
 				scaled,	
-				PACKAGE="nontarget"
+				PACKAGE = "nontarget"
 			)[,1]
-			if(use2<1) stop("debug me on issue #4 - use2=-1,<1")
+			if(use2 < 1) stop("debug me on issue #4 - use2=-1,<1")
 			.Call("node_delete", 
 				use,
 				peaklist3,
@@ -204,10 +201,10 @@ function(
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################
 	cat("\n(4) Triplet extraction \n");	
-	if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
+	if(inter) pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )
 	for(i in 1:length(peaklist2[,1])){
 
-		if(inter){setTxtProgressBar(pBar,i,title = NULL, label = NULL)}
+		if(inter) setTxtProgressBar(pBar,i,title = NULL, label = NULL)
 		use<-along[i]
 		######################################################################
 		# upper area sweep ###################################################
