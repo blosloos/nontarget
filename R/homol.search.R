@@ -196,20 +196,22 @@ function(
 	}
 	cat("done.");	
 	##########################################################################
-	# (4) Sweep through nearest neighbour path ###############################
-	
-#> BAUSTELLE
-cat("\n\nHERE:")
-print(dim(peaklist2))
-return(NULL)
-	
-	
+	# (4) Sweep through nearest neighbour path ###############################	
 	cat("\n(4) Triplet extraction \n");	
 	if(inter) pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )
 	for(i in 1:length(peaklist2[,1])){
 
 		if(inter) setTxtProgressBar(pBar,i,title = NULL, label = NULL)
 		use<-along[i]
+
+#> BAUSTELLE
+if(use > dim(peaklist2)[1]){		
+	
+	cat("\n\nHERE:")
+	print(dim(peaklist2))
+	return(NULL)		
+}
+		
 		######################################################################
 		# upper area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]+minmz)
@@ -411,7 +413,7 @@ return(NULL)
 				rttol,
 				PACKAGE="nontarget"
 			);
-			if(tupeldo>=vec_size){stop("\n Maximum number of tupels reached. increase vec_size")}
+			if(tupeldo>=vec_size) stop("\n Maximum number of tupels reached. increase vec_size")
 			##################################################################
 		}	
 		######################################################################
