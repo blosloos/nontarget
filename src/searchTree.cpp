@@ -739,7 +739,9 @@ extern "C"{
                             results2[(2*nrow)+n]=level;
                             results2[(3*nrow)+parent]=(disc+1);
                             mindist=0;
-                            for(m=0;m<ncol;m++) mindist=(mindist+fabs(RMATRIX(data,n,m)-RMATRIX(data,parent,m)));
+                            for(m=0;m<ncol;m++){
+                                mindist=(mindist+fabs(RMATRIX(data,n,m)-RMATRIX(data,parent,m)));
+                            }
                             results2[(4*nrow)+n]=mindist;
                             results2[(5*nrow)+n]=(parent+1);
                             if( (results2[(4*nrow)+parent]>mindist) | (results2[(5*nrow)+parent]==0) ){
@@ -748,9 +750,11 @@ extern "C"{
                             }
                             doit=1;
                         }else{
-                            parent = (results2[(1*nrow)+parent]-1);
+                            parent=(results2[(1*nrow)+parent]-1);
                             disc++;
-                            if(disc >= ncol) disc = 0;
+                            if(disc>=ncol){
+                                disc=0;
+                            }
                             level++;
                         }
                     }else{ /* LOSON */
@@ -759,7 +763,9 @@ extern "C"{
                             results2[(2*nrow)+n]=level;
                             results2[(3*nrow)+parent]=(disc+1);
                             mindist=0;
-                            for(m=0;m<ncol;m++) mindist=(mindist+fabs(RMATRIX(data,n,m) - RMATRIX(data,parent,m)));
+                            for(m=0;m<ncol;m++){
+                                mindist=(mindist+fabs(RMATRIX(data,n,m)-RMATRIX(data,parent,m)));
+                            }
                             results2[(4*nrow)+n]=mindist;
                             results2[(5*nrow)+n]=(parent+1);
                             if( (results2[(4*nrow)+parent]>mindist) | (results2[(5*nrow)+parent]==0) ){
@@ -768,9 +774,11 @@ extern "C"{
                             }
                             doit=1;
                         }else{
-                            parent = (results2[parent]-1);
+                            parent=(results2[parent]-1);
                             disc++;
-                            if(disc >= ncol) disc = 0
+                            if(disc>=ncol){
+                                disc=0;
+                            }
                             level++;
                         }
                     }
