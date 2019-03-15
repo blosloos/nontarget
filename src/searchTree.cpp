@@ -1201,11 +1201,12 @@ extern "C"{
                         *(intermed2+m)=RMATRIX(data,*(atordit+n),disc[0]);
                         m++;
                     }
-					
-/*                     R_orderVector(atordit_med, m, Rf_lang1(intermed), FALSE, FALSE);*/
                     
 					
-					for(n=0;n<m;n++){
+					/*R_orderVector(atordit_med, m, Rf_lang1(intermed), FALSE, FALSE);*/
+					R_orderVector1(atordit_med, m, intermed, FALSE, FALSE);
+					
+                    for(n=0;n<m;n++){
                         *(atordit_med2+n)=*(atordit+from[0]+*(atordit_med+n));
                     }
                     for(n=0;n<m;n++){

@@ -83,7 +83,7 @@ function(
 		}else stop("mztol: must be either one value or of length peaklist[,1]")
 	}
 	minmz <- (minmz - delmz)
-	maxmz <- (maxmz + delmz)
+	maxmz <- (maxmz + delmz)	
 	inter <- interactive()
 	##########################################################################
     # (1) retrieve feasible mass differences & all combinations thereof ######
