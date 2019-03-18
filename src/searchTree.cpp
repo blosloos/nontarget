@@ -1204,7 +1204,9 @@ extern "C"{
                     
 					
 					/*R_orderVector(atordit_med, m, Rf_lang1(intermed), FALSE, FALSE);*/
-					R_orderVector1(atordit_med, m, intermed, FALSE, FALSE);
+					PROTECT(R_orderVector1(atordit_med, m, Rf_lang1(intermed), FALSE, FALSE));
+					
+					
 					
                     for(n=0;n<m;n++){
                         *(atordit_med2+n)=*(atordit+from[0]+*(atordit_med+n));
@@ -1299,7 +1301,7 @@ extern "C"{
                 }
             }
 
-            UNPROTECT(6);
+            UNPROTECT(7);
             return(results);
 
     }

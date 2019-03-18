@@ -182,16 +182,16 @@ function(
 				peakTree3,
 				PACKAGE="nontarget"
 			);
-			along[i]<-use2
-			use<-use2
+			along[i] <- use2
+			use <- use2
 		}
-		if(sum(peakTree3[,3]!=0)>1){stop("debug me on issue #5: peakTree3 was not fully emptied in NN-search!")}
-		if(any(peakTree3[,3]>1)){stop("debug me on issue #6: peakTree3 corrupted!")}		
+		if(sum(peakTree3[,3] != 0) > 1) stop("debug me on issue #5: peakTree3 was not fully emptied in NN-search!")
+		if(any(peakTree3[,3] > 1)) stop("debug me on issue #6: peakTree3 corrupted!")
 	}else{ # ... or, for comparison, via random sampling
-		along<-sample(
-			seq(1,length(peaklist[,1]),1),
+		along <- sample(
+			seq(1, length(peaklist[,1]), 1),
 			length(peaklist[,1]),
-			replace=FALSE
+			replace = FALSE
 		)
 	}
 	cat("done.");	
@@ -201,7 +201,7 @@ function(
 	if(inter) pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )
 	for(i in 1:length(peaklist2[,1])){
 
-		if(inter) setTxtProgressBar(pBar,i,title = NULL, label = NULL)
+		if(inter) setTxtProgressBar(pBar, i, title = NULL, label = NULL)
 		use <- along[i]
 
 #> BAUSTELLE
