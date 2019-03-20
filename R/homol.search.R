@@ -195,6 +195,7 @@ function(
 		)
 	}
 	cat("done.");	
+return(peakTree);
 	##########################################################################
 	# (4) Sweep through nearest neighbour path ###############################	
 	cat("\n(4) Triplet extraction \n");	
@@ -204,10 +205,11 @@ function(
 		if(inter) setTxtProgressBar(pBar, i, title = NULL, label = NULL)
 		use <- along[i]
 
+
 #> BAUSTELLE
-if(use > dim(peaklist2)[1]){		
+if((use > dim(peaklist2)[1]) & FALSE){		
 	cat("\n\nHERE:")
-	print(dim(peaklist2))
+	print(dim(peaklist2)[1])
 	cat("\n")
 	print(use)
 	return(NULL)		
