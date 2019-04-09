@@ -3,29 +3,29 @@ function(
 	peaklist,
 	iso,
 	cutint=min(peaklist[,2]),
-	rttol=c(-0.5, 0.5),
+	rttol=c(-0.5,0.5),
 	mztol=3,
 	mzfrac=0.1,
     ppm=TRUE,
 	inttol=0.5,
-	rules=c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+	rules=c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE),
     deter=FALSE,
 	entry=20
 ){
 
     ############################################################################
     # (0) check inputs #########################################################
-    if(mzfrac>1 || mzfrac<=0) stop("mzfrac must be >0 and <=1") 
-    if(mztol<=0) warning("mztol should be >0!")
-    if(inttol>1 || inttol<0) stop("inttol must be >0 and <=1")
-    if(length(rttol)!=2) stop("rttol must have a lower and an upper bound!")
-    if(rttol[1]>rttol[2]) stop("minimum > maximum for rttol!")
-    if(length(rules)<11) stop("wrong parameter setting: number of rules < 8!")
-	if(!is.data.frame(peaklist)) stop("peaklist must be a data.frame")
-	if(length(peaklist[1,])>3) stop("peaklist with > 3 columns not allowed")
-	if(!length(peaklist[,1])>1) stop("peaklist with one entry - doesn`t make sense ...")
-	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) )stop("peaklist columns not numeric")
-    if(rules[4]==TRUE & any(iso$elements=="C")==FALSE & deter!=TRUE) stop("How is rule #7 supposed to work if carbon is not part of the iso argument? Include carbon or set rules[7] to FALSE.")
+    if(mzfrac>1 || mzfrac<=0){ stop("mzfrac must be >0 and <=1") };
+    if(mztol<=0){warning("mztol should be >0!")};
+    if(inttol>1 || inttol<0){ stop("inttol must be >0 and <=1") };
+    if(length(rttol)!=2){stop("rttol must have a lower and an upper bound!")};
+    if(rttol[1]>rttol[2]){stop("minimum > maximum for rttol!")};
+    if(length(rules)<11){stop("wrong parameter setting: number of rules < 8!")}
+	if(!is.data.frame(peaklist)){stop("peaklist must be a data.frame")}
+	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
+	if(!length(peaklist[,1])>1){stop("peaklist with one entry - doesn`t make sense ...")}
+	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
+    if(rules[4]==TRUE & any(iso$elements=="C")==FALSE & deter!=TRUE){stop("How is rule #7 supposed to work if carbon is not part of the iso argument? Include carbon or set rules[7] to FALSE.")}
 	############################################################################
     cat("\n (1) Assemble lists ... ");
     # (1) define parameters / lists / matrices / ... ###########################
@@ -618,8 +618,9 @@ function(
     #it<-data.frame(ID,getit4,getit2,getit1,getit5,getit6);
     #names(it)<-c("ID","to","from","isotope","tol","charge")
     cat("done.");
-    }else cat("\n (3) Plausibility tests skipped. ");
-    # if deter == FALSE
+    }else{
+    cat("\n (3) Plausibility tests skipped. ");
+    } # if deter == FALSE
     ############################################################################
     ############################################################################
 
@@ -983,17 +984,21 @@ function(
     if(length(overlap)>0){
       this11<-data.frame(seq(1:length(overlap)),overlap,stringsAsFactors=FALSE)
       names(this11)<-c("Number of groups in overlap","Peak counts")
-    }else this11<-"No overlaps detected"
-    ############################################################################
-    deep <- rep(0, 1000);
-    for(i in 1:length(group2)){
-		if(group2[i] != "0") deep[as.numeric(strsplit(group2[i],"/")[[1]])] <- c((deep[as.numeric(strsplit(group2[i],"/")[[1]])]) + 1)
+    }else{
+     this11<-"No overlaps detected"
     }
-    deep <- deep[deep != 0];
-    if(length(deep)){
-        deep <- data.frame(seq(1:length(deep)), deep, stringsAsFactors = FALSE);
-        names(deep) <- c("interaction level", "peak counts");
-    }else deep <- "No groups formed"
+    ############################################################################
+    deep<-rep(0,1000);
+    for(i in 1:length(group2)){
+		if(group2[i]!="0"){deep[as.numeric(strsplit(group2[i],"/")[[1]])]<-c((deep[as.numeric(strsplit(group2[i],"/")[[1]])])+1);
+    }};
+    deep<-deep[deep!=0];
+    if(length(deep)>0){
+        deep<-data.frame(seq(1:length(deep)),deep,stringsAsFactors=FALSE);
+        names(deep)<-c("interaction level","peak counts");
+    }else{
+        deep<-"No groups formed"
+    }
     ############################################################################
     hits<-data.frame(isomat[,c(1,7,4)],rep(0,length(isomat[,1])),rep("0",length(isomat[,1])),stringsAsFactors=FALSE);
     names(hits)<-c("isotope","charge","peak counts","group counts","element");

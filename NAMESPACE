@@ -1,5 +1,5 @@
-useDynLib("nontarget", .registration = TRUE)
 export(adduct.search,combine,make.isos,deter.iso,homol.search,ms.filter,pattern.search,pattern.search2,plotadduct,plotall,plotcomp,plotdefect,plotdiff,plotgroup,plothomol,plotisotopes,rm.sat)
+useDynLib(nontarget,mass,metagroup,adduct_search,peak_search,boxtree,kdtree4,search_boxtree,search_kdtree,search_kdtree2,search_kdtree3,search_kdtree_homol,node_delete,homol_triplet,combine_tuple)
 import("enviPat")
 import("nontargetData")
 import("mgcv")

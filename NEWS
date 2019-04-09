@@ -1,10 +1,5 @@
 nontarget News
 
-CHANGES in versions 2.1:
-	
-	(1) src, R_init_nontarget
-	(2) R homol.search: debugs
-
 CHANGES in versions 2.0:
 	
 	(1) R, man adduct.search: mztol calculations adapted and explained
