@@ -1192,17 +1192,8 @@ extern "C"{
                     results2[(4*nrow)+n]=0;
             }
 
-
-std::vector<int> first(nrow, 0);       
-int* p = first.data();
-
-
-				
-			
-			
-
             while(from.size()>0){
-/*                void R_CheckUserInterrupt(void);*/
+                void R_CheckUserInterrupt(void);
                 if((to[0]-from[0])>0){ /* at least 2 entries */
                     /* get split indice */
                     m=0;
@@ -1210,37 +1201,13 @@ int* p = first.data();
                         *(intermed2+m)=RMATRIX(data,*(atordit+n),disc[0]);
                         m++;
                     }
-                    
-					
-					
-					/*R_orderVector(atordit_med, m, Rf_lang1(intermed), FALSE, FALSE);
-					R_orderVector1(atordit_med, m, intermed, FALSE, FALSE);*/
-					
-					
-					R_orderVector1(p, m, intermed, FALSE, FALSE);
-					
-					
-					
-/*					
+                    R_orderVector(atordit_med,m,Rf_lang1(intermed),FALSE,FALSE);
                     for(n=0;n<m;n++){
                         *(atordit_med2+n)=*(atordit+from[0]+*(atordit_med+n));
                     }
                     for(n=0;n<m;n++){
                         *(atordit+from[0]+n)=*(atordit_med2+n);
                     }
-*/
-
-
-                    for(n=0;n<m;n++){
-                        *(atordit_med2+n)=*(atordit+from[0]+first[n]);
-                    }
-                    for(n=0;n<m;n++){
-                        *(atordit+from[0]+n)=*(atordit_med2+n);
-                    }					
-					
-					
-					
-					
                     splitit=(from[0]+((to[0]-from[0])/2));
                     /* extented split indice to lower bound = assign equal values to HISON */
                     while(splitit>from[0]){
@@ -2060,13 +2027,6 @@ int* p = first.data();
 }
 
 }
-
-
-
-
-
-
-
 
 
 

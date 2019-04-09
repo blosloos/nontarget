@@ -2,119 +2,125 @@ homol.search <-
 function(
 	peaklist,
 	isotopes,	
-	elements = c("C", "H", "O"),
-	use_C = FALSE,
-	minmz = 5,
-	maxmz = 120,
-	minrt = -2,
-	maxrt = 2,
-	ppm = TRUE,
-	mztol = 3.5,
-    rttol = 0.5,
-	minlength = 5,
-	mzfilter = FALSE,
-	vec_size = 3E6,
-	mat_size = 3,
-	R2 = .98,
-	spar = .45,
-	plotit = FALSE,
-	deb = 0
+	elements=c("C","H","O"),
+	use_C=FALSE,
+	minmz=5,
+	maxmz=120,
+	minrt=-2,
+	maxrt=2,
+	ppm=TRUE,
+	mztol=3.5,
+    rttol=0.5,
+	minlength=5,
+	mzfilter=FALSE,
+	vec_size=3E6,
+	mat_size=3,
+	R2=.98,
+	spar=.45,
+	plotit=FALSE,
+	deb=0
 ){
-  
   
     ##########################################################################
     # (0) Issue warnings: check arguments ####################################
-	if(vec_size>2147483648) stop("vec_size too large - must be <= (2^31-1)")
-	if(!is.logical(use_C)) stop("use_C must be logial.")
-	if(!is.logical(ppm)) stop("ppm must be logial.")
-    if(ppm==TRUE & mztol>100) cat("Too big mztol?")
-    if(minlength<3) stop("invalid minlen argument. set minlen >= 3")
-	if(!length(elements)) stop("specify elements")
-	if(!is.numeric(mzfilter) & mzfilter[1]!="FALSE") stop("mzfilter must either be a numeric vector or set to FALSE")
-	if(elements[1]!="FALSE") if(any(is.na(match(elements,isotopes[,1])))) stop("unknown elements")
-	if(length(peaklist[1,])>3) stop("peaklist with > 3 columns not allowed")
-	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ) stop("peaklist columns not numeric")
-	if(R2!=FALSE) if((R2<=0)||(R2>1)) stop("R2 must be either FALSE or 0<R2<=1")
-	if(R2!=FALSE) if((spar<=0)||(spar>1)) stop("R2 must be either FALSE or 0<R2<=1")
-	if(mztol <= 0){ # Set precision to digits of inputs
-		min_char <- Inf
+	if(!is.logical(use_C)){stop("use_C must be logial.")}
+	if(!is.logical(ppm)){stop("ppm must be logial.")}
+    if(ppm==TRUE & mztol>100){cat("Too big mztol?")};
+    if(minlength<3){stop("invalid minlen argument. set minlen >= 3")};
+	if(length(elements)<1){stop("specify elements")}
+	if(!is.numeric(mzfilter) & mzfilter[1]!="FALSE"){stop("mzfilter must either be a numeric vector or set to FALSE")}
+	if(elements[1]!="FALSE"){if(any(is.na(match(elements,isotopes[,1])))){ stop("unknown elements") }}
+	if(length(peaklist[1,])>3){stop("peaklist with > 3 columns not allowed")}
+	if(!is.numeric(peaklist[,1]) || !is.numeric(peaklist[,2]) || !is.numeric(peaklist[,3]) ){stop("peaklist columns not numeric")}
+	if(R2!=FALSE){if((R2<=0)||(R2>1)){stop("R2 must be either FALSE or 0<R2<=1")}}
+	if(R2!=FALSE){if((spar<=0)||(spar>1)){stop("R2 must be either FALSE or 0<R2<=1")}}	
+	if(mztol<=0){ # Set precision to digits of inputs
+		min_char<-Inf
 		for(i in 1:length(peaklist[,1])){
-			n_char <- nchar(strsplit(as.character(peaklist[i,1]),".",fixed=TRUE)[[1]][2])
-			if(n_char < min_char) min_char <- n_char
+			n_char<-nchar(strsplit(as.character(peaklist[i,1]),".",fixed=TRUE)[[1]][2])
+			if(n_char<min_char){
+				min_char<-n_char
+			}
 		}
-		mztol <- (10 ^ (-min_char + 1))
-		warning(paste0("zero mztol - mztol set to ",mztol," for numeric precision!"))	
+		mztol<-(10^(-min_char+1))
+		warning(paste("zero mztol - mztol set to ",mztol," for numeric precision!",sep=""))	
 	}
-	if(rttol <= 0){ # Set precision to digits of inputs
-		min_char <- Inf
+	if(rttol<=0){ # Set precision to digits of inputs
+		min_char<-Inf
 		for(i in 1:length(peaklist[,3])){
 			n_char<-nchar(strsplit(as.character(peaklist[i,3]),".",fixed=TRUE)[[1]][2])
 			if(n_char<min_char){
 				min_char<-n_char
 			}
 		}
-		rttol <- (10^(-min_char+1))
-		warning(paste0("zero rttol - rttol set to ", rttol, " for numeric precision!"))	
+		rttol<-(10^(-min_char+1))
+		warning(paste("zero rttol - rttol set to ",rttol," for numeric precision!",sep=""))	
 	}
-	if(minrt > maxrt) stop("minrt cannot be larger than maxrt!")
-	if(minmz > maxmz) stop("minmz cannot be larger than maxmz!")	
-	if(mzfilter[1] != "FALSE"){
-		if(!is.numeric(mzfilter)) stop("mzfilter must either be FALSE or (a vector of) numeric")
+	if(minrt>maxrt){stop("minrt cannot be larger than maxrt!")}
+	if(minmz>maxmz){stop("minmz cannot be larger than maxmz!")}	
+	if(mzfilter[1]!="FALSE"){
+		if(!is.numeric(mzfilter)){stop("mzfilter must either be FALSE or (a vector of) numeric")}
 		mzfilter<-mzfilter[order(mzfilter)]
-		if(any(mzfilter<0)) stop(" Negative mzfilter values found - abort.")
-		if(min(mzfilter)<minmz) stop(" Minimum mzfilter value smaller than minmz - abort.")
-		if(max(mzfilter)>maxmz) stop(" Maximum mzfilter value larger than maxmz - abort.")	
+		if(any(mzfilter<0)){stop(" Negative mzfilter values found - abort.")}
+		if(min(mzfilter)<minmz){stop(" Minimum mzfilter value smaller than minmz - abort.")}
+		if(max(mzfilter)>maxmz){stop(" Maximum mzfilter value larger than maxmz - abort.")}	
 	}
-	if(!is.data.frame(peaklist) & !is.matrix(peaklist) ) stop("peaklist must be a numeric data.frame")
-	if(!is.matrix(peaklist)) peaklist <- data.matrix(peaklist)
-	if(length(mztol) == 1){
-		if(ppm == TRUE){
-			delmz <- c(mztol*max(peaklist[,1])/1e6);
-			peaklist4 <- c(mztol*peaklist[,1]/1e6);
+	if(!is.data.frame(peaklist) & !is.matrix(peaklist) ){stop("peaklist must be a numeric data.frame")}
+	if(!is.matrix(peaklist)){
+		peaklist<-data.matrix(peaklist)
+	}
+	if(length(mztol)==1){
+		if(ppm==TRUE){
+			delmz<-c(mztol*max(peaklist[,1])/1e6);
+			peaklist4<-c(mztol*peaklist[,1]/1e6);
 		}else{
-			delmz <- mztol;
-			peaklist4 <- rep(mztol,length(peaklist[,1]))
+			delmz<-mztol;
+			peaklist4<-rep(mztol,length(peaklist[,1]))
 		}
-		max_delmz <- max(delmz)
+		max_delmz<-max(delmz)
 	}else{
-		if(length(mztol) == length(peaklist[,1])){
-			peaklist4 <- mztol
-			delmz <- max(mztol)
-		}else stop("mztol: must be either one value or of length peaklist[,1]")
+		if(length(mztol)==length(peaklist[,1])){
+			peaklist4<-mztol
+			delmz<-max(mztol)
+		}else{
+			stop("mztol: must be either one value or of length peaklist[,1]")
+		}
 	}
-	minmz <- (minmz - delmz)
-	maxmz <- (maxmz + delmz)	
-	inter <- interactive()
+	minmz<-(minmz-delmz)
+	maxmz<-(maxmz+delmz)
+	inter<-interactive()
 	##########################################################################
     # (1) retrieve feasible mass differences & all combinations thereof ######
 	# (1.1) upper & lower mass defect / mass bound ###########################
  	##########################################################################
 	cat("\n(1-3) Build bounds, trees & nearest neighbour path ... ");	
-	if(elements[1] == FALSE) elements <- unique(as.character(isotopes[,1]))
-	delmass <- c();
-	c_ratio <- c();
+	if(elements[1]==FALSE){
+		elements<-unique(as.character(isotopes[,1]))
+	}
+	delmass<-c();
+	c_ratio<-c();
 	for(i in 1:length(elements)){
-		isos <- isotopes[as.character(isotopes[,1]) == elements[i],]
-		delmass <- c(delmass,
-			isos[isos[,3] == min(isos[,3]),3]
+		isos<-isotopes[as.character(isotopes[,1])==elements[i],]
+		delmass<-c(delmass,
+			isos[isos[,3]==min(isos[,3]),3]
 		);
-		c_ratio <- c(c_ratio, unique(isos[,5]));
+		c_ratio<-c(c_ratio,unique(isos[,5]));
 	}	
-	c_ratio[c_ratio == 0] <- Inf # well...
+	c_ratio[c_ratio==0]<-Inf # well...
 	if(use_C){
 		delmass<-( c( delmass-round(delmass,digits=0) ) / (delmass+(1/c_ratio*12)) );		
 	}else{
 		delmass<-( c( delmass-round(delmass,digits=0) ) / delmass );	
 	}
-	maxup <- c(max(delmass));
-	maxdown <- c(min(delmass));
+	maxup<-c(max(delmass));
+	maxdown<-c(min(delmass));
 	#maxdown<-abs(min(delmass));
 	##########################################################################
     # (2) Set internal data & parameters #####################################
 	#maxmove<-c(max(maxup,maxdown))
-	shift <- c(maxmz*(maxup-maxdown))
+	shift<-c(maxmz*(maxup-maxdown))
 	#shift<-c(maxmz*(maxdown+maxup))
-	mass_def <- c(peaklist[,1] - round(peaklist[,1]))	# calculate mass defect
+	mass_def<-c(peaklist[,1]-round(peaklist[,1]))		# calculate mass defect
 	peaklist2<-peaklist[,-2]
 	uplim<-c(mass_def-(peaklist2[,1]*maxup))			# upward mass defect shift - (m/z)/mass defect lower intercept
 	uplim_tol<-abs(max(peaklist4)*maxup*2)				# upward mass defect shift - maximum tolerance
@@ -158,69 +164,57 @@ function(
 	along[1]<-1											# for nearest neighbour search
 	##########################################################################
 	# (3) build kd-trees & run nearest-neighbour search ######################
-	peakTree <- .Call("kdtree", 
+	peakTree<-.Call("kdtree", 
 			as.matrix(peaklist2),
 			PACKAGE="nontarget"
 	);
-	if(!any(deb == 4)){ # along nearest neighbour path ...
-		peakTree3 <- .Call("kdtree", 
+	if(!any(deb==4)){ # along nearest neighbour path ...
+		peakTree3<-.Call("kdtree", 
 				as.matrix(peaklist3),
-				PACKAGE = "nontarget"
+				PACKAGE="nontarget"
 		);			
 		for(i in 2:length(peakTree3[,1])){	
-			use2 <- .Call("search_kdtree3", 
+			use2<-.Call("search_kdtree3", 
 				peaklist3, 	# rows: c(m/z,RT,UB,LB)
 				peakTree3,  # peaks - search tree
 				use,
 				scaled,	
-				PACKAGE = "nontarget"
+				PACKAGE="nontarget"
 			)[,1]
-			if(use2 < 1) stop("debug me on issue #4 - use2=-1,<1")
+			if(use2<1){stop("debug me on issue #4 - use2=-1,<1")}
 			.Call("node_delete", 
 				use,
 				peaklist3,
 				peakTree3,
 				PACKAGE="nontarget"
 			);
-			along[i] <- use2
-			use <- use2
+			along[i]<-use2
+			use<-use2
 		}
-		if(sum(peakTree3[,3] != 0) > 1) stop("debug me on issue #5: peakTree3 was not fully emptied in NN-search!")
-		if(any(peakTree3[,3] > 1)) stop("debug me on issue #6: peakTree3 corrupted!")
+		if(sum(peakTree3[,3]!=0)>1){stop("debug me on issue #5: peakTree3 was not fully emptied in NN-search!")}
+		if(any(peakTree3[,3]>1)){stop("debug me on issue #6: peakTree3 corrupted!")}		
 	}else{ # ... or, for comparison, via random sampling
-		along <- sample(
-			seq(1, length(peaklist[,1]), 1),
+		along<-sample(
+			seq(1,length(peaklist[,1]),1),
 			length(peaklist[,1]),
-			replace = FALSE
+			replace=FALSE
 		)
 	}
-	cat("done.");	
-return(peakTree);
+	cat("done.");
 	##########################################################################
-	# (4) Sweep through nearest neighbour path ###############################	
+	# (4) Sweep through nearest neighbour path ###############################
 	cat("\n(4) Triplet extraction \n");	
-	if(inter) pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )
+	if(inter){pBar <- txtProgressBar( min = 0, max = length(peaklist2[,1]), style = 3 )}
 	for(i in 1:length(peaklist2[,1])){
 
-		if(inter) setTxtProgressBar(pBar, i, title = NULL, label = NULL)
-		use <- along[i]
-
-
-#> BAUSTELLE
-if((use > dim(peaklist2)[1]) & FALSE){		
-	cat("\n\nHERE:")
-	print(dim(peaklist2)[1])
-	cat("\n")
-	print(use)
-	return(NULL)		
-}
-		
+		if(inter){setTxtProgressBar(pBar,i,title = NULL, label = NULL)}
+		use<-along[i]
 		######################################################################
 		# upper area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]+minmz)
 		bounds[1,2]<-(peaklist2[use,1]+maxmz) 
-		bounds[2,1]<-(peaklist2[use,2]+minrt)
-		bounds[2,2]<-(peaklist2[use,2]+maxrt)
+		bounds[2,1]<-(peaklist2[use,2]+minrt-rttol)
+		bounds[2,2]<-(peaklist2[use,2]+maxrt+rttol)
 		bounds[3,1]<-(peaklist2[use,3]-shift-uplim_tol)		# maxup LB
 		bounds[3,2]<-(peaklist2[use,3]+uplim_tol) 			# maxup UB
 		bounds[4,1]<-(peaklist2[use,4]-downlim_tol)			# maxdown LB
@@ -277,8 +271,8 @@ if((use > dim(peaklist2)[1]) & FALSE){
 		# lower area sweep ###################################################
 		bounds[1,1]<-(peaklist2[use,1]-maxmz)
 		bounds[1,2]<-(peaklist2[use,1]-minmz) 
-		bounds[2,1]<-(peaklist2[use,2]-maxrt)
-		bounds[2,2]<-(peaklist2[use,2]-minrt)
+		bounds[2,1]<-(peaklist2[use,2]-maxrt-rttol)
+		bounds[2,2]<-(peaklist2[use,2]-minrt+rttol)
 		bounds[3,1]<-(peaklist2[use,3]-uplim_tol)			# maxup LB
 		bounds[3,2]<-(peaklist2[use,3]+shift+uplim_tol) 	# maxup UB
 		bounds[4,1]<-(peaklist2[use,4]-shift-downlim_tol)	# maxdown LB
@@ -408,7 +402,7 @@ if((use > dim(peaklist2)[1]) & FALSE){
 				peaklist3,
 				dist_ID,
 				dist_dist,
-				tupels, # = triplets
+				tupels,
 				tupeldo,
 				peaklist4,
 				use, # = current point
@@ -416,14 +410,14 @@ if((use > dim(peaklist2)[1]) & FALSE){
 				rttol,
 				PACKAGE="nontarget"
 			);
-			if(tupeldo>=vec_size) stop("\n Maximum number of tupels reached. increase vec_size")
+			if(tupeldo>vec_size){stop("\n Maximum number of tupels reached. increase vec_size")}
 			##################################################################
 		}	
 		######################################################################
 	}
-	if(inter) close(pBar)
+	if(inter){close(pBar)}
 	tupeldo<-(tupeldo-1)
-	if(tupeldo==0) stop("no series detected")
+	if(tupeldo==0){stop("no series detected")}
 	tupels<-tupels[1:tupeldo,,drop=FALSE]
 	tupels<-tupels[tupels[,1]!=0,,drop=FALSE] # backup - if tupeldo fails 
 	tupels<-tupels[order(tupels[,4]),,drop=FALSE]
@@ -500,8 +494,7 @@ if((use > dim(peaklist2)[1]) & FALSE){
 			tupels[,1:HS_length],
 			tupels[,(HS_length+1):(HS_length+4)],
 			keeper,
-			mat_size,
-			PACKAGE="nontarget" 
+			mat_size
 		)	
 		merged_tupels<-merged_tupels[merged_tupels[,1]!=0,,drop=FALSE]	
 		if(length(merged_tupels[,1])==0){
@@ -562,8 +555,10 @@ if((use > dim(peaklist2)[1]) & FALSE){
 		}
 		tupels<-merged_tupels;	
 	}
-	if(any(deb==1)) return(HS)
-	if(length(HS)<minlength) stop("\n No homologue series detected. Check parameters (e.g., minlength) and units?");
+	if(any(deb==1)){return(HS)}
+	if(length(HS)<minlength){
+		stop("\n No homologue series detected. Check parameters (e.g., minlength) and units?");
+	}
 	cat(" - done.");
 	##########################################################################	
 	# (7) remove nested HS ###################################################
@@ -673,7 +668,7 @@ if((use > dim(peaklist2)[1]) & FALSE){
 				number<-(number+length(HS[[i]][,1]))
 			}	
 		}
-		if(any(duplicated(HS_IDs))) stop("debug me on issue #6: duplicated IDs in similarity grouping of HS!")
+		if(any(duplicated(HS_IDs))){stop("debug me on issue #6: duplicated IDs in similarity grouping of HS!")}
 		# get matrix with unique HSpairs #################################### 				
 		at<-1;
 		leng<-5000;
@@ -809,10 +804,14 @@ if((use > dim(peaklist2)[1]) & FALSE){
 	# (9) Generate data output ###############################################
 	cat(paste("\n(8) Parse output for ",max(HS_IDs[,4])," homologue series and ",found," cluster ... ",sep=""));
 	# generate HS group lists ################################################
-	HS_groups <- list(0)
-	for(i in 1:length(HS_IDs[,4])) HS_groups[[HS_IDs[i,4]]] <- numeric(0)
-	for(i in 1:length(HS_IDs[,4])) HS_groups[[HS_IDs[i,4]]] <- c(HS_groups[[HS_IDs[i,4]]],HS_IDs[i,1])
-	if(plotit == 4){
+	HS_groups<-list(0)
+	for(i in 1:length(HS_IDs[,4])){
+		HS_groups[[HS_IDs[i,4]]]<-numeric(0)
+	}
+	for(i in 1:length(HS_IDs[,4])){
+		HS_groups[[HS_IDs[i,4]]]<-c(HS_groups[[HS_IDs[i,4]]],HS_IDs[i,1])
+	}
+	if(plotit==4){
 		for(i in 1:length(HS_groups)){
 			those<-HS_IDs[HS_groups[[i]],,drop=FALSE]
 			peaks<-c()
@@ -944,13 +943,6 @@ if((use > dim(peaklist2)[1]) & FALSE){
 	##########################################################################
 	
 }
-
-
-
-
-
-
-
 
 
 
