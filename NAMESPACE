@@ -7,7 +7,13 @@ import("grDevices")
 import("graphics")
 import("stats")
 import("utils")
+<<<<<<< Updated upstream
 import("ggplot2")
 import("tidyverse")
 import("plotly")
 import("tibble")
+=======
+import("plotly")
+import("tibble")
+import("ggplot2")
+>>>>>>> Stashed changes
