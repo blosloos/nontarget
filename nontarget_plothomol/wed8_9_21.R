@@ -41,11 +41,14 @@ cmpds_adducts_long <- pivot_longer(cmpds_adducts, cols = -colnames(cmpds)) %>%
          mz = value) %>% 
   mutate(RT = approx(rti$logP, rti$RT, logp)$y)
 
+cmpds_adducts_short <- cmpds_adducts_long[,c(7,8,11)]
 
+
+cmpds_adducts_long_ritbind <-  merge(rti,cmpds_adducts_short, all = T)
 cmpds_Dino <- cmpds_adducts_long[, c(11,10)]
 
 # add a dummy coloumn with intensities, needed for nontarget::homol.search() 
-cmpds_Dino$intensity <- '999'
+cmpds_adducts_long_ritbind$intensity <- '999'
 
 # cmpds_Dino %>% 
 #   filter(between(mz, 50, 1500)) %>% 
@@ -54,16 +57,17 @@ cmpds_Dino$intensity <- '999'
 #   geom_point()
 
 # organizing
-cmpds_Dino$intensity <- as.numeric(cmpds_Dino$intensity)
-cmpds_Dino <- cmpds_Dino %>% 
+cmpds_adducts_long_ritbind$intensity <- as.numeric(cmpds_adducts_long_ritbind$intensity)
+cmpds_adducts <- cmpds_adducts %>% 
   na.exclude()
-head(cmpds_Dino)
-cmpds_Dino$mz <- as.numeric(cmpds_Dino$mz)
-cmpds_Dino$RT <- as.numeric(cmpds_Dino$RT)
-cmpds_Dino$intensity <- as.numeric(cmpds_Dino$intensity)
-cmpds_Dino <- as.data.frame(cmpds_Dino)
+head(cmpds_adducts)
+
+cmpds_adducts_long_ritbind$mz <- as.numeric(cmpds_adducts_long_ritbind$mz)
+cmpds_adducts_long_ritbind$RT <- as.numeric(cmpds_adducts_long_ritbind$RT)
+cmpds_adducts_long_ritbind$intensity <- as.numeric(cmpds_adducts_long_ritbind$intensity)
+cmpds_adducts <- as.data.frame(cmpds_adducts)
 col_order <- c("mz", "intensity","RT" )
-cmpds_Dino<- cmpds_Dino[, col_order]
+cmpds_adducts<- cmpds_adducts[, col_order]
 
 cmpds_Dino <- cmpds_Dino[1:500,]
  

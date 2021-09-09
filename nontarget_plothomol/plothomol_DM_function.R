@@ -6,7 +6,7 @@ library(ggplot2)
 
 
 ###############################################################################
-plothomol_Diana <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plotdefect=FALSE) {
+plothomolplotly <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plotdefect=FALSE) {
   ############################################################################
   # check inputs #############################################################
   if(xlim[1]!=FALSE){if(length(xlim)>2){stop("xlim not correct!")}}
@@ -29,8 +29,7 @@ plothomol_Diana <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plot
   summary(homo_tibble)
   homo_filter <- homo_tibble %>%
     filter(homo_tibble$"HS IDs" != "0")
-  # write.csv(homo_filter, file = "simulate_lcms_homolseries.txt",sep = "\t", row.names = T, col.names = T, dec = ",")
-  
+
   # grouping mz increments for plot legend/interactive plotly
   homo_filter$mzsplit <- as.numeric(homo_filter$mzsplit)
   homo_filter$delta_mz = NA
@@ -95,7 +94,6 @@ plothomol_Diana <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plot
     geom_point(alpha = 1,
                color = "darkgrey",
                size = 0.7) +
-    #theme(legend.title = element_text())+
     theme_bw()
   
   ggplotly_homo_plot <-
@@ -118,4 +116,5 @@ plothomol_Diana <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plot
   
   ggplotly_homo_plot
 }
-plothomol_Diana(homol)
+
+plothomolplotly(homol)
