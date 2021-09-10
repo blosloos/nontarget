@@ -2,7 +2,7 @@
 # library(tibble)
 # library(ggplot2)
 ###############################################################################
-plothomolplotly <- function(homol, xlim=FALSE, ylim=FALSE, plotlegend=TRUE, plotdefect=FALSE) {
+plothomolplotly <- function(homol) {
 
   homo_tibble <- tibble::as_tibble(homol[[1]])
   
