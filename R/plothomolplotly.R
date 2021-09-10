@@ -6,6 +6,8 @@
 #'@import plotly
 #'@import tibble
 #'@import ggplot2
+#'@import tidyverse
+#'@import tidyr
 ###############################################################################
 plothomolplotly <- function(homol) {
 
@@ -15,7 +17,7 @@ plothomolplotly <- function(homol) {
     plotly::mutate(hsid = homo_tibble$`HS IDs`) %>%
     plotly::mutate(mzsplit = homo_tibble$'m/z increment') %>%
     tidyr::separate_rows(c('hsid', 'mzsplit'), sep = "/") %>%
-    plotly::mutate(hsid = as.factor(hsid))
+    plotly::mutate(hsid = as.factor("hsid"))
   
   summary(homo_tibble)
   homo_filter <- homo_tibble %>%
@@ -57,9 +59,9 @@ plothomolplotly <- function(homol) {
     factor(homo_filter$delta_mz, levels = neworderLegend)
   
   homo_plot <-
-    ggplot::ggplot(data = homo_filter, aes(
-      x = RT,
-      y = mz,
+    ggplot2::ggplot(data = homo_filter, aes(
+      x = "RT",
+      y = "mz",
       text = paste(
         "m/z increment ",
         homo_filter$`m/z increment`,
@@ -74,10 +76,10 @@ plothomolplotly <- function(homol) {
     geom_line(
       data = homo_filter,
       aes(
-        x = RT,
-        y = mz,
-        group = hsid,
-        color = delta_mz,
+        x = "RT",
+        y = "mz",
+        group = "hsid",
+        color = "delta_mz",
         alpha = 1
       ),
       lwd = 1

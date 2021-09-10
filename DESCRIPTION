@@ -11,4 +11,10 @@ Depends:
     enviPat(>= 2.0),
     nontargetData(>= 1.1),
     mgcv(>= 1.7-22)
+Imports:
+	ggplot2,
+	tidyverse,
+	tibble,
+	plotly,
+	tidyr
 URL: http://www.envihomolog.eawag.ch/
