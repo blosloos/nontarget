@@ -1,16 +1,21 @@
-# library(plotly)
-# library(tibble)
-# library(ggplot2)
+#'description
+#' paramater explanation
+#'
+
+#'@export
+#'@import plotly
+#'@import tibble
+#'@import ggplot2
 ###############################################################################
 plothomolplotly <- function(homol) {
 
   homo_tibble <- tibble::as_tibble(homol[[1]])
   
   homo_tibble <- homo_tibble %>%
-    mutate(hsid = homo_tibble$`HS IDs`) %>%
-    mutate(mzsplit = homo_tibble$'m/z increment') %>%
+    plotly::mutate(hsid = homo_tibble$`HS IDs`) %>%
+    plotly::mutate(mzsplit = homo_tibble$'m/z increment') %>%
     tidyr::separate_rows(c('hsid', 'mzsplit'), sep = "/") %>%
-    mutate(hsid = as.factor(hsid))
+    plotly::mutate(hsid = as.factor(hsid))
   
   summary(homo_tibble)
   homo_filter <- homo_tibble %>%
@@ -52,7 +57,7 @@ plothomolplotly <- function(homol) {
     factor(homo_filter$delta_mz, levels = neworderLegend)
   
   homo_plot <-
-    ggplot(data = homo_filter, aes(
+    ggplot::ggplot(data = homo_filter, aes(
       x = RT,
       y = mz,
       text = paste(
@@ -83,7 +88,7 @@ plothomolplotly <- function(homol) {
     theme_bw()
   
   ggplotly_homo_plot <-
-    ggplotly(homo_plot) %>% plotly::add_annotations(
+    plotly::ggplotly(homo_plot) %>% plotly::add_annotations(
       text = "m/z increment",
       xref = "paper",
       yref = "paper",
@@ -103,4 +108,3 @@ plothomolplotly <- function(homol) {
   ggplotly_homo_plot
 }
 
-plothomolplotly(homol)
