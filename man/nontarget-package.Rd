@@ -177,7 +177,7 @@ comp <- combine(
 );
 # (5.2) plot results ################################# 
 plotisotopes(comp);
-plotcomp(comp,compoID=1,peakID=FALSE);
+#plotcomp(comp,compoID=1,peakID=FALSE);
 ######################################################
 # (6) Select data from interactive plot ##############
 # ms.filter( component=comp,x="mz",y="dm",xlim=FALSE,

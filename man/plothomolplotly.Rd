@@ -40,7 +40,7 @@
       ppm=TRUE,
       mztol=3.5,
       rttol=0.5,
-      minlength=5,
+      minlength=3,
       mzfilter=FALSE,
       vec_size=3E6,
       spar=.45,
