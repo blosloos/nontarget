@@ -199,7 +199,7 @@ comp <- combine(
 	pattern,
 	adduct,
 	homol=FALSE,
-	dont=c(1, 2, 3),
+	dont= FALSE,
 	rules= c(TRUE, TRUE, TRUE, TRUE)
 );
 comp[[6]];

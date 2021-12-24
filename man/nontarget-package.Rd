@@ -145,38 +145,39 @@ plotgroup(pattern,adduct,groupID=1,massrange=10,allmass=FALSE);
 ######################################################
 # (4.1) Screen for homologue series ##################
 homol<-homol.search(
-	peaklist,
-	isotopes,	
-	elements=c("C","H","O"),
-	use_C=TRUE,
-	minmz=5,
-	maxmz=120,
-	minrt=-1,
-	maxrt=2,
-	ppm=TRUE,
-	mztol=3.5,
-    rttol=0.5,
-	minlength=5,
-	mzfilter=FALSE,
-	vec_size=3E6,
-	spar=.45,
-	R2=.98,
-	plotit=FALSE
+  peaklist,
+  isotopes,	
+  elements=c("C","H","O"),
+  use_C=TRUE,
+  minmz=5,
+  maxmz=120,
+  minrt=-1,
+  maxrt=2,
+  ppm=TRUE,
+  mztol=3.5,
+  rttol=0.5,
+  minlength=5,
+  mzfilter=FALSE,
+  vec_size=3E6,
+  spar=.45,
+  R2=.98,
+  plotit=FALSE
 )
 # (4.2) Plot results #################################
 plothomol(homol,xlim=FALSE,ylim=FALSE,plotlegend=TRUE);
+plothomolplotly(homol);
 ######################################################
 # (5.1) Combine grouping results to components #######
 comp <- combine(
-	pattern,
-	adduct,
-	homol,
-	dont = FALSE,
-	rules = c(TRUE, TRUE, FALSE, FALSE)
+  pattern,
+  adduct,
+  homol,
+  dont = FALSE,
+  rules = c(TRUE, TRUE, FALSE, FALSE)
 );
 # (5.2) plot results ################################# 
 plotisotopes(comp);
-plotcomp(comp,compoID=1,peakID=FALSE);
+#plotcomp(comp,compoID=1,peakID=FALSE);
 ######################################################
 # (6) Select data from interactive plot ##############
 # ms.filter( component=comp,x="mz",y="dm",xlim=FALSE,
