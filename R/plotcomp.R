@@ -118,7 +118,7 @@ function(
             }
             ####################################################################
             # plot #############################################################
-            layout(matrix(ncol=2,nrow=5,c(1,1,1,1,2,1,1,1,1,2)));
+            graphics::layout(matrix(ncol=2,nrow=5,c(1,1,1,1,2,1,1,1,1,2)));
             par(mar=c(1,1,1,1));
             plot.new();
             plot.window(xlim=c(-1.1,1.1),ylim=c(-1.1,1.1));
@@ -231,34 +231,34 @@ function(
             if(length(comp[[3]])>2){
               points(dat2[,1],dat2[,2],type="h",lwd=1,col="darkgreen");
             }
-            layout(1);
+            graphics::layout(1);
             par<-def.par #- reset to default
             ####################################################################
 
             ####################################################################
             # generate relational table ########################################
-            these1<-c();
-            these2<-c();
-            these3<-c();
-            for(i in 1:length(get3)){for(j in 1:length(get3)){
+            these1 <- these2 <- these3 <- c()
+            for(i in 1:length(get3)) for(j in 1:length(get3)){
                 if(length(comp[[2]])>1){
                   if(relat1[i,j]!=""){
                     these1<-c(these1,paste(get3[i],"->",get3[j],sep=""));
                     these2<-c(these2,substr(relat1[i,j],2,nchar(relat1[i,j])));
                     these3<-c(these3,(dat1[dat1[,4]==get3[i],2]/dat1[dat1[,4]==get3[j],2]));
-                  };
-                };
-            }};rm(i);
-            for(i in 1:length(get3)){for(j in 1:length(get3)){
+                  }
+                }
+            }
+			rm(i)
+            for(i in 1:length(get3)) for(j in 1:length(get3)){
                 if(length(comp[[3]])>1){                
                   if(relat2[i,j]!=""){
                     these1<-c(these1,paste(get3[i],"-",get3[j],sep=""));
                     these2<-c(these2,substr(relat2[i,j],2,nchar(relat2[i,j])));
                     these3<-c(these3,(dat2[dat2[,4]==get3[i],2]/dat2[dat2[,4]==get3[j],2]));
-                  };
-                };
-            }};rm(i);
-            relat1<-data.frame(these1,these2,these3,stringsAsFactors=FALSE);
+                  }
+                }
+            }
+			rm(i)
+            relat1 <- data.frame(these1,these2,these3,stringsAsFactors=FALSE);
             names(relat1)<-c("peaks","relation","intensity ratio");
             if(comp[[1]][compoID,6]!="-"){
               if(length(dat1)>1){
