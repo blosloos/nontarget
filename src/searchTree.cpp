@@ -295,7 +295,7 @@ extern "C"{
         int prec_ppm2 = INTEGER_VALUE(prec_ppm);
         PROTECT(RT_tol = AS_NUMERIC(RT_tol));
         double RT_tol2 = NUMERIC_VALUE(RT_tol);
-        PROTECT(inter = AS_NUMERIC(inter));
+        PROTECT(inter = AS_INTEGER(inter));
         int intera = INTEGER_VALUE(inter);
 
         std::deque<int> from_peak (0);
