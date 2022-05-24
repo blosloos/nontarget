@@ -1724,7 +1724,7 @@ extern "C"{
             PROTECT(ID = AS_INTEGER(ID));
             PROTECT(scaled = AS_NUMERIC(scaled));
             int i;
-            i = (INTEGER_VALUE(ID)-1);
+            i = (INTEGER_VALUE(ID) - 1);
             double *scaled2;
             bool add_it;
             scaled2 = NUMERIC_POINTER(scaled);
@@ -1855,7 +1855,7 @@ extern "C"{
             double i_at,i_clean;
             i_at = NUMERIC_VALUE(i);
             i_clean = NUMERIC_VALUE(clean_new_found);
-            nrow=RRow(data);
+            nrow = RRow(data);
 
             /* clean new_found vector or find last empty entry */
             for(n=0;n<nrow;n++){

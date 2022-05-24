@@ -45,21 +45,21 @@ extern "C"{
         PROTECT(rttol = AS_NUMERIC(rttol));
 
         int n,m,nrow;
-        nrow=RRow(triplets);
-        int leng_dist=LENGTH(dist_dist);
-        double min_mass,min_mass_LB,min_mass_UB,max_mass,max_mass_LB,max_mass_UB,delmz_use;
-        double rtdif1,rtdif1_LB,rtdif1_UB,rtdif2,rtdif2_LB,rtdif2_UB;
-        delmz_use=RVECTOR(peaklist4,int(NUMERIC_VALUE(use)-1));
+        nrow = RRow(triplets);
+        int leng_dist = LENGTH(dist_dist);
+        double min_mass, min_mass_LB, min_mass_UB, max_mass, max_mass_LB, max_mass_UB, delmz_use;
+        double rtdif1, rtdif1_LB, rtdif1_UB, rtdif2, rtdif2_LB, rtdif2_UB;
+        delmz_use = RVECTOR(peaklist4, int(NUMERIC_VALUE(use) - 1));
 
-        int a=0,b=0; // precheck for occurrence of positive AND negative m/z distances
-        for(n=0;n<leng_dist;n++){
-            if(RVECTOR(dist_dist,n)<0){
+        int a = 0, b = 0; // precheck for occurrence of positive AND negative m/z distances
+        for(n = 0; n < leng_dist; n++){
+            if(RVECTOR(dist_dist, n) < 0){
                 a++;
             }else{
                 b++;
             }
         }
-        if((a==0)||(b==0)){
+        if((a == 0)||(b == 0)){
             UNPROTECT(9);
             return(R_NilValue);
         }
