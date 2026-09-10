@@ -14,8 +14,8 @@ Includes various plotting and filtering functions for e.g. mass defects, frequen
 \tabular{ll}{
 Package: \tab nontarget\cr
 Type: \tab Package\cr
-Version: \tab 1.9\cr
-Date: \tab 2016-03-21\cr
+Version: \tab 2.22\cr
+Date: \tab 2026-09-10\cr
 License: \tab GPL-3\cr
 }
 Screens a HRMS data set for peaks related by (1) isotopic patterns and/or (2) different adducts of the same molecule and/or (3) being part of 
@@ -35,7 +35,7 @@ In addition, tolerances for m/z, RT and uncertainties in peak intensity must be 
 \author{
 Martin Loos
 
-Maintainer: Martin Loos <Martin.Loos@eawag.ch>
+Maintainer: Martin Loos <mloos@envibee.ch>
 
 }
 \references{
