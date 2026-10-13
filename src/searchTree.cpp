@@ -177,13 +177,13 @@ extern "C"{
         SEXP profto
     ){
 
-            PROTECT(proffrom_int = AS_INTEGER(proffrom));
-            PROTECT(profto_int = AS_INTEGER(profto));
+            PROTECT(proffrom = AS_INTEGER(proffrom));
+            PROTECT(profto = AS_INTEGER(profto));
             int *proffrom2;
-            proffrom2 = INTEGER_POINTER(proffrom_int);
+            proffrom2 = INTEGER_POINTER(proffrom);
             int *profto2;
-            profto2 = INTEGER_POINTER(profto_int);
-            int leng = LENGTH(proffrom_int);
+            profto2 = INTEGER_POINTER(profto);
+            int leng = LENGTH(proffrom);
             int n,m,g,k,atwhat,atto_n,atfrom_n,stay;
 
             SEXP group;
@@ -286,11 +286,11 @@ extern "C"{
         SEXP pBar
     ){
 
-        PROTECT(peaklist_num = AS_NUMERIC(peaklist));
-        PROTECT(peakTree_num = AS_NUMERIC(peakTree));
-        PROTECT(add2_num = AS_NUMERIC(add2));
-        PROTECT(prec_mass_num = AS_NUMERIC(prec_mass));
-        double prec_mass2 = NUMERIC_VALUE(prec_mass_num);
+        PROTECT(peaklist = AS_NUMERIC(peaklist));
+        PROTECT(peakTree = AS_NUMERIC(peakTree));
+        PROTECT(add2 = AS_NUMERIC(add2));
+        PROTECT(prec_mass = AS_NUMERIC(prec_mass));
+        double prec_mass2 = NUMERIC_VALUE(prec_mass);
         PROTECT(prec_ppm = AS_INTEGER(prec_ppm));
         int prec_ppm2 = INTEGER_VALUE(prec_ppm);
         PROTECT(RT_tol = AS_NUMERIC(RT_tol));
@@ -302,8 +302,8 @@ extern "C"{
         std::deque<int> to_peak (0);
         std::deque<int> adduct_pair (0);
         int n = 0, m = 0, k = 0, leng_peaks = 0, leng_add = 0, from = 0, to = 0;
-        leng_peaks = RRow(peaklist_num);
-        leng_add = RRow(add2_num);
+        leng_peaks = RRow(peaklist);
+        leng_add = RRow(add2);
         double prec_dm, prec_dm_add;
 
         SEXP utilsPackage; /* definitions for the progress bar */
@@ -321,18 +321,18 @@ extern "C"{
                 eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
             }
             if(prec_ppm2 == 1){ // prec_dm defines window in which true value must range at the one adduct
-                prec_dm = ((RMATRIX(peaklist_num, n, 0) * prec_mass2 / 1E6));
+                prec_dm = ((RMATRIX(peaklist, n, 0) * prec_mass2 / 1E6));
             }else{
                 prec_dm = prec_mass2;
             }
-            RMATRIX(bounds_peaks, 1, 0) = (RMATRIX(peaklist_num, n, 1) - RT_tol2);
-            RMATRIX(bounds_peaks, 1, 1) = (RMATRIX(peaklist_num, n, 1) + RT_tol2);
+            RMATRIX(bounds_peaks, 1, 0) = (RMATRIX(peaklist, n, 1) - RT_tol2);
+            RMATRIX(bounds_peaks, 1, 1) = (RMATRIX(peaklist, n, 1) + RT_tol2);
             for(m = 0; m < leng_add; m++){
 
-                RMATRIX(bounds_peaks, 0, 0) = (((((RMATRIX(peaklist_num, n, 0) - prec_dm) - RMATRIX(add2_num,m,2))*RMATRIX(add2_num, m, 0) / 
-					RMATRIX(add2_num, m, 1)) * RMATRIX(add2_num, m, 4) / RMATRIX(add2_num, m, 3)) + RMATRIX(add2_num, m, 5));
-                RMATRIX(bounds_peaks, 0, 1) = (((((RMATRIX(peaklist_num, n, 0) + prec_dm) - RMATRIX(add2_num,m,2))*RMATRIX(add2_num, m, 0) / 
-					RMATRIX(add2_num, m, 1)) * RMATRIX(add2_num, m, 4) / RMATRIX(add2_num, m, 3)) + RMATRIX(add2_num, m, 5));
+                RMATRIX(bounds_peaks, 0, 0) = (((((RMATRIX(peaklist, n, 0) - prec_dm) - RMATRIX(add2,m,2))*RMATRIX(add2, m, 0) / 
+					RMATRIX(add2, m, 1)) * RMATRIX(add2, m, 4) / RMATRIX(add2, m, 3)) + RMATRIX(add2, m, 5));
+                RMATRIX(bounds_peaks, 0, 1) = (((((RMATRIX(peaklist, n, 0) + prec_dm) - RMATRIX(add2,m,2))*RMATRIX(add2, m, 0) / 
+					RMATRIX(add2, m, 1)) * RMATRIX(add2, m, 4) / RMATRIX(add2, m, 3)) + RMATRIX(add2, m, 5));
                 if(prec_ppm2 == 1){ // prec_dm_add defines window in which true value must range at the other adduct
                     prec_dm_add = ((RMATRIX(bounds_peaks, 0, 0) * prec_mass2 / 1E6));
                 }else{
@@ -342,7 +342,7 @@ extern "C"{
                 RMATRIX(bounds_peaks, 0, 1) = (RMATRIX(bounds_peaks, 0, 1) + prec_dm_add);
 
                 from = to_peak.size();
-                search_tree_sub(peaklist_num, peakTree_num, bounds_peaks, to_peak);
+                search_tree_sub(peaklist, peakTree, bounds_peaks, to_peak);
                 to = to_peak.size();
                 if(to > from){
                     for(k = from; k < to; k++){
@@ -391,10 +391,10 @@ extern "C"{
         SEXP pBar
     ){
 
-            PROTECT(peaklist_num = AS_NUMERIC(peaklist));
-            PROTECT(peakTree_num = AS_NUMERIC(peakTree));
-            PROTECT(mass_slots_num = AS_NUMERIC(mass_slots));
-            PROTECT(int_slots_num = AS_NUMERIC(int_slots));
+            PROTECT(peaklist = AS_NUMERIC(peaklist));
+            PROTECT(peakTree = AS_NUMERIC(peakTree));
+            PROTECT(mass_slots = AS_NUMERIC(mass_slots));
+            PROTECT(int_slots = AS_NUMERIC(int_slots));
             PROTECT(prec_mass = AS_NUMERIC(prec_mass));
             double prec_mass2 = NUMERIC_VALUE(prec_mass);
             PROTECT(prec_ppm = AS_NUMERIC(prec_ppm));
@@ -414,16 +414,16 @@ extern "C"{
             rPercentComplete = NUMERIC_POINTER(percentComplete);
 
             int n,m,s1,s2;
-            int leng_peaks = RRow(peaklist_num);
-            int leng_slots = RRow(mass_slots_num);
+            int leng_peaks = RRow(peaklist);
+            int leng_slots = RRow(mass_slots);
             double prec_dm,max_int=0;
             std::deque<int> from_peak (0);
             std::deque<int> to_peak (0);
             SEXP bounds_peaks;
             PROTECT(bounds_peaks = allocMatrix(REALSXP, 3, 2));
             for(n=0;n<leng_peaks;n++){
-                if(RMATRIX(peaklist_num,n,1)>max_int){
-                    max_int=RMATRIX(peaklist_num,n,1);
+                if(RMATRIX(peaklist,n,1)>max_int){
+                    max_int=RMATRIX(peaklist,n,1);
                 }
             }
 
@@ -433,24 +433,24 @@ extern "C"{
                     eval(lang4(install("setTxtProgressBar"), pBar, percentComplete, R_NilValue), utilsPackage);
                 }
                 if(prec_ppm2 == 1){
-                    prec_dm = (2 * (RMATRIX(peaklist_num, n, 0) * prec_mass2 / 1E6));
+                    prec_dm = (2 * (RMATRIX(peaklist, n, 0) * prec_mass2 / 1E6));
                 }else{
                     prec_dm = (2 * prec_mass2);
                 }
-                RMATRIX(bounds_peaks, 2, 0) = (RMATRIX(peaklist_num, n, 2) - RT_tol2);
-                RMATRIX(bounds_peaks, 2, 1) = (RMATRIX(peaklist_num, n, 2) + RT_tol2);
+                RMATRIX(bounds_peaks, 2, 0) = (RMATRIX(peaklist, n, 2) - RT_tol2);
+                RMATRIX(bounds_peaks, 2, 1) = (RMATRIX(peaklist, n, 2) + RT_tol2);
                 s1=to_peak.size();
                 for(m=0;m<leng_slots;m++){
-                    RMATRIX(bounds_peaks, 1, 0) = ((RMATRIX(peaklist_num, n, 1) - (2*prec_intens2*RMATRIX(peaklist_num, n, 1)))/RMATRIX(int_slots_num, m, 1));
-                    if(RMATRIX(int_slots_num, m, 0) > 0){ // avoid division by zero
-                        RMATRIX(bounds_peaks, 1, 1) = ((RMATRIX(peaklist_num, n, 1)+(2*prec_intens2*RMATRIX(peaklist_num, n, 1)))/RMATRIX(int_slots_num, m, 0));
+                    RMATRIX(bounds_peaks, 1, 0) = ((RMATRIX(peaklist, n, 1) - (2*prec_intens2*RMATRIX(peaklist, n, 1)))/RMATRIX(int_slots, m, 1));
+                    if(RMATRIX(int_slots, m, 0) > 0){ // avoid division by zero
+                        RMATRIX(bounds_peaks, 1, 1) = ((RMATRIX(peaklist, n, 1)+(2*prec_intens2*RMATRIX(peaklist, n, 1)))/RMATRIX(int_slots, m, 0));
                     }else{
                         RMATRIX(bounds_peaks, 1, 1) = max_int;
                     }
-                    RMATRIX(bounds_peaks, 0, 0) = (RMATRIX(peaklist_num, n, 0) + RMATRIX(mass_slots_num, m, 0)-prec_dm);
-                    RMATRIX(bounds_peaks, 0, 1) = (RMATRIX(peaklist_num, n, 0) + RMATRIX(mass_slots_num, m, 1)+prec_dm);
-                    search_tree_sub(peaklist_num, peakTree_num, bounds_peaks, to_peak);
-                } /* over mass_slots_num */
+                    RMATRIX(bounds_peaks, 0, 0) = (RMATRIX(peaklist, n, 0) + RMATRIX(mass_slots, m, 0)-prec_dm);
+                    RMATRIX(bounds_peaks, 0, 1) = (RMATRIX(peaklist, n, 0) + RMATRIX(mass_slots, m, 1)+prec_dm);
+                    search_tree_sub(peaklist, peakTree, bounds_peaks, to_peak);
+                } /* over mass_slots */
                 s2 = to_peak.size();
                 for(m = s1; m < s2; m++){
                     from_peak.push_back(n);
@@ -480,11 +480,11 @@ extern "C"{
         SEXP data
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
+            PROTECT(data = AS_NUMERIC(data));
             int n,nrow,ncol,n_disc,level,disc,doit,parent;
-            ncol=RCol(data_num);
+            ncol=RCol(data);
             n_disc=(ncol/2);
-            nrow=RRow(data_num);
+            nrow=RRow(data);
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, nrow, 5));
             double *results2;
@@ -512,7 +512,7 @@ extern "C"{
                 while(doit==2){
 
                     /* LOSON *****************************************************************/
-                    if( RMATRIX(data_num,n,((disc*2)+1))<=RMATRIX(data_num,parent,((disc*2)+1)) ){
+                    if( RMATRIX(data,n,((disc*2)+1))<=RMATRIX(data,parent,((disc*2)+1)) ){
                         if(results2[parent]==0){
                             results2[parent]=n+1;
                             results2[(3*nrow)+n]=level;
@@ -529,7 +529,7 @@ extern "C"{
                         continue;
                     }
                     /* HISON *****************************************************************/
-                    if( RMATRIX(data_num,n,((disc*2)+0))>=RMATRIX(data_num,parent,((disc*2)+0)) ){
+                    if( RMATRIX(data,n,((disc*2)+0))>=RMATRIX(data,parent,((disc*2)+0)) ){
                         if(results2[(2*nrow)+parent]==0){
                             results2[(2*nrow)+parent]=n+1;
                             results2[(3*nrow)+n]=level;
@@ -575,11 +575,11 @@ extern "C"{
         SEXP data
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
+            PROTECT(data = AS_NUMERIC(data));
             int n,nrow,ncol,n_disc,level,disc,doit,parent;
-            ncol=RCol(data_num);
+            ncol=RCol(data);
             n_disc=(ncol/2);
-            nrow=RRow(data_num);
+            nrow=RRow(data);
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, nrow, 7));
             double *results2;
@@ -609,15 +609,15 @@ extern "C"{
                 while(doit==2){
 
                     /* LOSON *****************************************************************/
-                    if( RMATRIX(data_num,n,((disc*2)+1))<=RMATRIX(data_num,parent,((disc*2)+1)) ){
+                    if( RMATRIX(data,n,((disc*2)+1))<=RMATRIX(data,parent,((disc*2)+1)) ){
                         if(results2[parent]==0){
                             results2[parent]=n+1;
                             results2[(3*nrow)+n]=level;
                             results2[(4*nrow)+parent]=(disc+1);
-                            if( RMATRIX(data_num,n,((disc*2)+0))<RMATRIX(data_num,parent,((disc*2)+0)) ){
-                                results2[(5*nrow)+parent]=RMATRIX(data_num,n,((disc*2)+0));
+                            if( RMATRIX(data,n,((disc*2)+0))<RMATRIX(data,parent,((disc*2)+0)) ){
+                                results2[(5*nrow)+parent]=RMATRIX(data,n,((disc*2)+0));
                             }else{
-                                results2[(5*nrow)+parent]=RMATRIX(data_num,parent,((disc*2)+0));
+                                results2[(5*nrow)+parent]=RMATRIX(data,parent,((disc*2)+0));
                             }
                             doit=1;
                         }else{
@@ -631,15 +631,15 @@ extern "C"{
                         continue;
                     }
                     /* HISON *****************************************************************/
-                    if( RMATRIX(data_num,n,((disc*2)+0))>=RMATRIX(data_num,parent,((disc*2)+0)) ){
+                    if( RMATRIX(data,n,((disc*2)+0))>=RMATRIX(data,parent,((disc*2)+0)) ){
                         if(results2[(2*nrow)+parent]==0){
                             results2[(2*nrow)+parent]=n+1;
                             results2[(3*nrow)+n]=level;
                             results2[(4*nrow)+parent]=(disc+1);
-                            if( RMATRIX(data_num,n,((disc*2)+1))>RMATRIX(data_num,parent,((disc*2)+1)) ){
-                                results2[(6*nrow)+parent]=RMATRIX(data_num,n,((disc*2)+1));
+                            if( RMATRIX(data,n,((disc*2)+1))>RMATRIX(data,parent,((disc*2)+1)) ){
+                                results2[(6*nrow)+parent]=RMATRIX(data,n,((disc*2)+1));
                             }else{
-                                results2[(6*nrow)+parent]=RMATRIX(data_num,parent,((disc*2)+1));
+                                results2[(6*nrow)+parent]=RMATRIX(data,parent,((disc*2)+1));
                             }
                             doit=1;
                         }else{
@@ -658,15 +658,15 @@ extern "C"{
                         results2[(1*nrow)+parent]=n+1;
                         results2[(3*nrow)+n]=level;
                         results2[(4*nrow)+parent]=(disc+1);
-                        if( RMATRIX(data_num,n,((disc*2)+0))<RMATRIX(data_num,parent,((disc*2)+0)) ){
-                            results2[(5*nrow)+parent]=RMATRIX(data_num,n,((disc*2)+0));
+                        if( RMATRIX(data,n,((disc*2)+0))<RMATRIX(data,parent,((disc*2)+0)) ){
+                            results2[(5*nrow)+parent]=RMATRIX(data,n,((disc*2)+0));
                         }else{
-                            results2[(5*nrow)+parent]=RMATRIX(data_num,parent,((disc*2)+0));
+                            results2[(5*nrow)+parent]=RMATRIX(data,parent,((disc*2)+0));
                         }
-                        if( RMATRIX(data_num,n,((disc*2)+1))>RMATRIX(data_num,parent,((disc*2)+1)) ){
-                            results2[(6*nrow)+parent]=RMATRIX(data_num,n,((disc*2)+1));
+                        if( RMATRIX(data,n,((disc*2)+1))>RMATRIX(data,parent,((disc*2)+1)) ){
+                            results2[(6*nrow)+parent]=RMATRIX(data,n,((disc*2)+1));
                         }else{
-                            results2[(6*nrow)+parent]=RMATRIX(data_num,parent,((disc*2)+1));
+                            results2[(6*nrow)+parent]=RMATRIX(data,parent,((disc*2)+1));
                         }
                         doit=1;
                     }else{
@@ -695,13 +695,13 @@ extern "C"{
         SEXP pBar
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
+            PROTECT(data = AS_NUMERIC(data));
             PROTECT(inter = AS_NUMERIC(inter));
             int intera = INTEGER_VALUE(inter);
             int n,m,ncol,nrow,doit,parent,level,disc;
             double mindist;
-            ncol=RCol(data_num);
-            nrow=RRow(data_num);
+            ncol=RCol(data);
+            nrow=RRow(data);
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, nrow, 6));
             double *results2;
@@ -735,14 +735,14 @@ extern "C"{
                 level=2;
                 disc=0;
                 while(doit==2){
-                    if( RMATRIX(data_num,n,disc)>=RMATRIX(data_num,parent,disc) ){ /* HISON */
+                    if( RMATRIX(data,n,disc)>=RMATRIX(data,parent,disc) ){ /* HISON */
                         if(results2[(1*nrow)+parent]==0){
                             results2[(1*nrow)+parent]=n+1;
                             results2[(2*nrow)+n]=level;
                             results2[(3*nrow)+parent]=(disc+1);
                             mindist=0;
                             for(m=0;m<ncol;m++){
-                                mindist=(mindist+fabs(RMATRIX(data_num,n,m)-RMATRIX(data_num,parent,m)));
+                                mindist=(mindist+fabs(RMATRIX(data,n,m)-RMATRIX(data,parent,m)));
                             }
                             results2[(4*nrow)+n]=mindist;
                             results2[(5*nrow)+n]=(parent+1);
@@ -766,7 +766,7 @@ extern "C"{
                             results2[(3*nrow)+parent]=(disc+1);
                             mindist=0;
                             for(m=0;m<ncol;m++){
-                                mindist=(mindist+fabs(RMATRIX(data_num,n,m)-RMATRIX(data_num,parent,m)));
+                                mindist=(mindist+fabs(RMATRIX(data,n,m)-RMATRIX(data,parent,m)));
                             }
                             results2[(4*nrow)+n]=mindist;
                             results2[(5*nrow)+n]=(parent+1);
@@ -805,11 +805,11 @@ extern "C"{
         SEXP data
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            qua_a2 = NUMERIC_POINTER(data_num);
+            PROTECT(data = AS_NUMERIC(data));
+            qua_a2 = NUMERIC_POINTER(data);
             int n, m, ncol, nrow, splitit, last_k=0;
-            ncol=RCol(data_num);
-            nrow=RRow(data_num);
+            ncol=RCol(data);
+            nrow=RRow(data);
 
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, nrow, 4));
@@ -844,7 +844,7 @@ extern "C"{
                     splitit=(from[0] + (((to[0]-1)-from[0])/2));
                     std::partial_sort(&here[from[0]],&here[splitit+1], &here[to[0]], smaller2);
                     while(splitit>from[0]){
-                        if(RMATRIX(data_num,here[splitit], disc[0]) == RMATRIX(data_num, here[splitit-  1], disc[0])){
+                        if(RMATRIX(data,here[splitit], disc[0]) == RMATRIX(data, here[splitit-  1], disc[0])){
                             splitit--;
                         }else{
                             break;
@@ -859,7 +859,7 @@ extern "C"{
                         if(last_k<0){
                             last_k=(ncol-1);
                         }
-                        if(RMATRIX(data_num,parent[0],last_k) <= RMATRIX(data_num,here[splitit],last_k)){ /* HISON & = */
+                        if(RMATRIX(data,parent[0],last_k) <= RMATRIX(data,here[splitit],last_k)){ /* HISON & = */
                             results2[(1*nrow)+parent[0]] = (here[splitit]+1);
                         }else{ /* LOSON */
                             results2[parent[0]] = (here[splitit]+1);
@@ -901,7 +901,7 @@ extern "C"{
                         if(last_k<0){
                             last_k=(ncol-1);
                         }
-                        if( RMATRIX(data_num,parent[0],last_k) <= RMATRIX(data_num,here[from[0]],last_k) ){
+                        if( RMATRIX(data,parent[0],last_k) <= RMATRIX(data,here[from[0]],last_k) ){
                             results2[(1*nrow)+parent[0]]=(here[from[0]]+1);
                         }else{
                             results2[parent[0]]=(here[from[0]]+1);
@@ -931,11 +931,11 @@ extern "C"{
         SEXP data
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
+            PROTECT(data = AS_NUMERIC(data));
             int n,m,ncol,nrow,splitit,last_k=0,counter,started,ended,gotnode=0,gotnode2;
             double median;
-            ncol=RCol(data_num);
-            nrow=RRow(data_num);
+            ncol=RCol(data);
+            nrow=RRow(data);
 
             SEXP results;
             PROTECT(results = allocMatrix(REALSXP, nrow, 4));
@@ -978,12 +978,12 @@ extern "C"{
                     counter=0;
                     if(swapit[0]==0){ /* here */
                         for(n=from[0];n<=to[0];n++){
-                                store[counter]=RMATRIX(data_num,here[n],disc[0]);
+                                store[counter]=RMATRIX(data,here[n],disc[0]);
                                 counter++;
                         }
                     }else{ /* there */
                         for(n=from[0];n<=to[0];n++){
-                                store[counter]=RMATRIX(data_num,there[n],disc[0]);
+                                store[counter]=RMATRIX(data,there[n],disc[0]);
                                 counter++;
                         }
                     }
@@ -995,7 +995,7 @@ extern "C"{
                     ended=to[0];
                     if(swapit[0]==0){ /* here -> there */
                         for(n=from[0];n<=to[0];n++){ /* find new parent node */
-                            if(RMATRIX(data_num,here[n],disc[0])==median){
+                            if(RMATRIX(data,here[n],disc[0])==median){
                                 gotnode=n;
                                 gotnode2=here[n];
                                 break;
@@ -1003,7 +1003,7 @@ extern "C"{
                         }
                         for(n=from[0];n<=to[0];n++){
                             if(n!=gotnode){
-                                if(RMATRIX(data_num,here[n],disc[0])<median){
+                                if(RMATRIX(data,here[n],disc[0])<median){
                                     there[started]=here[n];
                                     started++;
                                 }else{
@@ -1014,7 +1014,7 @@ extern "C"{
                         }
                     }else{ /* there -> here */
                         for(n=from[0]; n<=to[0]; n++){ /* find new parent node */
-                            if(RMATRIX(data_num,there[n],disc[0]) == median){
+                            if(RMATRIX(data,there[n],disc[0]) == median){
                                 gotnode=n;
                                 gotnode2=there[n];
                                 break;
@@ -1022,7 +1022,7 @@ extern "C"{
                         }
                         for(n=from[0];n<=to[0];n++){
                             if(n!=gotnode){
-                                if(RMATRIX(data_num,there[n], disc[0]) < median){
+                                if(RMATRIX(data,there[n], disc[0]) < median){
                                     here[started]=there[n];
                                     started++;
                                 }else{
@@ -1041,7 +1041,7 @@ extern "C"{
                         if(last_k<0){
                             last_k=(ncol-1);
                         }
-                        if(RMATRIX(data_num,parent[0],last_k) <= RMATRIX(data_num,gotnode2,last_k)){ /* HISON & = */
+                        if(RMATRIX(data,parent[0],last_k) <= RMATRIX(data,gotnode2,last_k)){ /* HISON & = */
                             results2[(1*nrow)+parent[0]]=(gotnode2+1);
                         }else{ /* LOSON */
                             results2[parent[0]]=(gotnode2+1);
@@ -1097,13 +1097,13 @@ extern "C"{
                             last_k=(ncol-1);
                         }
                         if(swapit[0]==0){
-                            if( RMATRIX(data_num,parent[0],last_k) <= RMATRIX(data_num,here[from[0]],last_k) ){
+                            if( RMATRIX(data,parent[0],last_k) <= RMATRIX(data,here[from[0]],last_k) ){
                                 results2[(1*nrow)+parent[0]]=(here[from[0]]+1);
                             }else{
                                 results2[parent[0]]=(here[from[0]]+1);
                             }
                         }else{
-                           if( RMATRIX(data_num,parent[0],last_k) <= RMATRIX(data_num,there[from[0]],last_k) ){
+                           if( RMATRIX(data,parent[0],last_k) <= RMATRIX(data,there[from[0]],last_k) ){
                                 results2[(1*nrow)+parent[0]]=(there[from[0]]+1);
                             }else{
                                 results2[parent[0]]=(there[from[0]]+1);
@@ -1144,12 +1144,12 @@ extern "C"{
         SEXP data
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
+            PROTECT(data = AS_NUMERIC(data));
             int n, m, ncol, nrow, splitit, last_k, idx, idx1, idx2;
 			double a, b;
 			
-            ncol = RCol(data_num);
-            nrow = RRow(data_num);
+            ncol = RCol(data);
+            nrow = RRow(data);
 
             std::vector<int> from (1);
             from[0] = 0;
@@ -1205,7 +1205,7 @@ extern "C"{
 					/* get split indice */
                     m = 0;
                     for(n = from[0]; n <= to[0]; n++){
-                        *(intermed2 + m) = RMATRIX(data_num, *(atordit+n), disc[0]);
+                        *(intermed2 + m) = RMATRIX(data, *(atordit+n), disc[0]);
                         m++;
                     }
 					if(m > nrow) error("intermed overflow");
@@ -1235,8 +1235,8 @@ extern "C"{
                     splitit = (from[0] + ((to[0] - from[0]) / 2));
                     /* extented split indice to lower bound = assign equal values to HISON */
                     while(splitit > from[0]){
-						a = RMATRIX(data_num, *(atordit + splitit), disc[0]);
-						b = RMATRIX(data_num, *(atordit + splitit - 1), disc[0]);
+						a = RMATRIX(data, *(atordit + splitit), disc[0]);
+						b = RMATRIX(data, *(atordit + splitit - 1), disc[0]);
                         if(fabs(a - b) < DBL_EPSILON){
                             splitit--;
                         }else{
@@ -1260,7 +1260,7 @@ extern "C"{
                         if(last_k < 0){
                             last_k = (ncol - 1);
                         }
-                        if( RMATRIX(data_num, *(atordit + parent[0]), last_k) <= RMATRIX(data_num, *(atordit + splitit), last_k) ){ /* HISON & = */
+                        if( RMATRIX(data, *(atordit + parent[0]), last_k) <= RMATRIX(data, *(atordit + splitit), last_k) ){ /* HISON & = */
                             //results2[(1 * nrow) + *(atordit + parent[0])] = (*(atordit + splitit) + 1);
 							results2[1 * nrow + atordit[parent[0]]] = idx + 1;
                         }else{ /* LOSON */
@@ -1311,7 +1311,7 @@ extern "C"{
                         if(last_k < 0){
                             last_k = (ncol - 1);
                         }
-                        if( RMATRIX(data_num, *(atordit + parent[0]), last_k) <= RMATRIX(data_num, *(atordit + from[0]), last_k) ){ /* HISON & = */
+                        if( RMATRIX(data, *(atordit + parent[0]), last_k) <= RMATRIX(data, *(atordit + from[0]), last_k) ){ /* HISON & = */
                             results2[(1*nrow) + *(atordit + parent[0])] = (*(atordit + from[0]) + 1);
                         }else{ /* LOSON */
                             results2[*(atordit + parent[0])] = (*(atordit + from[0]) + 1);
@@ -1377,16 +1377,16 @@ extern "C"{
         SEXP return_all
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
-            PROTECT(bounds_num = AS_NUMERIC(bounds));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
             double *bounds2;
-            bounds2 = NUMERIC_POINTER(bounds_num);
+            bounds2 = NUMERIC_POINTER(bounds);
 
 
             PROTECT(return_all = AS_INTEGER(return_all));
             int n, ret, disc, ncol, a, s;
-            ncol = (RCol(data_num) / 2);
+            ncol = (RCol(data) / 2);
             ret = INTEGER_VALUE(return_all);
 
             std::deque<int> doing;
@@ -1399,8 +1399,8 @@ extern "C"{
                 a = 1;
                 for(n = 0; n < ncol; n++){
                     if(
-                       (bounds2[(n * 2) + 0] > RMATRIX(data_num,doing.front(),((n * 2) + 1))) ||
-                       (bounds2[(n * 2) + 1] < RMATRIX(data_num,doing.front(),((n * 2) + 0)))
+                       (bounds2[(n * 2) + 0] > RMATRIX(data,doing.front(),((n * 2) + 1))) ||
+                       (bounds2[(n * 2) + 1] < RMATRIX(data,doing.front(),((n * 2) + 0)))
                     ){
                         a = 0;
                         break;
@@ -1419,43 +1419,43 @@ extern "C"{
                         return(results);
                     }
                 }
-                disc=int(RMATRIX(tree_num,doing.front(), 4) - 1);
+                disc=int(RMATRIX(tree,doing.front(), 4) - 1);
                 if(disc == -1){
                     doing.pop_front();
                     continue;
                 }
                 /* <UB ********************************************************************/
-                if(bounds2[(disc * 2) + 1] < RMATRIX(data_num, doing.front(), ((disc*2) + 0))){
-                    if(RMATRIX(tree_num,doing.front(), 0) != 0){
-                        doing.push_back(int(RMATRIX(tree_num,doing.front(), 0) - 1));
+                if(bounds2[(disc * 2) + 1] < RMATRIX(data, doing.front(), ((disc*2) + 0))){
+                    if(RMATRIX(tree,doing.front(), 0) != 0){
+                        doing.push_back(int(RMATRIX(tree,doing.front(), 0) - 1));
                     }
-                    if(RMATRIX(tree_num,doing.front(), 1) != 0){
-                        doing.push_back(int(RMATRIX(tree_num,doing.front(), 1) - 1));
+                    if(RMATRIX(tree,doing.front(), 1) != 0){
+                        doing.push_back(int(RMATRIX(tree,doing.front(), 1) - 1));
                     }
                     doing.pop_front();
                     s=doing.size();
                     continue;
                 }
                 /* >LB ********************************************************************/
-                if(bounds2[(disc*2)+0] > RMATRIX(data_num, doing.front(), ((disc * 2) + 1))){
-                     if(RMATRIX(tree_num, doing.front(), 1) != 0){
-                        doing.push_back(int(RMATRIX(tree_num, doing.front(), 1) - 1));
+                if(bounds2[(disc*2)+0] > RMATRIX(data, doing.front(), ((disc * 2) + 1))){
+                     if(RMATRIX(tree, doing.front(), 1) != 0){
+                        doing.push_back(int(RMATRIX(tree, doing.front(), 1) - 1));
                     }
-                    if(RMATRIX(tree_num, doing.front(), 2) != 0){
-                        doing.push_back(int(RMATRIX(tree_num, doing.front(), 2) - 1));
+                    if(RMATRIX(tree, doing.front(), 2) != 0){
+                        doing.push_back(int(RMATRIX(tree, doing.front(), 2) - 1));
                     }
                     doing.pop_front();
                     continue;
                 }
                 /* else ********************************************************************/
-                if(RMATRIX(tree_num,doing.front(), 0) != 0){
-                    doing.push_back(int(RMATRIX(tree_num, doing.front(), 0) - 1));
+                if(RMATRIX(tree,doing.front(), 0) != 0){
+                    doing.push_back(int(RMATRIX(tree, doing.front(), 0) - 1));
                 }
-                if(RMATRIX(tree_num,doing.front(), 1) != 0){
-                    doing.push_back(int(RMATRIX(tree_num, doing.front(), 1) - 1));
+                if(RMATRIX(tree,doing.front(), 1) != 0){
+                    doing.push_back(int(RMATRIX(tree, doing.front(), 1) - 1));
                 }
-                if(RMATRIX(tree_num,doing.front(), 2) != 0){
-                    doing.push_back(int(RMATRIX(tree_num, doing.front(), 2) - 1));
+                if(RMATRIX(tree,doing.front(), 2) != 0){
+                    doing.push_back(int(RMATRIX(tree, doing.front(), 2) - 1));
                 }
                 doing.pop_front();
             }
@@ -1494,15 +1494,15 @@ extern "C"{
         SEXP return_all
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
-            PROTECT(bounds_num = AS_NUMERIC(bounds));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
             double *bounds2;
-            bounds2 = NUMERIC_POINTER(bounds_num);
+            bounds2 = NUMERIC_POINTER(bounds);
 
             PROTECT(return_all = AS_INTEGER(return_all));
             int n, ret, disc, ncol, a, s, m;
-            ncol = (RCol(data_num) / 2);
+            ncol = (RCol(data) / 2);
             ret = INTEGER_VALUE(return_all);
 
             std::deque<int> doing;
@@ -1516,8 +1516,8 @@ extern "C"{
                 a = 1;
                 for(n = 0; n < ncol; n++){
                     if(
-                       (bounds2[(n*2) + 0] > RMATRIX(data_num, m, ((n * 2) + 1))) ||
-                       (bounds2[(n*2) + 1] < RMATRIX(data_num, m, ((n * 2) + 0)))
+                       (bounds2[(n*2) + 0] > RMATRIX(data, m, ((n * 2) + 1))) ||
+                       (bounds2[(n*2) + 1] < RMATRIX(data, m, ((n * 2) + 0)))
                     ){
                         a = 0;
                         break;
@@ -1536,22 +1536,22 @@ extern "C"{
                         return(results);
                     }
                 }
-                disc = int(RMATRIX(tree_num, m, 4) - 1);
+                disc = int(RMATRIX(tree, m, 4) - 1);
                 if(disc == -1){
                     doing.pop_front();
                     continue;
                 }
 
                 /* <UB ********************************************************************/
-                if(bounds2[(disc * 2) + 1] < RMATRIX(data_num, m, ((disc * 2) + 0))){
-                    if(RMATRIX(tree_num, m, 0) != 0){
-                        if(bounds2[(disc * 2) + 1] >= RMATRIX(tree_num, m, 5)){
-                            doing.push_back(int(RMATRIX(tree_num,m,0)-1));
+                if(bounds2[(disc * 2) + 1] < RMATRIX(data, m, ((disc * 2) + 0))){
+                    if(RMATRIX(tree, m, 0) != 0){
+                        if(bounds2[(disc * 2) + 1] >= RMATRIX(tree, m, 5)){
+                            doing.push_back(int(RMATRIX(tree,m,0)-1));
                         }
                     }
-                    if(RMATRIX(tree_num, m, 1) != 0){
-                        if(bounds2[(disc*2) + 1] >= RMATRIX(tree_num, m, 5)){
-                            doing.push_back(int(RMATRIX(tree_num, m, 1)-1));
+                    if(RMATRIX(tree, m, 1) != 0){
+                        if(bounds2[(disc*2) + 1] >= RMATRIX(tree, m, 5)){
+                            doing.push_back(int(RMATRIX(tree, m, 1)-1));
                         }
                     }
                     doing.pop_front();
@@ -1559,29 +1559,29 @@ extern "C"{
                     continue;
                 }
                 /* >LB ********************************************************************/
-                if(bounds2[(disc * 2) + 0] > RMATRIX(data_num, m, ((disc * 2) + 1))){
-                    if(RMATRIX(tree_num, m, 1)!=0){
-                        if(bounds2[(disc*2) + 0] <= RMATRIX(tree_num, m, 6)){
-                            doing.push_back(int(RMATRIX(tree_num, m, 1) - 1));
+                if(bounds2[(disc * 2) + 0] > RMATRIX(data, m, ((disc * 2) + 1))){
+                    if(RMATRIX(tree, m, 1)!=0){
+                        if(bounds2[(disc*2) + 0] <= RMATRIX(tree, m, 6)){
+                            doing.push_back(int(RMATRIX(tree, m, 1) - 1));
                         }
                     }
-                    if(RMATRIX(tree_num, m, 2) != 0){
-                        if(bounds2[(disc*2) + 0] <= RMATRIX(tree_num, m, 6)){
-                            doing.push_back(int(RMATRIX(tree_num, m, 2) - 1));
+                    if(RMATRIX(tree, m, 2) != 0){
+                        if(bounds2[(disc*2) + 0] <= RMATRIX(tree, m, 6)){
+                            doing.push_back(int(RMATRIX(tree, m, 2) - 1));
                         }
                     }
                     doing.pop_front();
                     continue;
                 }
                 /* else ********************************************************************/
-                if(RMATRIX(tree_num, m, 0) != 0){
-                    doing.push_back(int(RMATRIX(tree_num,m,0)-1));
+                if(RMATRIX(tree, m, 0) != 0){
+                    doing.push_back(int(RMATRIX(tree,m,0)-1));
                 }
-                if(RMATRIX(tree_num, m, 1) != 0){
-                    doing.push_back(int(RMATRIX(tree_num,m,1)-1));
+                if(RMATRIX(tree, m, 1) != 0){
+                    doing.push_back(int(RMATRIX(tree,m,1)-1));
                 }
-                if(RMATRIX(tree_num, m, 2) != 0){
-                    doing.push_back(int(RMATRIX(tree_num,m,2)-1));
+                if(RMATRIX(tree, m, 2) != 0){
+                    doing.push_back(int(RMATRIX(tree,m,2)-1));
                 }
                 doing.pop_front();
             }
@@ -1619,13 +1619,13 @@ extern "C"{
         SEXP bounds
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
-            PROTECT(bounds_num = AS_NUMERIC(bounds));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
             std::deque<int> found;
             int s,n;
 
-            search_tree_sub(data_num, tree_num, bounds_num, found);
+            search_tree_sub(data, tree, bounds, found);
 
             s=found.size();
             SEXP results;
@@ -1653,8 +1653,8 @@ extern "C"{
         SEXP scaled
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
             PROTECT(ID = AS_INTEGER(ID));
             int i;
             i = (INTEGER_VALUE(ID)-1);
@@ -1663,10 +1663,10 @@ extern "C"{
             scaled2 = NUMERIC_POINTER(scaled);
             int n,nearest,ncol,nrow,disc,LOSON,HISON,son,parent,here=0,sized;
             double dist_global,dist_local,distance;
-            dist_global=RMATRIX(tree_num,i,4);
-            nearest=(int(RMATRIX(tree_num,i,5))-1);
-            ncol=RCol(data_num);
-            nrow=RRow(data_num);
+            dist_global=RMATRIX(tree,i,4);
+            nearest=(int(RMATRIX(tree,i,5))-1);
+            ncol=RCol(data);
+            nrow=RRow(data);
 
             /* initialize */
             std::vector<int> SON;
@@ -1674,7 +1674,7 @@ extern "C"{
             std::vector<double> DISTANCE;
 
             for(n=0;n<nrow;n++){ /* find starting point */
-                if(RMATRIX(tree_num,n,2)==1){
+                if(RMATRIX(tree,n,2)==1){
                     break;
                 }
             }
@@ -1704,28 +1704,28 @@ extern "C"{
                     if(son!=i){
                         dist_local=0;
                         for(n=0;n<ncol;n++){
-                            dist_local=(dist_local+(pow(((RMATRIX(data_num,son,n)-RMATRIX(data_num,i,n))/scaled2[n]),2)));
+                            dist_local=(dist_local+(pow(((RMATRIX(data,son,n)-RMATRIX(data,i,n))/scaled2[n]),2)));
                         }
                         dist_local=sqrt(dist_local);
                         if(dist_local<dist_global){
                             dist_global=dist_local;
                             nearest=son;
                         }
-                        if(RMATRIX(tree_num,son,4)>dist_local){
-                            RMATRIX(tree_num,son,4)=dist_local;
+                        if(RMATRIX(tree,son,4)>dist_local){
+                            RMATRIX(tree,son,4)=dist_local;
                         };
                     }
-                    disc=int(RMATRIX(tree_num,son,3)-1);
-                    LOSON=int(RMATRIX(tree_num,son,0));
-                    HISON=int(RMATRIX(tree_num,son,1));
+                    disc=int(RMATRIX(tree,son,3)-1);
+                    LOSON=int(RMATRIX(tree,son,0));
+                    HISON=int(RMATRIX(tree,son,1));
                     if(LOSON!=0){
                         LOSON=(LOSON-1);
-                        if(RMATRIX(data_num,i,disc)>RMATRIX(data_num,son,disc)){
+                        if(RMATRIX(data,i,disc)>RMATRIX(data,son,disc)){
                             dist_local=distance;
                             if(parent!=-1){
-                                dist_local=(dist_local-pow(((RMATRIX(data_num,parent,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                             }
-                            dist_local=(dist_local+pow(((RMATRIX(data_num,son,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                             dist_local=sqrt(dist_local);
                             if(dist_local<=dist_global){
                                 SON.push_back(LOSON);
@@ -1740,12 +1740,12 @@ extern "C"{
                     }
                     if(HISON!=0){
                         HISON=(HISON-1);
-                        if(RMATRIX(data_num,i,disc)<RMATRIX(data_num,son,disc)){
+                        if(RMATRIX(data,i,disc)<RMATRIX(data,son,disc)){
                             dist_local=distance;
                             if(parent!=-1){
-                                dist_local=(dist_local-pow(((RMATRIX(data_num,parent,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                                dist_local=(dist_local-pow(((RMATRIX(data,parent,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                             }
-                            dist_local=(dist_local+pow(((RMATRIX(data_num,son,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                            dist_local=(dist_local+pow(((RMATRIX(data,son,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                             dist_local=sqrt(dist_local);
                             if(dist_local<=dist_global){
                                 SON.push_back(HISON);
@@ -1767,7 +1767,7 @@ extern "C"{
             results2 = REAL(results);
             results2[0] = double(nearest+1);
             for(n=1;n<=ncol;n++){
-                results2[n] = fabs(RMATRIX(data_num,nearest,n-1)-RMATRIX(data_num,i,n-1));
+                results2[n] = fabs(RMATRIX(data,nearest,n-1)-RMATRIX(data,i,n-1));
             }
             UNPROTECT(5);
             return(results);
@@ -1785,8 +1785,8 @@ extern "C"{
         SEXP scaled
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
             PROTECT(ID = AS_INTEGER(ID));
             PROTECT(scaled = AS_NUMERIC(scaled));
             int i;
@@ -1798,22 +1798,22 @@ extern "C"{
             nearest=-2;
             double dist_global,dist_local;
             dist_global=R_PosInf;
-            ncol=RCol(data_num);
-            nrow=RRow(data_num);
+            ncol=RCol(data);
+            nrow=RRow(data);
 
             /* initialize */
             std::vector<int> NODE;
             std::vector<double> DISTANCE;
 
             for(n=0;n<nrow;n++){ /* find starting point */
-                if(RMATRIX(tree_num,n,2)==1){
+                if(RMATRIX(tree,n,2)==1){
                     break;
                 }
             }
             NODE.push_back(n);
             dist_local=0;
             for(m=0;m<ncol;m++){
-                dist_local=(dist_local+(pow(((RMATRIX(data_num,n,m)-RMATRIX(data_num,i,m))/scaled2[m]),2)));
+                dist_local=(dist_local+(pow(((RMATRIX(data,n,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
             }
             dist_local=sqrt(dist_local);
             DISTANCE.push_back(dist_local);
@@ -1834,14 +1834,14 @@ extern "C"{
                         nearest = NODE[here];
                     }
                 }
-                disc = int(RMATRIX(tree_num, NODE[here],3)-1);
-                LOSON = int(RMATRIX(tree_num, NODE[here],0));
-                HISON = int(RMATRIX(tree_num, NODE[here],1));
+                disc = int(RMATRIX(tree, NODE[here],3)-1);
+                LOSON = int(RMATRIX(tree, NODE[here],0));
+                HISON = int(RMATRIX(tree, NODE[here],1));
                 if(LOSON != 0){
                     LOSON = (LOSON - 1);
                     add_it = true;
-                    if(RMATRIX(data_num, NODE[here], disc) < RMATRIX(data_num,i,disc)){
-                        dist_local=(pow(((RMATRIX(data_num,LOSON,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                    if(RMATRIX(data, NODE[here], disc) < RMATRIX(data,i,disc)){
+                        dist_local=(pow(((RMATRIX(data,LOSON,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                         dist_local=sqrt(dist_local);
                         if(dist_local>dist_global){
                             add_it=false;
@@ -1850,7 +1850,7 @@ extern "C"{
                     if(add_it){
                         dist_local=0;
                         for(m=0;m<ncol;m++){
-                            dist_local=(dist_local+(pow(((RMATRIX(data_num,LOSON,m)-RMATRIX(data_num,i,m))/scaled2[m]),2)));
+                            dist_local=(dist_local+(pow(((RMATRIX(data,LOSON,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
                         }
                         dist_local=sqrt(dist_local);
                         DISTANCE.push_back(dist_local);
@@ -1860,8 +1860,8 @@ extern "C"{
                 if(HISON!=0){
                     HISON=(HISON-1);
                     add_it=true;
-                    if(RMATRIX(data_num,NODE[here],disc)>RMATRIX(data_num,i,disc)){
-                        dist_local=(pow(((RMATRIX(data_num,HISON,disc)-RMATRIX(data_num,i,disc))/scaled2[disc]),2));
+                    if(RMATRIX(data,NODE[here],disc)>RMATRIX(data,i,disc)){
+                        dist_local=(pow(((RMATRIX(data,HISON,disc)-RMATRIX(data,i,disc))/scaled2[disc]),2));
                         dist_local=sqrt(dist_local);
                         if(dist_local>dist_global){
                             add_it=false;
@@ -1870,7 +1870,7 @@ extern "C"{
                     if(add_it){
                         dist_local=0;
                         for(m=0;m<ncol;m++){
-                            dist_local=(dist_local+(pow(((RMATRIX(data_num,HISON,m)-RMATRIX(data_num,i,m))/scaled2[m]),2)));
+                            dist_local=(dist_local+(pow(((RMATRIX(data,HISON,m)-RMATRIX(data,i,m))/scaled2[m]),2)));
                         }
                         dist_local=sqrt(dist_local);
                         DISTANCE.push_back(dist_local);
@@ -1888,7 +1888,7 @@ extern "C"{
             results2 = REAL(results);
             results2[0] = double(nearest+1);
             for(n=1;n<=ncol;n++){
-                results2[n] = fabs(RMATRIX(data_num,nearest,n-1)-RMATRIX(data_num,i,n-1));
+                results2[n] = fabs(RMATRIX(data,nearest,n-1)-RMATRIX(data,i,n-1));
             }
             UNPROTECT(5);
             return(results);
@@ -1909,10 +1909,10 @@ extern "C"{
         SEXP clean_new_found
     ){
 
-            PROTECT(data_num = AS_NUMERIC(data));
-            PROTECT(tree_num = AS_NUMERIC(tree));
-            PROTECT(bounds_num = AS_NUMERIC(bounds));
-            PROTECT(marked_num = AS_NUMERIC(marked));
+            PROTECT(data = AS_NUMERIC(data));
+            PROTECT(tree = AS_NUMERIC(tree));
+            PROTECT(bounds = AS_NUMERIC(bounds));
+            PROTECT(marked = AS_NUMERIC(marked));
             PROTECT(i = AS_NUMERIC(i));
             PROTECT(new_found = AS_NUMERIC(new_found));
             PROTECT(clean_new_found = AS_NUMERIC(clean_new_found));
@@ -1921,7 +1921,7 @@ extern "C"{
             double i_at,i_clean;
             i_at = NUMERIC_VALUE(i);
             i_clean = NUMERIC_VALUE(clean_new_found);
-            nrow = RRow(data_num);
+            nrow = RRow(data);
 
             /* clean new_found vector or find last empty entry */
             for(n=0;n<nrow;n++){
@@ -1936,7 +1936,7 @@ extern "C"{
                 }
             }
 
-            search_tree_sub2(data_num, tree_num, bounds_num, new_found, m, marked_num, i_at);
+            search_tree_sub2(data, tree, bounds, new_found, m, marked, i_at);
 
             UNPROTECT(7);
             return(R_NilValue);
@@ -1956,12 +1956,12 @@ extern "C"{
     ){
 
         PROTECT(i = AS_NUMERIC(i));
-        PROTECT(data_num = AS_NUMERIC(data));
+        PROTECT(data = AS_NUMERIC(data));
         PROTECT(tree = AS_NUMERIC(tree));
 
         int nrow,i_clean,i_new;
         i_clean=int(NUMERIC_VALUE(i)-1);
-        nrow=RRow(data_num);
+        nrow=RRow(data);
 
         if(i_clean>nrow){ // indexed outside bounds
             Rprintf("FAILED!");
@@ -1979,7 +1979,7 @@ extern "C"{
             // HISON replacement or ...
             if(RMATRIX(tree, i_clean, 1) != 0){
                 //Rprintf("HISON-");
-                i_new = findmin(data_num, tree, int(RMATRIX(tree,i_clean, 1) - 1), int(RMATRIX(tree, i_clean, 3) - 1));
+                i_new = findmin(data, tree, int(RMATRIX(tree,i_clean, 1) - 1), int(RMATRIX(tree, i_clean, 3) - 1));
                 out_node.push_back(i_clean);
                 in_node.push_back(i_new);
                 repla.push_back(1);
@@ -1989,7 +1989,7 @@ extern "C"{
             // ... LOSON replacement or ...
             if(RMATRIX(tree, i_clean, 0) != 0){
                 //Rprintf("LOSON-");
-                i_new = findmin(data_num, tree, int(RMATRIX(tree,i_clean,0) - 1), int(RMATRIX(tree, i_clean, 3) - 1));
+                i_new = findmin(data, tree, int(RMATRIX(tree,i_clean,0) - 1), int(RMATRIX(tree, i_clean, 3) - 1));
                 out_node.push_back(i_clean);
                 in_node.push_back(i_new);
                 repla.push_back(2);
